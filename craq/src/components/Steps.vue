@@ -35,8 +35,7 @@
     </div>
 </template>
 
-<script>
-export default {
+<script> export default {
     name: "Steps",
     props: [
 
@@ -56,13 +55,11 @@ Descr: Multi-step indicator
 
 -------------------------------- */
 
-:root {
-  --steps-number: 4;
-  --step-separator-line-stroke: 3px;
-  --step-separator-line-gap: 3px;
-  --step-circle-size: 32px;
-  --step-circle-font-size: 1em;
-}
+$--steps-number: 4;
+$--step-separator-line-stroke: 3px;
+$--step-separator-line-gap: 3px;
+$--step-circle-size: 32px;
+$--step-circle-font-size: 1em;
 
 .steps {
   background-color: var(--color-surface);
@@ -116,7 +113,7 @@ Descr: Multi-step indicator
 @include breakpoint(md) {
   .steps {
     background-color: transparent;
-    padding: calc(var(--step-circle-size)/2) 0 0;
+    padding: calc(#{$--step-circle-size}/2) 0 0;
     font-size: 0.85em;
   }
 
@@ -127,13 +124,13 @@ Descr: Multi-step indicator
     @supports (grid-area: auto) {
       display: grid;
       align-items: start;
-      grid-template-columns: repeat(var(--steps-number), 1fr);
+      grid-template-columns: repeat(#{$--steps-number}, 1fr);
     }
   }
 
   .step {
     float: left;//flex fallback
-    width: calc(100% / var(--steps-number));
+    width: calc(100% / #{$--steps-number});
     justify-content: center;
     text-align: center;
     position: relative;
@@ -147,16 +144,16 @@ Descr: Multi-step indicator
 
   .step__label {
     display: inline-block;//flex fallback
-    margin-top: calc(var(--space-xxs) + var(--step-circle-size)/2);
+    margin-top: calc(var(--space-xxs) + #{$--step-circle-size}/2);
   }
 
   .step__separator {
     // on bigger devices -> line connecting two adjacent steps
     position: absolute;
-    top: calc(var(--step-separator-line-stroke) * -1/2);
-    left: calc(50% + var(--step-circle-size)/2 + var(--step-separator-line-gap));
-    height: var(--step-separator-line-stroke);
-    width: calc(100% - var(--step-circle-size) - var(--step-separator-line-gap)*2);
+    top: calc(#{$--step-separator-line-stroke} * -1/2);
+    left: calc(50% + #{$--step-circle-size}/2 + #{$--step-separator-line-gap});
+    height: #{$--step-separator-line-stroke};
+    width: calc(100% - #{$--step-circle-size} - #{$--step-separator-line-gap}*2);
     margin: 0;
     background-color: var(--color-contrast-low);
     // hide text - if there's any
@@ -173,19 +170,19 @@ Descr: Multi-step indicator
   .step__circle {
     //flex fallback
     display: inline-block;
-    line-height: var(--step-circle-size);
+    line-height: $--step-circle-size;
 
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: var(--color-contrast-low);
-    width: var(--step-circle-size);
-    height: var(--step-circle-size);
+    width: $--step-circle-size;
+    height: $--step-circle-size;
     border-radius: 50%;
     position: absolute;
-    left: calc(50% - var(--step-circle-size)/2);
-    top: calc(var(--step-circle-size) * -1/2);
-    font-size: var(--step-circle-font-size);
+    left: calc(50% - #{$--step-circle-size}/2);
+    top: calc(#{$--step-circle-size} * -1/2);
+    font-size: $--step-circle-font-size;
 
     .icon {
       width: var(--step-circle-font-size);
