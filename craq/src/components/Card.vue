@@ -24,9 +24,13 @@
             <div>created_at | updated_at | answered_at</div>
         </div>
         <div class="user">
-            <div class="user__image">
+            <div class="user__top">
+                <div class="user__image">
+                <div class="user__name">User Info</div>
+                <div class="user__mail">User E-mail</div>
+                </div>
             </div>
-            User Info
+            
             <hr>
         </div>
         
