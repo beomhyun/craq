@@ -62,7 +62,7 @@ body { //TODO
   & *,
   & *:before,
   & *:after {
-    transition: none;
+    transition: none !important;
     transition: ease-out 2000ms !important;
     transition-delay: 0 !important;
   }

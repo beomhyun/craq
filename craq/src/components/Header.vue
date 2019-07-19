@@ -2,7 +2,7 @@
   <main>
     <div class="header">
       <div class="header__sign-up">
-        <SignUp/>
+        <SignForm/>
       </div>
     </div>
   <HeaderFeature/>
@@ -10,12 +10,12 @@
 </template>
 
 <script>
-import SignUp from '@/components/SignUp.vue'
+import SignForm from '@/components/SignForm.vue'
 import HeaderFeature from '@/components/HeaderFeature.vue'
 export default {
   name: "Header",
   components: {
-    SignUp,
+    SignForm,
     HeaderFeature
   }
 }
