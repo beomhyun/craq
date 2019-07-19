@@ -51,8 +51,11 @@ export default {
     background-color: var(--color-surface);
     width: 100%;
     height: 100%;
-    padding: var(--space-xl) var(--space-lg);
+    padding: var(--space-xxxs) var(--space-xs);
     border-radius: var(--radius-sm);
     color: var(--color-on-surface);
+}
+.login-form {
+    height:100%;
 }
 </style>
