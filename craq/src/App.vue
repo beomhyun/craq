@@ -1,29 +1,71 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+  <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
+    <nav-bar></nav-bar>
+    <component :is="layout" v-if="isLogin"></component>
+    <Landing v-if="!isLogin"/>
+
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
+<script>
+import NavBar from '@/components/NavBar.vue';
+// layouts
+// if no layout is defined in `router.js` automatically use 'Default'
+import Default from '@/layouts/Default.vue';
+//end layouts
+import Landing from '@/views/Landing.vue';
+
+export default {
+  components: {
+    NavBar,
+    Default,
+    Landing
+  },
+  data() {
+    return {
+      themeTransition: false,
     }
+  },
+  methods: {
+  },
+  computed: {
+    layout() {
+      return this.$route.meta.layout || "Default";
+    },
+    theme() {
+      this.themeTransition = true;
+      setTimeout(()=> {
+        this.themeTransition = false;
+      }, 2050);
+      return this.$store.state.theme;
+    },
+    isLogin() {
+      return this.$store.state.isLogin;
+    }
+  },
+}
+
+
+</script>
+
+
+<style lang="scss">
+#app { //width
+  max-width: 1200px; // desktop size
+  margin: auto; // align center
+}
+body { //TODO
+  background-color: var(--color-black);
+}
+// dark mode smooth transition
+#app.transition {
+  & *,
+  & *:before,
+  & *:after {
+    transition: none;
+    transition: ease-out 2000ms !important;
+    transition-delay: 0 !important;
   }
 }
+// end dark mode smooth transition
 </style>
