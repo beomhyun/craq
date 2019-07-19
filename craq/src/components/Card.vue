@@ -13,10 +13,22 @@
             </div>
         </div>
         <div class="main">
-            <div>asd</div>
-            <div>xzczxc</div>
+            <div class="main__title">Title Lorem ipsum</div>
+            <div class="main__hashtag">
+                <div class="btn">hash tag</div>
+                <div class="btn">hash tag</div>
+                <div class="btn">hash tag</div>
+                <div class="btn">hash tag</div>
+                <div class="btn">hash tag</div>
+            </div>
+            <div>created_at | updated_at | answered_at</div>
         </div>
-        <div class="user">asd</div>
+        <div class="user">
+            <div class="user__image">
+            </div>
+            User Info
+            <hr>
+        </div>
         
     </div>
 </template>
@@ -44,24 +56,27 @@ $--card-main-height: 120px;
         width: 140px;
         padding: var(--space-md);
         padding-right: 10px;
+        color: var(--color-on-primary);
+        
 
             &__column {
                 display: flex;
                 justify-content: space-between;
                 flex-direction: column;
-                margin: 1px;
                 }
         }
 
     .main {
         flex: 1;
-        padding: 20px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
         justify-content: space-between;
+        align-items: flex-start;
         background-color: var(--color-surface);
 
         &__title {
-            font-size: calc(#{$--card-main-height} )
-            
+            font-size: calc(#{$--card-main-height} * 0.2);   
         }
         
     }
@@ -71,10 +86,19 @@ $--card-main-height: 120px;
             justify-content: space-between;
             background-color: var(--color-secondary);
             width: 200px;
-            padding: 20px;
+            padding: 15px;
+
+                &__image {
+                    border-radius: 50%;
+                    background-color: var(--color-surface);
+                    width: 50px;
+                    height: 50px;
+                }
         }
-    
-   
+    .btn {
+        background-color: var(--color-tertiary);
+        margin: var(--space-xxxs);
+    }
 </style>
 
 
