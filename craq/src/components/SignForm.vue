@@ -1,46 +1,144 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper width-100%">
+        <Modal :show="showModal" :body="'adjfsjflasdjkfl sdjfklasdf lasdjf klasdf jklas dfjklasd fklasdf jakl'" :btntext="'closesese'" @clicked="closeModal"/>
         <form class="login-form">
             <div class="text-component text-center margin-bottom-md">
-                <h1>SignIn</h1>
-                <p>Hello, SSAFY WORLD!</p>
-            </div>
-
-            <div class="margin-bottom-sm">
-                <label class="form-label margin-bottom-xxxs" for="inputEmail1">Email</label>
-                <input class="form-control width-100%" type="email" name="inputEmail1" id="inputEmail1" placeholder="email@myemail.com">
-            </div>
-
-            <div class="margin-bottom-sm">
-                <div class="flex justify-between margin-bottom-xxxs">
-                    <label class="form-label" for="inputPassword1">Password</label>
-                    <span class="text-sm"><a href="#0">Forgot?</a></span>
+                <h1>Sign Form</h1>
+                <div v-if="progress">
+                    <Steps :progress="progress"/>
+                </div>
+                <div v-else>
+                    <p>Hello, SSAFY WORLD!</p>
                 </div>
 
-                <input class="form-control width-100%" type="password" name="inputPassword1" id="inputPassword1">
+            </div>
+            <div v-if="progress == 2"class="pulse">
+                <h2>Verification in progress</h2>
+                <h3>Please wait.... </h3>
+            </div>
+            <div v-if="progress == 3">
+                <h2>congrats... placeholder</h2>
+                <h2>Username </h2>
             </div>
 
-            <div class="margin-bottom-sm">
-                <button class="btn btn--primary btn--md width-100%">Login</button>
+
+
+            <div v-if="progress == 1" class="margin-bottom-sm">
+                <label class="form-label margin-bottom-xxxs" for="inputUsername">Username</label>
+                <input class="form-control width-100%" type="text" v-model="inputUsername" name="inputUsername" id="inputUsername" placeholder="Username">
+            </div>
+            <div v-if="progress == 0 || progress == 1" class="margin-bottom-sm">
+                <label class="form-label margin-bottom-xxxs" for="inputEmail1">Email</label>
+                <input class="form-control width-100%" type="email" v-model="inputEmail" name="inputEmail" id="inputEmail" placeholder="SSAFY Email">
             </div>
 
-            <div class="text-center">
-                <p class="text-sm">Don't have an account? <a href="#0">Get started</a></p>
+            <div v-if="progress == 0 || progress == 1" class="margin-bottom-sm">
+                <div class="flex justify-between margin-bottom-xxxs">
+                    <label class="form-label" for="inputPassword1">Password</label>
+                    <span v-if="progress == 0" class="text-sm"><a href="#0">Forgot?</a></span>
+                </div>
+
+                <input class="form-control width-100%" type="password" v-model="inputPassword1" name="inputPassword1" id="inputPassword1">
             </div>
-            <Steps/>
+
+            <div v-if="progress == 1" class="margin-bottom-sm">
+                <div class="flex justify-between margin-bottom-xxxs">
+                    <label class="form-label" for="inputPassword2">Password Verification</label>
+                </div>
+
+                <input class="form-control width-100%" type="password" v-model="inputPassword2" name="inputPassword2" id="inputPassword2">
+            </div>
+
+            <div v-if="progress != 2" class="margin-bottom-sm">
+                <div class="btn btn--primary btn--md width-100%" @click.prevent="primeButton">
+                    {{progress == 0 ? 'Login' : '' }}
+                    {{progress == 1 ? 'Verify' : '' }}
+                    {{progress == 2 ? 'next2' : '' }}
+                    {{progress == 3 ? 'confirm' : ''}}
+                    {{progress == 4 ? 'check' : ''}}
+                </div>
+            </div>
         </form>
+        <div v-if="progress==0" class="text-center">
+            <p class="text-sm" style="cursor: pointer;" @click="getStarted">Don't have an account? Get started</p>
+        </div>
     </div>
 
 </template>
 
 <script>
-import Steps from '@/components/Steps.vue';
+import Steps from '@/components/SignForm/Steps.vue';
+import Modal from '@/components/Modal.vue';
 export default {
     name: "SignForm",
     components: {
-        Steps
+        Steps, Modal
+    },
+    data() {
+        return {
+            "progress": 0,
+            "inputUsername": "",
+            "inputEmail": "",    
+            "inputPassword1": "",
+            "inputPassword2": "",
+            showModal: true,
+
+            errors: [],
+        }
+    },
+    methods: {
+        closeModal() {
+            console.log('clicked');
+            this.showModal = false;
+        },
+        signUp() {
+
+        },
+        login() {
+
+        },
+        verify() {
+            this.progress = 2 
+            // verify
+            if (true) {
+                this.progress = 3;
+            } else {
+                //error message
+                this.progress = 1;
+            }
+        },
+        confirm() {
+            this.inputUsername = "";
+            this.Email= "";
+            this.inputPassword1= "";
+            this.inputPssword2= "";
+            this.progress = 0;
+        },
+        getStarted() {
+            this.progress = 1;
+        },
+        primeButton() {
+            if (this.progress == 0) {
+                this.login()
+            }
+            else if (this.progress == 1) {
+                this.verify();
+
+            } else if (this.progress == 2) {
+
+            } else if (this.progress == 3) {
+                this.confirm();
+
+            } else if (this.progress == 4) {
+
+            } else {
+                //error //TODO
+            }
+            return 'hi';
+        }
+
     }
-     
+
 }
 
 </script>
@@ -55,4 +153,49 @@ export default {
     border-radius: var(--radius-sm);
     color: var(--color-on-surface);
 }
+@-webkit-keyframes pulse {
+    from {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+
+    50% {
+        -webkit-transform: scale3d(1.05, 1.05, 1.05);
+        transform: scale3d(1.05, 1.05, 1.05);
+    }
+
+    to {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+}
+
+@keyframes pulse {
+    from {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+
+    50% {
+        -webkit-transform: scale3d(1.05, 1.05, 1.05);
+        transform: scale3d(1.05, 1.05, 1.05);
+    }
+
+    to {
+        -webkit-transform: scale3d(1, 1, 1);
+        transform: scale3d(1, 1, 1);
+    }
+}
+
+.pulse {
+    -webkit-animation-name: pulse;
+    animation-name: pulse;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}
+
+.noShow {
+    display: none;
+}
+
 </style>
