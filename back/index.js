@@ -3,8 +3,8 @@ const endpoints = require('./model/user');
 const swaggerDoc = require('./swaggerDoc');
 const bodyParser = require('body-parser');
 const app = express(express);
-app.use(bodyParser.json());
 
+app.use(bodyParser.json());
 endpoints(app);
 swaggerDoc(app);
 
