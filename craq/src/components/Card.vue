@@ -1,5 +1,6 @@
 <template>
     <div class="card">
+
         <div class="info">
             <div class="info__column">
                 <p>answer</p>
@@ -12,26 +13,42 @@
                 <p>100</p>
             </div>
         </div>
+
         <div class="main">
             <div class="main__title">Title Lorem ipsum</div>
             <div class="main__hashtag">
-                <div class="btn">hash tag</div>
-                <div class="btn">hash tag</div>
-                <div class="btn">hash tag</div>
-                <div class="btn">hash tag</div>
-                <div class="btn">hash tag</div>
+                <div class="btn btn--sm">hash tag</div>
+                <div class="btn btn--sm">hash tag</div>
+                <div class="btn btn--sm">hash tag</div>
+                <div class="btn btn--sm">hash tag</div>
+                <div class="btn btn--sm">hash tag</div>
+                <div class="btn btn--sm">hash tag</div>
+                <div class="btn btn--sm">hash tag</div>
             </div>
             <div>created_at | updated_at | answered_at</div>
         </div>
+        
         <div class="user">
             <div class="user__top">
                 <div class="user__image">
-                <div class="user__name">User Info</div>
-                <div class="user__mail">User E-mail</div>
+                    User Img
+                </div>
+                <div  class="user__name">
+                    <p>User name</p>
+                    <p>User E-mail</p>
                 </div>
             </div>
-            
-            <hr>
+
+            <div class="user__bottom">
+                <div>
+                    <p>Point</p>
+                    <p>Answer</p>
+                </div>
+                <div>
+                    <p>10000</p>
+                    <p>100</p>
+                </div>
+            </div>
         </div>
         
     </div>
@@ -54,14 +71,12 @@ $--card-main-height: 120px;
     }
 
     .info {
-        background-color: var(--color-primary);
+        background-color: var(--color-surface);
         display: flex;
         justify-content: space-between;
         width: 140px;
         padding: var(--space-md);
-        padding-right: 10px;
-        color: var(--color-on-primary);
-        
+        padding-right: 10px;    
 
             &__column {
                 display: flex;
@@ -86,22 +101,35 @@ $--card-main-height: 120px;
     }
 
     .user {
-            display: flex;
-            justify-content: space-between;
-            background-color: var(--color-secondary);
+            background-color: var(--color-surface);
             width: 200px;
             padding: 15px;
+                &__top {
+                    display: flex;
+                }
+
+                &__bottom {
+                    display: flex;
+                    justify-content: space-between;
+                }
 
                 &__image {
                     border-radius: 50%;
-                    background-color: var(--color-surface);
+                    background-color: var(--color-primary);
                     width: 50px;
                     height: 50px;
+                }
+
+                &__name {
+                    background-color: var(--color-surface);
+                    width: auto;
+                    margin: auto;
                 }
         }
     .btn {
         background-color: var(--color-tertiary);
         margin: var(--space-xxxs);
+        color: var(--color-on-tertiary);
     }
 </style>
 
