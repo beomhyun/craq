@@ -1,6 +1,7 @@
 var mysql_dbc = require('../db/db_con.js')();
 var connection = mysql_dbc.init();
-
+const jwt = require("jsonwebtoken");
+const secretObj = require("../config/jwt");
 
 const initializeEndpoints = (app)=>{
   /**
@@ -31,7 +32,7 @@ const initializeEndpoints = (app)=>{
 
 /**
  * @swagger
- *  /users/{id}/{user_token}:
+ *  /users/{pk}/{user_token}:
  *    get:
  *      tags:
  *      - users
@@ -40,7 +41,7 @@ const initializeEndpoints = (app)=>{
  *       200:
  *      parameters:
  *       - in: path
- *         name: id
+ *         name: pk
  *         type: integer
  *         description: |
  *          사용자 아이디 전달
@@ -50,24 +51,25 @@ const initializeEndpoints = (app)=>{
  *         description: |
  *          사용자 토큰 전달
  */
-  app.get('/users/:id/:user_token', function(req,res){
-    if(req.params.user_token != "abcd"){
-      res.send("잘못된 접근입니다.")
-    }else{
-      var sql = " SELECT * from user where id = ? ";
-      var params = [req.params.id];
-      connection.query(sql,params, function(err, rows, fields) {
-        if (!err){
-          // console.log('The solution is: ', rows);
-          res.json(rows);
-        }
-        else{
-          console.log('Error while performing Query.', err);
-          res.send(err);
-        }
-      });
-    }
+  app.get('/users/:pk/:user_token', function(req,res){
+    jwt.verify(req.params.user_token,  secretObj.secret, function(err, decoded) {
+      if(err) res.status(401).send({error:'invalid token'});
+      else{
+        var sql = " SELECT * from user where pk = ? ";
+        var params = [req.params.pk];
+        connection.query(sql,params, function(err, rows, fields) {
+          if (!err){
+            // console.log('The solution is: ', rows);
+            res.json(rows);
+          }
+          else{
+            console.log('Error while performing Query.', err);
+            res.send(err);
+          }
+        });
 
+      }
+    });
   });
 
   /**
@@ -76,7 +78,7 @@ const initializeEndpoints = (app)=>{
    *    post:
    *      tags:
    *      - users
-   *      description: 모든 게시글을 가져온다.
+   *      description: 글 작성
    *      responses:
    *       200:
    *      parameters:
@@ -106,6 +108,60 @@ const initializeEndpoints = (app)=>{
       connection.query(sql,params, function(err, rows, fields) {
               if (!err){
                 res.json(rows);
+              }
+              else{
+                console.log('Error while performing Query.', err);
+                res.send(err);
+              }
+            });
+    }
+  );
+  /**
+   * @swagger
+   *  /login:
+   *    post:
+   *      tags:
+   *      - users
+   *      description: 로그인
+   *      responses:
+   *       200:
+   *      parameters:
+   *       - in: body
+   *         name: user
+   *         description: user_info
+   *         schema:
+   *           type: object
+   *           properties:
+   *             email:
+   *               type: string
+   *             password:
+   *               type: string
+   */
+  app.post('/login', function(req,res){
+      console.log(req.body);
+      var sql = " select count(*) as c from user where email = ? and password = ? ";
+      var params = [req.body.email,req.body.password];
+      connection.query(sql,params, function(err, rows, fields) {
+              if (!err){
+                console.log(JSON.stringify(rows[0].c));
+                if(rows[0].c == 1){
+
+                  let token = jwt.sign({
+                    email : req.body.email
+                  },
+                  secretObj.secret ,
+                  {
+                    expiresIn: '5m'
+                  })
+
+                  console.log("ok");
+                  res.cookie("email",token);
+                  res.send({token: token});
+                }else{
+                  console.log("no");
+                  res.send("no");
+                }
+                // res.json(rows);
               }
               else{
                 console.log('Error while performing Query.', err);
