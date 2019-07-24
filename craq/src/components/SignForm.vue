@@ -166,6 +166,23 @@ export default {
             return axios.post(apiUrl, data, {headers:headers});
         },
         login() {
+            const apiUrl = baseUrl + '/login';
+            const headers = {
+                "Content-Type": "application/json"
+            };
+            const data = {
+                "email": this.inputEmail,
+                "password": this.inputPassword1
+            }
+            axios.post(apiUrl, data, {headers: headers}).then(res=> {
+                if (res.data.status == "fail") {
+                    return alert('check email or password');
+                } 
+                this.$session.start();
+                this.$session.set('jwt', res.data.data);
+                this.$router.go('/');
+
+            }).catch(err => console.log(err));
 
         },
         verify() {

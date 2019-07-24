@@ -3,6 +3,7 @@
     <nav-bar></nav-bar>
     <component :is="layout" v-if="isLogin"></component>
     <Landing v-if="!isLogin"/>
+    <div>{{isLogin}}</div>
 
   </div>
 </template>
@@ -40,7 +41,7 @@ export default {
       return this.$store.state.theme;
     },
     isLogin() {
-      return this.$store.state.isLogin;
+      return !!(this.$session.has('jwt'));
     }
   },
 }
