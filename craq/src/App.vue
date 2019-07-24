@@ -3,8 +3,7 @@
     <nav-bar></nav-bar>
     <component :is="layout" v-if="isLogin"></component>
     <Landing v-if="!isLogin"/>
-    <div>{{isLogin}}</div>
-
+    <Footer/>
   </div>
 </template>
 
@@ -15,12 +14,14 @@ import NavBar from '@/components/NavBar.vue';
 import Default from '@/layouts/Default.vue';
 //end layouts
 import Landing from '@/views/Landing.vue';
+import Footer from '@/components/Footer.vue';
 
 export default {
   components: {
     NavBar,
     Default,
-    Landing
+    Landing,
+      Footer
   },
   data() {
     return {

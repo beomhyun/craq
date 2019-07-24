@@ -6,6 +6,7 @@ import Notice from '@/components/Notice.vue';
 import Tags from '@/components/Tags.vue';
 import Tree from '@/components/Tree.vue';
 import Profile from '@/components/Profile.vue';
+import Main from '@/components/Main.vue'
 //end test
 Vue.use(Router)
 
@@ -18,8 +19,8 @@ export default new Router({
       meta: {
         layout: "Default"
       },
-      name: 'code',
-      component: Code,
+      name: 'Home',
+      component: Main,
 
     },
     {
@@ -50,5 +51,12 @@ export default new Router({
       name: 'profile',
       component: Profile
     },
+    {
+      path: '/code',
+      meta: {
+
+      },
+      component: Code
+    }
   ]
 })
