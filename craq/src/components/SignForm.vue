@@ -45,7 +45,7 @@
             <div v-if="progress == 0 || progress == 1" class="margin-bottom-sm">
                 <div class="flex justify-between margin-bottom-xxxs">
                     <label class="form-label" for="inputPassword1">Password</label>
-                    <span v-if="progress == 0" class="text-sm"><a href="#0">Forgot?</a></span>
+                    <span  v-if="progress == 0" class="text-sm"><a tabIndex="-1" href="#0" @click.prevent="WIP">Forgot?</a></span>
                 </div>
 
                 <input class="form-control width-100%" type="password" v-model="inputPassword1" name="inputPassword1" id="inputPassword1">
@@ -63,12 +63,18 @@
             </div>
 
             <div v-if="progress != 2" class="margin-bottom-sm">
-                <div class="btn btn--primary btn--md width-100%" @click.prevent="primeButton">
+                <button class="btn btn--primary btn--md width-100%" @click.prevent="primeButton">
                     {{progress == 0 ? 'Login' : '' }}
                     {{progress == 1 ? 'Verify' : '' }}
                     {{progress == 2 ? 'next2' : '' }}
                     {{progress == 3 ? 'confirm' : ''}}
                     {{progress == 4 ? 'check' : ''}}
+                </button>
+            </div>
+
+            <div v-if="progress == 1" class="margin-bottom-sm">
+                <div class="btn btn--accent btn--md width-100%" @click.prevent="goHome">
+                    Cancel
                 </div>
             </div>
         </form>
@@ -144,6 +150,16 @@ export default {
         }
     },
     methods: {
+        WIP() {
+            alert('WIP');
+        },
+        goHome() {
+            this.progress = 0;
+            this.inputEmail = '';
+            this.inputUsername ='';
+            this.inputPassword1 = '';
+            this.inputPassword2 = '';
+        },
         validEmail: function (email) {
             var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             return re.test(email);
