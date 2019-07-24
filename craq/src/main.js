@@ -16,6 +16,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 library.add(faUserSecret, faAddressCard, faSearch, faBell, faGlobe, farBell, faCheck, faExclamation);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 //end font awesome
+//font awesome tester i tag  to svg
+import {dom} from '@fortawesome/fontawesome-svg-core';
+dom.watch()
+//font awesome tester
 
 
 Vue.config.productionTip = false

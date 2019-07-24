@@ -37,7 +37,7 @@
               <label for="header-search" class="form-label" @click="searchToggle"><font-awesome-icon icon="search"/></label></li>
             <li class="main-header__nav-item">
               <div style="position: relative;">
-                <font-awesome-icon icon="bell"></font-awesome-icon>
+                <NavBarDropDown></NavBarDropDown>
                 <span class="counter counter--primary counter--docked" v-if="notifications">
                   {{notifications}}
                 </span>
@@ -51,8 +51,12 @@
 </template>
 
 <script>
+import NavBarDropDown from '@/components/NavBarDropDown';
 export default {
   name: "NavBar",
+    components: {
+        NavBarDropDown
+    },
   data() {
     return {
       notifications: "99+",
