@@ -53,6 +53,7 @@ export default new Router({
     },
     {
       path: '/code',
+      name: 'code',
       meta: {
 
       },

@@ -22,7 +22,7 @@
 
 
             </li>
-            <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/" :class="{'main-header__nav-selected': currentRouteName == 'code'}">Code</router-link></li>
+            <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/code" :class="{'main-header__nav-selected': currentRouteName == 'code'}">Code</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>

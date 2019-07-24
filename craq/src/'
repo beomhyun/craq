@@ -43,7 +43,7 @@ export default {
       return this.$store.state.theme;
     },
     isLogin() {
-      return (this.$session.exists());
+      return !!(this.$session.has('jwt'));
     }
   },
 }
