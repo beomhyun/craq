@@ -90,6 +90,7 @@ import Steps from '@/components/SignForm/Steps.vue';
 import Modal from '@/components/Modal.vue';
 import Spinner from '@/components/Spinner.vue';
 const axios = require('axios');
+const SHA512 = require('crypto-js/sha512');
 
 const baseUrl = 'http://192.168.31.58:10123'
 
@@ -177,7 +178,7 @@ export default {
             let data = {
                 email: this.inputEmail,
                 username: this.inputUsername,
-                password: this.password,
+                password: SHA512(this.inputPassword1).toString()
             }
             return axios.post(apiUrl, data, {headers:headers});
         },
@@ -188,7 +189,7 @@ export default {
             };
             const data = {
                 "email": this.inputEmail,
-                "password": this.inputPassword1
+                "password": SHA512(this.inputPassword1).toString()
             }
             axios.post(apiUrl, data, {headers: headers}).then(res=> {
                 if (res.data.status == "fail") {
