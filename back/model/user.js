@@ -362,6 +362,87 @@ app.post('/follows', function(req,res){
 
   }
 );
+/**
+ * @swagger
+ *  /follows:
+ *    delete:
+ *      tags:
+ *      - users
+ *      description: 회원 팔로우 정보 삭제
+ *      responses:
+ *       200:
+ *      parameters:
+ *       - in: body
+ *         name: follow
+ *         description: follow
+ *         schema:
+ *           type: object
+ *           properties:
+ *             fromUser:
+ *               type: integer
+ *             toUser:
+ *               type: integer
+ *             user_token:
+ *               type: string
+ */
+app.delete('/follows', function(req,res){
+  jwt.verify(req.body.user_token,  secretObj.secret, function(err, decoded) {
+    if(err) res.status(401).send({error:'invalid token'});
+    else{
+      var sql = "delete from follow where fromUser = ? and toUser = ? ";
+      var params = [req.body.fromUser,req.body.toUser];
+      connection.query(sql,params, function(err, rows, fields) {
+        if (!err){
+          res.send({status: "success"});
+        }else{
+          res.send({status: "fail"});
+        }
+      });
+    }
+  });
+}
+);
+
+/**
+ * @swagger
+ *  /follows:
+ *    get:
+ *      tags:
+ *      - users
+ *      description: 해당 회원 팔로우 인원 정보를 가져온다.
+ *      responses:
+ *       200:
+ *      parameters:
+ *       - in: body
+ *         name: follow
+ *         description: follow
+ *         schema:
+ *           type: object
+ *           properties:
+ *             fromUser:
+ *               type: integer
+ *             toUser:
+ *               type: integer
+ *             user_token:
+ *               type: string
+ */
+app.get('/follows', function(req,res){
+  jwt.verify(req.body.user_token,  secretObj.secret, function(err, decoded) {
+    if(err) res.status(401).send({error:'invalid token'});
+    else{
+      var sql = "delete from follow where fromUser = ? and toUser = ? ";
+      var params = [req.body.fromUser,req.body.toUser];
+      connection.query(sql,params, function(err, rows, fields) {
+        if (!err){
+          res.send({status: "success"});
+        }else{
+          res.send({status: "fail"});
+        }
+      });
+    }
+  });
+}
+);
 
 };
 
