@@ -12,9 +12,9 @@
                 </div>
 
             </div>
-            <div v-if="progress == 2"class="pulse">
+            <div v-if="progress == 2" class="text-center">
                 <h2>Verification in progress</h2>
-                <h3>Please wait.... </h3>
+                <Spinner/>
             </div>
             <div v-if="progress == 3">
                 <h2>congrats... placeholder</h2>
@@ -69,10 +69,12 @@
 <script>
 import Steps from '@/components/SignForm/Steps.vue';
 import Modal from '@/components/Modal.vue';
+import Spinner from '@/components/Spinner.vue';
+
 export default {
     name: "SignForm",
     components: {
-        Steps, Modal
+        Steps, Modal, Spinner
     },
     data() {
         return {
@@ -99,6 +101,7 @@ export default {
         },
         verify() {
             this.progress = 2 
+            setTimeout(()=> {
             // verify
             if (true) {
                 this.progress = 3;
@@ -106,6 +109,8 @@ export default {
                 //error message
                 this.progress = 1;
             }
+
+            }, 3000);
         },
         confirm() {
             this.inputUsername = "";
