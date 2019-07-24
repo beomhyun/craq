@@ -3,20 +3,6 @@
       <div class="filler">
         
         <div class="container">
-
-          <!-- DropDown -->
-          <div class="test">
-            <div class="dropdown">
-              <div>test</div>
-              
-              <div class="dropdown-option" v-for="option in options">
-                {{option.value}}
-              </div>
-            </div>
-
-
-          </div> 
-
           <!-- Headline -->
           <div class="headline">
             {{currentRouteName}}
@@ -72,7 +58,8 @@ export default {
           {
             value : "option3"
           },
-        ]
+        ],
+        latested: true
       }
     },
     props: [
@@ -89,38 +76,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.test {
-  background-color: var(--color-surface);
-  padding: 20px;
-  width: 890px;
-  font-size: 30px;
-  text-transform: capitalize;
-}
-
-.dropdown {
-  position: relative;
-  background-color: var(--color-primary);
-  width: 120px;
-  height: auto;
-  font-size: 20px;
-}
-.dropdown:hover {
-  background-color: var(--color-secondary);
-  cursor: pointer;
-}
-
-.dropdown:hover .dropdown-option {
-  display: block;
-}
-
-.dropdown .dropdown-option {
-  display: none;
-  position: absolute;
-  width:120px;
-  background-color: var(--color-tertiary);
-}
-
-
 // Test End
 .filler {
   height: 1000px;
