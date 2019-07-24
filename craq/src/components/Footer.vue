@@ -3,15 +3,21 @@
         <div class="container max-width-lg">
 
             <div class="main-footer__colophon">
+
                 <div class="main-footer__colophon-nav">
                     <span>&copy; myWebsite</span>
-                    <a href="#0">Terms</a>
-                    <a href="#0">Privacy</a>
-                    <vueDropdown
-             :config="config"
-            @setSelectedOption="setNewSelectedOption($event);">
-            </vueDropdown>
+                    <a href="#0">&nbsp; Contact Us</a>
                 </div>
+
+                <!-- DropDown Test -->
+                <div @click="toggle" class="dropdowns" :class="{'open' : config.open == true}">
+                  {{this.config.placeholder}}
+                  <ul class="dropdowns-menu" v-for="option in config.menus">
+                    <a :href="option.urls" target="_blank"><li @mouseover="config.placeholder = option.title">{{option.title}}</li></a>
+                  </ul>
+                </div>
+
+              </div>
 
             </div>
             
@@ -21,42 +27,45 @@
 
 
 <script>
-import vueDropdown from "./vue-dropdown";
 export default {
     name: "Footer",
-    components: {
-        vueDropdown,
-    },
-    data: function() {
+    data() {
     return {
       config: {
-        options: [
+        menus: [
           {
-            value: "Edu.SSAFY"
+            title : '에듀싸피',
+            urls:'https://edu.ssafy.com/'
           },
           {
-            value: "Jira.SSAFY"
+            title : '지라',
+            urls:'https://jira.ssafy.com/'
           },
           {
-            value: "Lab.SSAFY"
+            title : '깃랩',
+            urls:'https://lab.ssafy.com/'
           },
           {
-            value: "Project.SSAFY"
-          }
+            title : '프로젝트',
+            urls:'https://project.ssafy.com/'
+          },
         ],
-        placeholder: "Placeholder",
-        backgroundColor: "#cde4f5",
-        textColor: "black",
-        borderRadius: "1.5em",
-        border: "1px solid gray",
-        width: 180
+        open: false,
+        placeholder: "SiteMap",
       }
-    };
+    }
   },
   methods: {
     setNewSelectedOption(selectedOption) {
       this.config.placeholder = selectedOption.value;
-    }
+    },
+    toggle() {
+      console.log(this.open)
+      this.config.open = !this.config.open
+    },
+  },
+  computed: {
+
   }
 }
 
@@ -64,6 +73,32 @@ export default {
 
 
 <style lang="scss" scoped>
+// dropdown test
+.dropdowns {
+  position: relative;
+  width: 100px;
+  height: 30px;
+  background-color: var(--color-primary);
+}
+
+.open .dropdowns-menu {
+  display: block;
+}
+.dropdowns-menu {
+  position: relative;
+  text-align: center;
+  width: 100px;
+  top:-105px;
+  display: none;
+  background-color: var(--color-secondary);
+}
+
+.dropdowns-menu li:hover {
+  background-color: var(--color-surface);
+}
+
+
+
 // colophon
 .main-footer__colophon {
     border-top: 1px solid var(--color-contrast-low);
