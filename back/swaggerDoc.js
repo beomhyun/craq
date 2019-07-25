@@ -10,7 +10,7 @@ const options = {
     },
     basePath: '/',
   },
-  apis: ['./model/user.js'],
+  apis: ['./model/user.js','./model/topic.js'],
 };
 
 const specs = swaggerJsdoc(options);

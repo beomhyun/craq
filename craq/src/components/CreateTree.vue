@@ -35,7 +35,7 @@ export default {
       // })
       this.addtree = false;
       this.$emit('childs-event', this.addtree)
-      this.$router.push({name:'tree'})
+      // this.$router.push({name:'tree'})
     }
   }
 }

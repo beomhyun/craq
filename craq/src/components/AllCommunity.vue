@@ -1,10 +1,12 @@
 <template>
-  <h5>All Community</h5>
-
+  <div>
+    <h5>All Community</h5>
+  </div>
 
 </template>
 
 <script>
+import axios from 'axios'
 
 export default {
   name : 'AllCommunity',

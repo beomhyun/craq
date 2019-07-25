@@ -22,11 +22,11 @@
 
 
             </li>
-            <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/" :class="{'main-header__nav-selected': currentRouteName == 'code'}">Code</router-link></li>
+            <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/code" :class="{'main-header__nav-selected': currentRouteName == 'code'}">Code</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
-            <li class="main-header__nav-item" v-if="!onSearch"><a class="main-header__nav-link" href="#" @click.prevent="$store.commit('toggleIsLogin')">in/out</a></li>
+            <li class="main-header__nav-item" v-if="!onSearch"><a class="main-header__nav-link" href="#" @click.prevent="signOut()">signin/out</a></li>
             <li class="main-header__nav-item main-header__nav-divider" v-if="!onSearch"></li>
             <li class="main-header__nav-item" v-show="onSearch">
               <form action="" class="expandable-search">
@@ -70,11 +70,15 @@ export default {
   methods: {
     searchToggle() {
       this.onSearch = !this.onSearch;
-    }
+    },
+      signOut() {
+          this.$session.destroy();
+          this.$router.go({path: '/'});
+      }
   },
   computed: {
     currentRouteName() {
-      console.log(this.$route.name);
+      console.log(`NavBar.vue : current route name: ${this.$route.name})`);
       return this.$route.name;
     }
   }

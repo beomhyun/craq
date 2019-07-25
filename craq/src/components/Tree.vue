@@ -35,7 +35,7 @@ export default {
   },
   methods : {
     addTree : function() {
-      this.$router.push({name:'createtree'});
+      // this.$router.push({name:'createtree'});
       this.addtree = true;
     },
     parentsMethod: function(addtree) {

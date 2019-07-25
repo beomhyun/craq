@@ -6,12 +6,11 @@ import Notice from '@/components/Notice.vue';
 import Tags from '@/components/Tags.vue';
 import Tree from '@/components/Tree.vue';
 import Profile from '@/components/Profile.vue';
+import Main from '@/components/Main.vue'
 
 //Community
-import Community from '@/components/Community.vue';
-import CreateTree from '@/components/CreateTree.vue';
 import FreeBoard from '@/components/FreeBoard.vue';
-
+import FreeDetail from '@/components/FreeDetail.vue'
 //end test
 Vue.use(Router)
 
@@ -24,53 +23,52 @@ export default new Router({
       meta: {
         layout: "Default"
       },
-      name: 'code',
-      component: Code,
+      name: 'Home',
+      component: Main,
 
     },
     {
       path: '/notice',
-      meta: {
-      },
+      meta: {},
       name: 'notice',
       component: Notice
     },
     {
       path: '/tags',
-      meta: {
-      },
+      meta: {},
       name: 'tags',
       component: Tags
     },
     {
       path: '/tree',
-      meta: {
-      },
+      meta: {},
       name: 'tree',
       component: Tree,
-
-      children: [
-        {
-          path: 'createtree',
-          meta: {},
-          name: 'createtree',
-          component: CreateTree
-        },
-      ]
-
     },
     {
       path: '/profile',
-      meta: {
-      },
+      meta: {},
       name: 'profile',
       component: Profile
+    },
+    {
+      path: '/code',
+      name: 'code',
+      meta: {},
+      component: Code
     },
     {
       path: '/freeboard/:topic',
       meta: {},
       name: 'freeboard',
-      component: FreeBoard
+      component: FreeBoard,
+      children : [
+        {
+          path: 'freedetail/:id',
+          name: 'freedetail',
+          component: FreeDetail
+        }
+      ]
     },
   ]
 })

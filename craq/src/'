@@ -1,11 +1,10 @@
 <template>
   <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
     <nav-bar></nav-bar>
-    <component :is="layout"></component>
+    <component :is="layout" v-if="isLogin"></component>
     <Landing v-if="!isLogin"/>
     <div>{{isLogin}}</div>
     <Footer/>
-
   </div>
 </template>
 
@@ -21,10 +20,9 @@ import Footer from '@/components/Footer.vue';
 export default {
   components: {
     NavBar,
-    Footer,
     Default,
     Landing,
-    // Community
+      Footer
   },
   data() {
     return {
@@ -45,7 +43,7 @@ export default {
       return this.$store.state.theme;
     },
     isLogin() {
-      return (this.$session.exists());
+      return !!(this.$session.has('jwt'));
     }
   },
 }
