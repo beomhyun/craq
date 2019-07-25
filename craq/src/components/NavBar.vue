@@ -37,9 +37,9 @@
               <label for="header-search" class="form-label" @click="searchToggle"><font-awesome-icon icon="search"/></label></li>
             <li class="main-header__nav-item">
               <div style="position: relative;">
-                <NavBarDropDown></NavBarDropDown>
-                <span class="counter counter--primary counter--docked" v-if="notifications">
-                  {{notifications}}
+                <NavBarDropDown :noties="noties" @onClose="notyClose" @onGo="notyGo"></NavBarDropDown>
+                <span class="counter counter--primary counter--docked" v-if="notiesLength">
+                  {{notiesLength}}
                 </span>
               </div>
             </li>
@@ -59,9 +59,45 @@ export default {
     },
   data() {
     return {
-      notifications: "99+",
       onSearch: false,
       searchInput: '',
+            noties: [
+                {
+                    id: 1,
+                    type: "Noty",
+                    title:"TITLE111",
+                    body: "bodies here",
+                    author: "user11",
+                    to: {name: 'home'},
+                    active: true
+                },
+                {
+                    id: 2,
+                    type: "Code",
+                    title:"titlenoty",
+                    body: "bodies here",
+                    author: "user22",
+                    to: {name: 'code'},
+                    active: true
+                },
+                {
+                    id: 3,
+                    type: "user",
+                    title:"TITLE",
+                    body: "bodies here",
+                    author: "user33",
+                    to: {name: 'freeboard'},
+                    active: true
+                },
+                {
+                    id: 4,
+                    title:"defaultType",
+                    body: "bodies here",
+                    author: "user44",
+                    to: {name: 'createtree'},
+                    active: false
+                },
+            ]
     }
   },
   methods: {
@@ -71,13 +107,32 @@ export default {
       signOut() {
           this.$session.destroy();
           this.$router.go({path: '/'});
+      },
+      notyClose(id) {
+          this.noties = this.noties.filter(noty=>noty.id != id);
+      },
+      notyGo(id) {
+          let to = "/"
+          for (let i = 0; i < this.noties.length; i++) {
+              if (this.noties[i].id == id) {
+                  this.noties[i].active = false;
+                  to = this.noties[i].to
+                  break;
+              }
+          }
+          this.$router.push(to);
+          console.log('NavBar: notygo')
+          this.noties.sort((a, b) => b.active-a.active);
       }
   },
   computed: {
     currentRouteName() {
       console.log(`NavBar.vue : current route name: ${this.$route.name})`);
       return this.$route.name;
-    }
+    },
+      notiesLength() {
+          return this.noties.filter(noty=>noty.active).length;
+      }
   }
 }
 
@@ -149,7 +204,7 @@ $--main-header-height: 70px;
 
 //badge
 .counter {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   background-color: var(--color-contrast-low);
   padding: var(space-xxxs) var(space-xs);
   border-radius: 50em;

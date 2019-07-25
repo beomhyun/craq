@@ -5,8 +5,17 @@
         <menu id="menu-example" class="menu js-menu" :class="{'menu--is-visible': show}">
             <li class="menu__item js-menu__item" role="menuitem">
                 <svg class="icon menu__icon" aria-hidden="true" viewBox="0 0 12 12"><path d="M10.121.293a1,1,0,0,0-1.414,0L1,8,0,12l4-1,7.707-7.707a1,1,0,0,0,0-1.414Z"></path></svg>
-                <span>Edit</span>
+                <span>Edit Profile</span>
             </li>
+            <li class="menu__separator" role="separator"></li>
+
+            <li class="menu__label-wrapper"><span class="menu__label">Noty</span></li>
+            <template v-for="noty in noties" v-key="noty.id">
+                <li class="menu__item js-menu__item" role="menuitem">
+                    <Noty :noty="noty" @onClose="onClose(noty.id)" @onGo="onGo(noty.id)"></Noty>
+                </li>
+            </template>
+
 
             <li class="menu__item js-menu__item" role="menuitem">
                 <svg class="icon menu__icon" aria-hidden="true" viewBox="0 0 16 16"><path d="M15,4H1C0.4,4,0,4.4,0,5v10c0,0.6,0.4,1,1,1h14c0.6,0,1-0.4,1-1V5C16,4.4,15.6,4,15,4z M14,14H2V6h12V14z"></path><rect x="2" width="12" height="2"></rect></svg>
@@ -21,6 +30,9 @@
             <li class="menu__separator" role="separator"></li>
 
             <li class="menu__label-wrapper"><span class="menu__label">Link examples</span></li>
+            <li class="menu__item js-menu__item" role="menuitem">
+            </li>
+
             <li class="js-menu__item" role="presentation"><a href="#0" class="menu__item" role="menuitem">Link One</a></li>
             <li class="js-menu__item" role="presentation"><a href="#0" class="menu__item" role="menuitem">Link Two</a></li>
         </menu>
@@ -28,11 +40,27 @@
 </template>
 
 <script>
+import Noty from '@/components/Noty.vue';
+
 export default {
     name: "NavBarDropDown",
+    components: {
+        Noty
+    },
+    props: [
+        "noties"
+    ],
+    methods: {
+        onClose(id) {
+            this.$emit('onClose', id);
+        },
+        onGo(id) {
+            this.$emit('onGo', id);
+        }
+    },
     data() {
         return {
-            "show": false
+            "show": false,
         }
     }
 }
@@ -48,6 +76,7 @@ Descr: Application menu that provides access to a set of functionalities
 -------------------------------- */
 
 $--menu-item-padding: var(--space-xxs) var(--space-sm);
+$--menu-width: 22rem;
 
 .menu-wrapper {
     display: inline-block;
@@ -56,7 +85,7 @@ $--menu-item-padding: var(--space-xxs) var(--space-sm);
 
 .menu {
     list-style: none;
-    width: 220px;
+    width: $--menu-width;
     position: absolute;
     right: 0;
     top: calc(100% + 4px);
@@ -94,7 +123,6 @@ $--menu-item-padding: var(--space-xxs) var(--space-sm);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
     &:hover {
         background-color: var(--color-contrast-lower);
     }
