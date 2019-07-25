@@ -26,7 +26,6 @@
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
-            <li class="main-header__nav-item" v-if="!onSearch"><a class="main-header__nav-link" href="#" @click.prevent="signOut()">signin/out</a></li>
             <li class="main-header__nav-item main-header__nav-divider" v-if="!onSearch"></li>
             <li class="main-header__nav-item" v-show="onSearch">
               <form action="" class="expandable-search">
@@ -37,7 +36,7 @@
               <label for="header-search" class="form-label" @click="searchToggle"><font-awesome-icon icon="search"/></label></li>
             <li class="main-header__nav-item">
               <div style="position: relative;">
-                <NavBarDropDown :noties="noties" @onClose="notyClose" @onGo="notyGo"></NavBarDropDown>
+                <NavBarDropDown :noties="noties" @onClose="notyClose" @onGo="notyGo" @signOut="signOut"></NavBarDropDown>
                 <span class="counter counter--primary counter--docked" v-if="notiesLength">
                   {{notiesLength}}
                 </span>
