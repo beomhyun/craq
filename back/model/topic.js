@@ -41,7 +41,7 @@ const TRUE = 1;
 const initializeEndpoints = (app) => {
   /**
    * @swagger
-   *  /topics/{user_token}:
+   *  /topics:
    *    post:
    *      tags:
    *      - topic
@@ -53,28 +53,16 @@ const initializeEndpoints = (app) => {
    *        in: body
    *        schema:
    *          $ref: '#/definitions/topicInfo'
-   *      - in: path
-   *        name: user_token
-   *        type: string
-   *        description:  사용자 토큰 전달
    */
-  app.post('/topics/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
-      else {
-        var sql = "INSERT INTO topic(topic,createdUser,updatedUser) VALUES(?,?,?)";
-        var i = req.body;
-        var params = [i.topic, i.user_id, i.user_id];
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('Error while performing Query.', err);
-            res.send(err);
-          }
-        });
+  app.post('/topics', function(req, res) {
+    var sql = "INSERT INTO topic(topic,createdUser,updatedUser) VALUES(?,?,?)";
+    var params = [req.body.topic, req.body.user_id, req.body.user_id];
+    connection.query(sql, params, function(err, rows, fields) {
+      if (!err) {
+        res.json(rows);
+      } else {
+        console.log('Error while performing Query.', err);
+        res.send(err);
       }
     });
   });
@@ -120,19 +108,16 @@ const initializeEndpoints = (app) => {
    *      tags:
    *      - topic
    *      parameters:
-   *      - in: body
-   *        name: user
-   *        description: 사용자 토큰을 body에 전달
-   *        schema:
-   *          type: object
-   *          required:
-   *            - user_token
-   *          properties:
-   *            user_token:
-   *              type: string
+   *       - in: path
+   *         name: user_token
+   *         type: string
+   *         description: |
+   *          사용자 토큰 전달
+   *      description: 사용자의 토큰을 받아 활성화된 게시판을 보여줌.
+   *      responses:
+   *        200:
    */
   app.get('/topics/actived/:user_token', function(req, res) {
-    console.log(req.body);
     jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'

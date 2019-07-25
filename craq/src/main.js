@@ -2,6 +2,16 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+// font-awesome
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUserSecret, faAddressCard, faSearch, faBell, faGlobe } from '@fortawesome/free-solid-svg-icons'
+import { faBell as farBell } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faUserSecret, faAddressCard, faSearch, faBell, faGlobe, farBell);
+Vue.component('font-awesome-icon', FontAwesomeIcon);
+//end font awesome
+
 
 Vue.config.productionTip = false
 

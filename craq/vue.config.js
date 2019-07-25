@@ -2,9 +2,12 @@ const path = require("path");
 
 module.exports = {
   pluginOptions: {
-    "style-resources-loader" : {
+    "style-resources-loader": {
       preProcessor: "scss",
-      patterns: [path.resolve(__dirname, "./src/style/global.scss")]
+      patterns: [path.resolve(__dirname, "./src/styles/style.scss")]
     }
+  },
+  chainWebpack: (config) => {
+    config.plugins.delete('preload')
   }
 };

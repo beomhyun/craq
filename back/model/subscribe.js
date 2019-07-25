@@ -243,6 +243,6 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-  
+
 };
 module.exports = initializeEndpoints;

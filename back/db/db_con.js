@@ -18,17 +18,21 @@ var log = function(){
     write_log: write_log
   }
 }()
-
+var  Connection;
 module.exports = function () {
   return {
     init: function () {
-      return mysql.createConnection({
-        host: config.host,
-        port: config.port,
-        user: config.user,
-        password: config.password,
-        database: config.database
-      })
+      if(Connection) return Connection;
+      else{
+        Connection = mysql.createConnection({
+          host: config.host,
+          port: config.port,
+          user: config.user,
+          password: config.password,
+          database: config.database
+        })
+        return Connection;
+      }
     },
   }
 };
