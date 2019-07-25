@@ -1,12 +1,15 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 //test
-import Code from '@/components/Code.vue';
 import Notice from '@/components/Notice.vue';
 import Tags from '@/components/Tags.vue';
 import Tree from '@/components/Tree.vue';
 import Profile from '@/components/Profile.vue';
 import Main from '@/components/Main.vue'
+
+// Code
+import Code from '@/components/Code.vue';
+import AskQuestion from '@/components/AskQuestion.vue';
 
 //Community
 import Community from '@/components/Community.vue';
@@ -73,7 +76,16 @@ export default new Router({
       meta: {
 
       },
-      component: Code
+      component: Code,
+
+      children: [
+        {
+          path: 'askquestion',
+          meta: {},
+          name: 'askquestion',
+          component: AskQuestion
+        },
+      ]
     },
     {
       path: '/freeboard/:topic',

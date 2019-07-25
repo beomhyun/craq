@@ -90,8 +90,8 @@ export default {
   position: relative;
   width: 100px;
   height: 30px;
-  background-color: var(--color-primary);
-  z-index: 1;
+  background-color: var(--color-background-lighter);
+
 }
 
 .open .dropdowns-menu {
