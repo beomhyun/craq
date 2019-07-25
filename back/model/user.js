@@ -360,7 +360,18 @@ app.get('/users/email/:email', function(req,res){
               if (!err){
                 console.log(JSON.stringify(rows[0].checking));
                 if(rows[0].checking == 1){
-
+                  var loginsql = " UPDATE user SET last_login = now() WHERE pk = ?";
+                  var loginparams = [rows[0].pk];
+                  connection.query(loginsql,loginparams, function(err, rows, fields) {
+                          if (!err){
+                            console.log("last-login success");
+                          }
+                          else{
+                            console.log('Error while performing Query.', err);
+                            res.send(err);
+                          }
+                        });
+              
                   let token = jwt.sign({
                     email : req.body.email
                   },
@@ -704,7 +715,7 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
  *          사용자 pk 전달
  */
 app.get('/users/profile-image/:pk', function(req,res){
-      var sql = " select profile_image from profile where user = ? ";
+      var sql = " select count(*) as cheking, profile_image from profile where user = ? ";
       var params = [req.params.pk];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
