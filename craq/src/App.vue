@@ -10,6 +10,7 @@
 
 <script>
 import NavBar from '@/components/NavBar.vue';
+import Footer from '@/components/Footer.vue';
 // layouts
 // if no layout is defined in `router.js` automatically use 'Default'
 import Default from '@/layouts/Default.vue';
@@ -20,6 +21,7 @@ import Footer from '@/components/Footer.vue';
 export default {
   components: {
     NavBar,
+    Footer,
     Default,
     Landing,
       Footer
