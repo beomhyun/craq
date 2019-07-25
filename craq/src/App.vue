@@ -1,9 +1,10 @@
 <template>
   <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
     <nav-bar></nav-bar>
-    <component :is="layout" v-if="isLogin"></component>
+    <component :is="layout"></component>
     <Landing v-if="!isLogin"/>
-
+    <div>{{isLogin}}</div>
+    <Footer/>
   </div>
 </template>
 
@@ -14,12 +15,14 @@ import NavBar from '@/components/NavBar.vue';
 import Default from '@/layouts/Default.vue';
 //end layouts
 import Landing from '@/views/Landing.vue';
+import Footer from '@/components/Footer.vue';
 
 export default {
   components: {
     NavBar,
+    Footer,
     Default,
-    Landing
+    Landing,
   },
   data() {
     return {
@@ -40,7 +43,7 @@ export default {
       return this.$store.state.theme;
     },
     isLogin() {
-      return this.$store.state.isLogin;
+      return (this.$session.exists());
     }
   },
 }
@@ -62,7 +65,7 @@ body { //TODO
   & *,
   & *:before,
   & *:after {
-    transition: none;
+    transition: none !important;
     transition: ease-out 2000ms !important;
     transition-delay: 0 !important;
   }

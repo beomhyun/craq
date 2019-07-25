@@ -5,7 +5,7 @@ module.exports = (function () {
       post: 3306,
       user: 'root',
       password: 'root',
-      database: 'webmobile'
+      database: 'craq'
     },
     real: { // real server db info
       host: '',

@@ -2,7 +2,7 @@
   <main>
     <div class="header">
       <div class="header__sign-up">
-        <SignUp/>
+        <SignForm/>
       </div>
     </div>
   <HeaderFeature/>
@@ -10,12 +10,12 @@
 </template>
 
 <script>
-import SignUp from '@/components/SignUp.vue'
+import SignForm from '@/components/SignForm.vue'
 import HeaderFeature from '@/components/HeaderFeature.vue'
 export default {
   name: "Header",
   components: {
-    SignUp,
+    SignForm,
     HeaderFeature
   }
 }
@@ -25,7 +25,7 @@ export default {
 
 <style lang="scss" scoped>
 .header {
-  height: 50vh;
+  height: 80vh;
   background-image: linear-gradient(to right bottom,
   alpha(var(--color-contrast-lower), 0.15),
   alpha(var(--color-contrast-higher), 0.15)),
@@ -35,9 +35,9 @@ export default {
   position: relative;
   &__sign-up {
     position: absolute;
-    top:50%;
-    right:1em;
-    transform: translateY(-50%);
+    top:10%;
+    right:2em;
+    width: 35%;
   }
 }
 
