@@ -2,12 +2,12 @@
     <div class="card">
 
         <div class="info">
-            <div class="info__column">
-                <p>answer</p>
-                <p>view</p>
-                <p>helpful</p>
+            <div class="info__column-left">
+                <p>Answer</p>
+                <p>View</p>
+                <p>Helpful</p>
             </div>
-            <div class="info__column">
+            <div class="info__column-right">
                 <p>100</p>
                 <p>100</p>
                 <p>100</p>
@@ -15,34 +15,29 @@
         </div>
 
         <div class="main">
-            <div class="main__title">Title Lorem ipsum</div>
+            <div class="main__title"><h4> Title Lorem ipsum </h4></div>
             <div class="main__hashtag">
-                <div class="btn btn--sm">hash tag</div>
-                <div class="btn btn--sm">hash tag</div>
-                <div class="btn btn--sm">hash tag</div>
-                <div class="btn btn--sm">hash tag</div>
-                <div class="btn btn--sm">hash tag</div>
-                <div class="btn btn--sm">hash tag</div>
-                <div class="btn btn--sm">hash tag</div>
+                <div class="btn btn--sm">HashTag</div>
+  
             </div>
-            <div>created_at | updated_at | answered_at</div>
+            <div>Created_at| Updated_at | Answered_at</div>
         </div>
         
         <div class="user">
             <div class="user__top">
                 <div class="user__image">
-                    User Img
+                    Face
                 </div>
                 <div  class="user__name">
-                    <p>User name</p>
-                    <p>User E-mail</p>
+                    <h4>User Name</h4>
+                    <p>User Mail</p>
                 </div>
             </div>
 
             <div class="user__bottom">
-                <div>
-                    <p>Point</p>
-                    <p>Answer</p>
+                <div class="user__bottom-left">
+                    <p>Score</p>
+                    <p>Answers</p>
                 </div>
                 <div>
                     <p>10000</p>
@@ -62,37 +57,51 @@ export default {
 <style  lang="scss" scoped>
 $--card-main-height: 120px;
     .card {
+        border-radius: calc(var(--radius, 0.25em));
         display: flex;
         justify-content: space-between;
-        background-color: red;
+        background-color:var(--color-surface);
+        color:var(--color-on-surface);
         margin-top: var(--space-xxxs);
-        width: 890px;
+        width: 100%;
         height: 120px;
     }
 
+    .card:hover {
+        background-color: var(--color-surface-dark);
+    }
+
     .info {
-        background-color: var(--color-surface);
         display: flex;
         justify-content: space-between;
         width: 140px;
         padding: var(--space-md);
-        padding-right: var(--space-xxs);;    
+        padding-right: var(--space-xxs); 
 
-            &__column {
+            &__column-right {
                 display: flex;
                 justify-content: space-between;
                 flex-direction: column;
+                color: var(--color-on-surface-lighter);
+                }
+
+            &__column-left {
+                display: flex;
+                justify-content: space-between;
+                flex-direction: column;
+                color: var(--color-on-surface-lighter);
+                font-weight: bold;
                 }
         }
 
     .main {
         flex: 1;
         padding: var(--space-xxs);;
+        border-left: 1px solid var(--color-primary);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: flex-start;
-        background-color: var(--color-surface);
 
         &__title {
             font-size: calc(#{$--card-main-height} * 0.2);   
@@ -101,16 +110,18 @@ $--card-main-height: 120px;
     }
 
     .user {
-            background-color: var(--color-surface);
             width: 200px;
             padding: var(--space-xs);
+            border-left: 1px solid var(--color-primary);
                 &__top {
                     display: flex;
+                    font-weight: bold;
                 }
 
                 &__bottom {
                     display: flex;
                     justify-content: space-between;
+                    margin-top: var(--space-xs);
                 }
 
                 &__image {
@@ -121,7 +132,6 @@ $--card-main-height: 120px;
                 }
 
                 &__name {
-                    background-color: var(--color-surface);
                     width: auto;
                     margin: auto;
                 }
