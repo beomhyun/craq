@@ -6,7 +6,9 @@
 
                 <div class="main-footer__colophon-nav">
                     <span>&copy; myWebsite</span>
-                    <a href="#0">&nbsp; Contact Us</a>
+                    <button @click="showModal=true">&nbsp; Contact Us</button>
+                    
+                    <mailModal v-bind:show="showModal" @close="closeModal"></mailModal>
                 </div>
 
                 <!-- DropDown Test -->
@@ -27,10 +29,16 @@
 
 
 <script>
+import mailModal from '@/components/ContactUs.vue';
+
 export default {
     name: "Footer",
+    components: {
+      mailModal,
+    },
     data() {
     return {
+      showModal: false,
       config: {
         menus: [
           {
@@ -63,6 +71,10 @@ export default {
       console.log(this.open)
       this.config.open = !this.config.open
     },
+    closeModal() {
+            console.log('clicked');
+            this.showModal = false;
+        },
   },
   computed: {
 
@@ -79,6 +91,7 @@ export default {
   width: 100px;
   height: 30px;
   background-color: var(--color-primary);
+  z-index: 1;
 }
 
 .open .dropdowns-menu {
