@@ -1,7 +1,7 @@
 <template>
   <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
     <nav-bar></nav-bar>
-    <component :is="layout" v-if="isLogin"></component>
+    <component :is="layout"></component>
     <Landing v-if="!isLogin"/>
     <div>{{isLogin}}</div>
     <Footer/>
@@ -23,7 +23,6 @@ export default {
     Footer,
     Default,
     Landing,
-      Footer
   },
   data() {
     return {
