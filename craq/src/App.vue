@@ -1,9 +1,7 @@
 <template>
   <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
     <nav-bar></nav-bar>
-    <component :is="layout" v-if="isLogin"></component>
-    <Landing v-if="!isLogin"/>
-
+    <component :is="layout"></component>
   </div>
 </template>
 
@@ -19,7 +17,8 @@ export default {
   components: {
     NavBar,
     Default,
-    Landing
+    Landing,
+    // Community
   },
   data() {
     return {

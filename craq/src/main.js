@@ -6,7 +6,8 @@ import store from './store'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faUserSecret, faAddressCard, faSearch, faBell, faGlobe } from '@fortawesome/free-solid-svg-icons'
 import { faBell as farBell } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import axios from 'axios';
 
 library.add(faUserSecret, faAddressCard, faSearch, faBell, faGlobe, farBell);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
@@ -14,6 +15,7 @@ Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 
 Vue.config.productionTip = false
+Vue.prototype.$http = axios
 
 new Vue({
   router,

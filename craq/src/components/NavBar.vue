@@ -51,8 +51,15 @@
 </template>
 
 <script>
+// import autocomplete from '@/components/AutoComplete.vue'
+// import BetterInputTag from 'better-vue-input-tag'
+import BetterInputTag from '@/components/BetterInputTag.vue'
+
 export default {
   name: "NavBar",
+  components : {
+    BetterInputTag
+  },
   data() {
     return {
       notifications: "99+",
@@ -128,7 +135,7 @@ $--main-header-height: 70px;
     }
 
     &-selected {
-      color: var(--color-primary); 
+      color: var(--color-primary);
     }
 
     &-divider {
@@ -209,7 +216,7 @@ $--switch-height: 1.5rem;
 $--switch-padding: 3px;
 // animation
 $--switch-animation-duration: 0.2s;
-/* -------------------------------- 
+/* --------------------------------
 
 File#: _1_switch
 Title: Switch
