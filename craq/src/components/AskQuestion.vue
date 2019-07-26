@@ -21,7 +21,18 @@
         <form class="askForm" @submit.prevent="createQuestion"> 
             
             <h3>Content</h3>
-            <textarea  name="" class="askForm__content" id="content" v-modle="inputContent"></textarea>
+            <div class="askForm__content">    
+                <div id="md" >
+                    <textarea style="height:auto" rows="16" v-model='md_text' class="askForm__content-md"></textarea>
+                </div>
+
+                <div id="preview">
+                    <div v-html='previewText' class="askForm__content-pre"></div>
+                </div>
+            </div>
+    
+
+            <!-- <textarea  name="" class="askForm__content" id="content" v-model="inputContent"></textarea> -->
             
             <h3>Hashtag</h3>
             <input-tag v-model="inputHashtag" class="askForm__hashtag" ></input-tag>
@@ -67,7 +78,8 @@
 
 <script>
 import Card from '@/components/Card.vue';
-import InputTag from '@/components/InputTags.vue'
+import InputTag from '@/components/InputTags.vue';
+let marked = require('marked');
 
 import { realpathSync } from 'fs';
 export default {
@@ -81,6 +93,7 @@ export default {
     },
     data() {
         return{
+            md_text: '# Title',
             inputTitle : '',
             inputHashtag: '',
             inputContent: '',
@@ -130,6 +143,19 @@ export default {
             console.log(this.$route.name);
             return this.$route.name;
         },
+        previewText() {
+            marked.setOptions({
+            renderer: new marked.Renderer(),
+            gfm: true,
+            tables: true,
+            breaks: true,
+            pedantic: false,
+            sanitize: true,
+            smartLists: true,
+            smartypants: false
+            });
+            return marked(this.md_text)
+	}
     }
 }
 </script>
@@ -185,6 +211,8 @@ h3 {
         font-weight: 600;
     }
 }
+
+
 .askForm {
         display: flex;
         width: 100%;
@@ -193,8 +221,16 @@ h3 {
         align-content: center;
         
         &__content {
-            height: 150px;
-            resize: none;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+
+            &-md{
+                width: 100%;
+            }
+            &-pre {
+                width: 100%;
+            }
         }
 
         &__code {
@@ -207,6 +243,13 @@ h3 {
         justify-content: space-between;
         margin-top: var(--space-xxxs);
     }
+}
+
+#md {
+    width: 50%;
+}
+#pre {
+    width: 50%;
 }
 
 .sub {
