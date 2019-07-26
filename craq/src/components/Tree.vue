@@ -1,9 +1,11 @@
 <template>
   <div>
     <div v-if="!addtree">
-      <h2>CRAQ NODE</h2>
-      <button @click="addTree">Add Tree</button>
-      <!-- <button><router-link :to="{name: 'createtree', params: {addtree}}">Add Tree</router-link></button> -->
+      <div class="container max-width-lg" style="display: flex">
+        <h2 style="display: inline; width: 100%">CRAQ NODE</h2>
+        <button @click="addTree" class="btn btn--subtle btn--md" style="">Add Tree</button>
+      </div>
+        <!-- <button><router-link :to="{name: 'createtree', params: {addtree}}">Add Tree</router-link></button> -->
       <Community/>
     </div>
     <div v-else>
@@ -45,6 +47,60 @@ export default {
 }
 
 </script>
-
 <style>
+
+</style>
+<style lang="scss" scoped>
+  .wrapper {
+    background-color: var(--color-surface);
+    width: 100%;
+    height: 100%;
+    padding: var(--space-xl) var(--space-lg);
+    border-radius: var(--radius-sm);
+    color: var(--color-on-surface);
+  }
+  @-webkit-keyframes pulse {
+    from {
+      -webkit-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1);
+    }
+
+    50% {
+      -webkit-transform: scale3d(1.05, 1.05, 1.05);
+      transform: scale3d(1.05, 1.05, 1.05);
+    }
+
+    to {
+      -webkit-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1);
+    }
+  }
+
+  @keyframes pulse {
+    from {
+      -webkit-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1);
+    }
+
+    50% {
+      -webkit-transform: scale3d(1.05, 1.05, 1.05);
+      transform: scale3d(1.05, 1.05, 1.05);
+    }
+
+    to {
+      -webkit-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1);
+    }
+  }
+
+  .pulse {
+    -webkit-animation-name: pulse;
+    animation-name: pulse;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+  }
+
+  .noShow {
+    display: none;
+  }
 </style>

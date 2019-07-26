@@ -1,24 +1,24 @@
 <template>
-  <div>
+  <div class="form-control">
     <h2>{{boardName}}</h2>
 
     <form action="" method="post" id="_frmForm" name="frmForm" @submit.prevent="addfreeBoard" class="form-horizontal">
       <div>
-        <select v-model="selected">
+        <select v-model="selected" class="form-control width 20%">
           <!-- inline object literal -->
           <option v-bind:value="Notice">Notice</option>
           <option v-bind:value="Chat">Chat</option>
         </select>
-        <input type="text" name="title" v-model="title">
+        <input type="text" name="title" v-model="title" class="form-control width 80%">
       </div>
-      <textarea rows="10" cols="30" name="content" class="form-control" v-model="content"/>
+      <textarea rows="10" cols="80" name="content" class="form-control width 100%" v-model="content"/>
       <div>
         <!-- <input type="text" name="filename" v-model="filename" readonly=true/> -->
-        <input type="file" @change="previewImage" accept="image/*"/>
+        <input type="file" @change="previewImage" accept="image/*" class="form-control-file"/>
       </div>
       <div>
-        <button @click="clearForm">Clear</button>
-        <button type="submit" class="btn btn-primary btn-sm" name="button" @click="submitForm">Submit</button>
+        <button @click="clearForm" class="btn btn-subtle btn-sm" style="margin:5px;">Clear</button>
+        <button type="submit" class="btn btn-accept btn-sm" name="button" @click="submitForm" style="margin:5px;">Submit</button>
       </div>
     </form>
   </div>

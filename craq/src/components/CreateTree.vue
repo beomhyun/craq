@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="form-control">
     <br>
     <form id="myForm" @submit.prevent="createTree">
-      <input type="text" name="topic" v-model="topic"><br>
-      <textarea name="body" v-model="body"></textarea><br>
-      <button>Send</button>
+      <input type="text" name="topic" v-model="topic" class="form-control width-100%"><br>
+      <textarea name="body" v-model="body" class="form-control width-100%"></textarea><br>
+      <button class="btn--primary max-width-adaptive-md" style="margin : auto">Send</button>
     </form>
   </div>
 </template>
