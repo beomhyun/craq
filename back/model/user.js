@@ -3,9 +3,10 @@ var connection = mysql_dbc.init();
 const jwt = require("jsonwebtoken");
 const secretObj = require("../config/jwt");
 const multer = require('multer');
-//const storage = multer.memoryStorage();
 const path = require("path");
 const serverlog = require('./serverlog.js');
+const crypto = require('crypto');
+
 let storage = multer.diskStorage({
     destination: function(req, file ,callback){
         callback(null, "upload/")
@@ -556,8 +557,6 @@ app.post('/follows', function(req,res){
             });
     }
   });
-
-
   }
 );
 /**
@@ -776,6 +775,39 @@ app.post('/uploadtest', upload.single('upfile1'), function(req, res){
 
 });
 
+/**
+ * @swagger
+ *  /users/password/{pk}:
+ *    put:
+ *      tags:
+ *      - users
+ *      description: 해당 회원 비밀번호 '1234'로 초기화
+ *      responses:
+ *       200:
+ *      parameters:
+ *       - in: path
+ *         name: pk
+ *         type: integer
+ */
+app.put('/users/password/:pk', function(req, res){
+  var hash = crypto.createHash('sha512');
+  var data = hash.update('1234','utf-8');
+  var gen_hash= data.digest('hex');
+  console.log(gen_hash);
+  // var sql = " UPDATE user SET last_login = now() WHERE pk = ?";
+  // var params = [req.params.pk];
+  // connection.query(sql,params, function(err, rows, fields) {
+  //         if (!err){
+  //           // console.log('The solution is: ', rows);
+  //           // return callback(null,rows);
+  //           res.json(rows);
+  //         }
+  //         else{
+  //           console.log('Error while performing Query.', err);
+  //           res.send(err);
+  //         }
+  //       });
+});
 
 
 };
