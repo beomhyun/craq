@@ -1,24 +1,24 @@
 <template>
   <section class="section-features">
     <div class="grid grid-gap-sm">
-      <div class="col-12 text-center section-features__header">
-        <h1 class="section-features__header__text">Features</h1>
+      <div class="col-12 margin-bottom-xxxl">
+          <HeaderHeading title="FEATURES"/>
       </div>
       <div class="col-3">
-        <HeaderFeatureCard title="share your codes" iconName="bell" 
-        content="testetsetsetsetsetsetstasdfsdfjksahdflkjshdjakflhsljdfkhsjadlkfjhskldfhjalksdfhjklsadfhjaklsdfhlksdf"/>
+        <HeaderFeatureCard title="Codes" iconName="code" 
+        content="The programmer lives to have codes to share and to share them well"/>
       </div>
       <div class="col-3">
-        <HeaderFeatureCard title="Question" iconName="bell" 
-        content="lorem cwjeklqwjcelk cqwjeklcqwje cklqwjeck lqwjecklqw jceklqwe jclkqwjecklq wejckl qwcejklq wcjeklq wjcekl qwjkcle "/>
+        <HeaderFeatureCard title="Review" iconName="book-reader" 
+        content="Review is the breakfast of champions"/>
       </div>
       <div class="col-3">
-        <HeaderFeatureCard title="Answer" iconName="bell" 
-        content="testetsetsetsetsetsetstasdfsdfjksahdflkjshdjakflhsljdfkhsjadlkfjhskldfhjalksdfhjklsadfhjaklsdfhlksdf"/>
+        <HeaderFeatureCard title="Algorithm" iconName="code-branch" 
+        content="Algorithms are not arbiters of objective truth and fairness simply because they're math."/>
       </div>
       <div class="col-3">
-        <HeaderFeatureCard title="communicate" iconName="bell" 
-        content="testetsetsetsetsetsetstasdfsdfjksahdflkjshdjakflhsljdfkhsjadlkfjhskldfhjalksdfhjklsadfhjaklsdfhlksdf"/>
+        <HeaderFeatureCard title="Question" iconName="question-circle" 
+        content="A prudent question is one-half of wisdom"/>
       </div>
     </div>
   </section>
@@ -27,10 +27,12 @@
 
 <script>
 import HeaderFeatureCard from '@/components/HeaderFeatureCard.vue';
+import HeaderHeading from '@/components/HeaderHeading.vue'
 export default {
   name: "HeaderFeature",
   components: {
-    HeaderFeatureCard
+    HeaderFeatureCard,
+      HeaderHeading
   }
 }
 
@@ -38,16 +40,16 @@ export default {
 
 <style lang="scss" scoped>
 .grid {
-  padding: calc(var(--space-xxxl) * 2) var(--space-sm);
+  padding: calc(var(--space-xxxl) * 1.5) var(--space-sm);
 }
 .section-features {
-  background-color: var(--color-surface);
+ // background-color: var(--color-surface);
 }
 .section-features__header{
   margin-bottom: var(--space-xxxl);
   &__text {
     font-size: 5rem;
-    color: var(--color-primary);
+    color: var(--color-secondary);
     letter-spacing: 1rem;
     text-transform: uppercase;
   }

@@ -59,7 +59,7 @@ export default {
     margin: auto; // align center
 }
 body { //TODO
-    background-color: var(--color-black);
+//    background-color: var(--color-bg); //TODO
 }
 // dark mode smooth transition
 #app.transition {

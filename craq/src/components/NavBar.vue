@@ -147,7 +147,7 @@ $--main-header-height: 70px;
   background-color: var(--color-surface);
   z-index: var(--zindex-header);
   box-shadow: var(--shadow-sm);
-  margin-bottom: var(--space-xxxs);
+  //margin-bottom: var(--space-xxxs);
 
   &__layout {
     padding: 0;

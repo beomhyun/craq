@@ -9,11 +9,12 @@ Vue.use(VueSession);
 //end vue session
 // font-awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret, faAddressCard, faSearch, faBell, faGlobe, faCheck, faExclamation, faTimes, faPlane} from '@fortawesome/free-solid-svg-icons'
-import { faBell as farBell } from '@fortawesome/free-regular-svg-icons';
+import { fas} from '@fortawesome/free-solid-svg-icons'
+import { far} from '@fortawesome/free-regular-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faUserSecret, faAddressCard, faSearch, faBell, faGlobe, farBell, faCheck, faExclamation, faTimes, faPlane);
+library.add(fas, far, fab);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 //end font awesome
 //font awesome tester i tag  to svg

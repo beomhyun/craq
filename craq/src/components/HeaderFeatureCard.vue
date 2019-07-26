@@ -1,7 +1,7 @@
 <template>
   <div class="feature-box">
     <div class="feature-box__icon">
-      <font-awesome-icon :icon="['far', iconName]" class="hi"/>
+      <font-awesome-icon :icon="iconName" class="hi"/>
     </div>
     <p class="feature-box__heading">{{title}}</p>
     <p class="feature-box__text">{{content}}</p>
@@ -53,7 +53,7 @@ export default {
   }
 }
 .hi {
-  color: var(--color-secondary);
+  color: var(--color-primary-lighter);
 }
 
 </style>
