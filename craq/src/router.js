@@ -28,7 +28,7 @@ export default new Router({
       meta: {
         layout: "Default"
       },
-      name: 'Home',
+      name: 'home',
       component: Main,
 
     },
