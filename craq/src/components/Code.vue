@@ -22,13 +22,15 @@
               <div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div>
             </div>
           </div> <!-- Filter /div -->
-          
-          <div v-for="a in 5">
-            <router-link to="/">
-             <Card class="shadow"/>
-            </router-link>
-          </div>  <!-- v-for -->
 
+
+          <div v-for="list in cardLists" >
+            <router-link to='/code'>
+            <card class="shadow" :list="list"/>
+            </router-link>
+          </div>
+          
+           
           <!-- Pagenation -->
           <div class="pagenation">
             <ul v-for="(i, index) in (1,11)">
@@ -58,26 +60,127 @@ export default {
     },
     data() {
       return {
+        messages: '',
         askquestion: false,
-        options: [
-          {
-            value : "option1"
-          },
-          {
-            value : "option2"
-          },
-          {
-            value : "option3"
-          },
-        ],
-        latested: true
+        latested: true,
+        cardLists: [],
       }
     },
-    props: [
-        'id'
-    ],
+    
     mounted() {
-      this.askquestion = false
+      this.askquestion = false;
+        this.cardLists = [{
+                    id: '1',
+                    cardInfo:
+                        {
+                            Answer : '100',
+                            View : '1000',
+                            Helpful : '10000',
+                        },
+
+                    cardMain:
+                        {
+                            Title : 'Title Test - 1',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Kim',
+                            Mail: 'aaa@test.test',
+                            Score: '2300',
+                            Answers: '23',
+                        }
+                },
+                {
+                    id: '2',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '10',
+                            Helpful : '200',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 2',
+                            HashTags : 'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: '',
+                            Mail: '',
+                            Score: '',
+                            Answers: '',
+                        }
+
+                },
+                {
+                    id: '3',
+                    cardInfo: 
+                        {
+                            Answer : '23',
+                            View : '230',
+                            Helpful : '-100',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 3',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Lee',
+                            Mail: 'bbbb@test.test',
+                            Score: '135135',
+                            Answers: '123123',
+                        }
+
+                },
+                {
+                    id: '4',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '230',
+                            Helpful : '-100',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 3',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Lee',
+                            Mail: 'bbbb@test.test',
+                            Score: '135135',
+                            Answers: '123123',
+                        }
+
+                }
+                ]
     },
     methods: {
       askQuestion : function() {
