@@ -13,6 +13,12 @@
             <div class="col12">
                 <HeaderProfileCard></HeaderProfileCard>
             </div>
+            <div class="col12">
+                <HeaderProfileCard></HeaderProfileCard>
+            </div>
+            <div class="col12">
+                <HeaderProfileCard></HeaderProfileCard>
+            </div>
         </div>
         
     </div>

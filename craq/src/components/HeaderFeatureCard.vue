@@ -41,19 +41,21 @@ export default {
   &__heading {
     font-size: 2rem;
     margin-bottom: var(--space-xxs);
+    color: var(--color-on-surface);
   }
 
   &__text {
     line-height: 2rem;
     font-size: 1.3rem;
     font-weight: 300;
+    color: var(--color-on-surface);
   }
   &:hover {
     transform: translateY(-1.5rem) scale(1.03);
   }
 }
 .hi {
-  color: var(--color-primary-lighter);
+  color: var(--color-primary-dark);
 }
 
 </style>

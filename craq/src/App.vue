@@ -3,7 +3,7 @@
         <nav-bar></nav-bar>
         <component :is="layout"></component>
         <Landing v-if="!isLogin"/>
-        <div>{{isLogin}}</div>
+        <div class="transparent">{{isLogin}}</div>
         <Footer/>
     </div>
 </template>
@@ -57,9 +57,13 @@ export default {
 #app { //width
     max-width: 1200px; // desktop size
     margin: auto; // align center
+    background-color: var(--color-bg); //TODO
 }
 body { //TODO
 //    background-color: var(--color-bg); //TODO
+}
+.transparent {
+    opacity: 0;
 }
 // dark mode smooth transition
 #app.transition {
@@ -71,5 +75,6 @@ body { //TODO
         transition-delay: 0 !important;
     }
 }
+
 // end dark mode smooth transition
 </style>

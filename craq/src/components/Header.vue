@@ -31,11 +31,11 @@ export default {
 
 
 <style lang="scss" scoped>
-.base {
-    background-color: var(--color-surface);
-}
+//.base {
+//    background-color: var(--color-surface);
+//}
 .header {
-    height:50rem;
+    height:55rem;
     background-image: linear-gradient(to right bottom,
     alpha(var(--color-surface-lighter), 0.5),
     alpha(var(--color-surface-darker), 0.5)),
@@ -55,25 +55,28 @@ export default {
         height: 80rem;
         background-color: var(--color-surface);
         margin-top: -10rem;
-        transform: skewY(-7deg);
+        transform: skewY(-5deg);
         & > * {
-            transform: skewY(7deg);
+            transform: skewY(5deg);
         }
     }
 
     &__profile {
-        height: 100rem;
+        height: 140rem;
         padding: 5rem 0rem;
         background-image: linear-gradient(to right bottom,
         alpha(var(--color-surface-light), 0.9),
         alpha(var(--color-surface-darker), 0.9)),
         url('../assets/Profile.gif') ;
-        background-size: cover;
         background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-clip: border-box;
+        
 
-        transform: skewY(-7deg);
+        transform: skewY(-5deg);
         & > * {
-            transform: skewY(7deg);
+            transform: skewY(5deg);
         }
     }
 }
