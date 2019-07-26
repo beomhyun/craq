@@ -119,8 +119,9 @@ export default {
 .dropdowns-menu {
   position: relative;
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   text-align: center;
+
   width: 150px;
   height: 50px;
   right: 12px;

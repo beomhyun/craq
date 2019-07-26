@@ -218,7 +218,7 @@ h3 {
         width: 100%;
         
         flex-direction: column;
-        align-content: center;
+        align-items: center;
         
         &__content {
             display: flex;
@@ -261,7 +261,7 @@ h3 {
     width: 200px;
     height: 100%;
     border: 1px solid;
-    border-radius: calc(var(--radius, 0.25em));
+    border-radius: var(--radius-md);
     background-color: alpha(var(--color-surface-dark),0.4);
     text-align: center;
     padding: var(--space-xxs);
@@ -273,7 +273,7 @@ h3 {
     &__list {
         display: flex;
         flex-direction: column;
-        align-items: start;
+        align-items: flex-start;
         margin-bottom: var(--space-sm);
         width: 100%;
     }
