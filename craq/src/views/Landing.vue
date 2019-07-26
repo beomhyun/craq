@@ -1,7 +1,9 @@
 <template>
   <div>
     <Header/>
+        <!--
       <h1>This is an Landing page{{isLogin}}</h1>
+      -->
   </div>
 </template>
 
