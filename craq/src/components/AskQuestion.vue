@@ -7,24 +7,32 @@
         </div> <!-- headline -->
 
         <div class="askQuestion">
-        <!-- Form -->
-        <form class="askForm" @submit.prevent="createQuestion"> 
-            <h3>Title</h3>
-            
-                <input class="askForm__title" placeholder="Edit"  id="title" v-model="inputTitle">
-                
-                <!-- titleSearch -->
-                <div :class="{'openInputTitle' : checkInputTitle}">
-                    <div class="inputTitle" v-for="a in 5">
-                        <router-link to="/code"><Card class="shadow"/></router-link>
-                    </div>
+            <div class="askMain">
+            <div class="notice">
+                <div class="notice__title">
+                    !!! Caution !!! 
                 </div>
-                <!-- titleSearch -->
+                <div class="notice__content">
+                    질문 하는법을 알려줄건데 여기도 영어로 적엇다간 호되게 욕먹을거 같아요.
+                </div>
+            </div>
+        <!-- Form -->
+        
+        <form class="askForm" @submit.prevent="createQuestion"> 
             
             <h3>Content</h3>
-            <textarea  name="" class="askForm__content" id="content" v-modle="inputContent"></textarea>
-            <h3>My Code</h3>
-            <textarea  name="" class="askForm__code" id="code"></textarea>
+            <div class="askForm__content">    
+                <div id="md" >
+                    <textarea style="height:auto" rows="16" v-model='md_text' class="askForm__content-md"></textarea>
+                </div>
+
+                <div id="preview">
+                    <div v-html='previewText' class="askForm__content-pre"></div>
+                </div>
+            </div>
+    
+
+            <!-- <textarea  name="" class="askForm__content" id="content" v-model="inputContent"></textarea> -->
             
             <h3>Hashtag</h3>
             <input-tag v-model="inputHashtag" class="askForm__hashtag" ></input-tag>
@@ -44,25 +52,25 @@
                 <input type="submit" value="제출">
             </div>
         </form>
-
+            <!-- Form -->
+        </div>
         <div class="sub">
             <div class="sub-Box">
-                <h3>Hot Question</h3>
+                <h3 class="sub-Box__title">Hot HashTags</h3>
                 <div v-for="item in Hot" class="sub-Box__list">
-                    <div @click="createQuestion">{{item}}</div>
+                    <div @click="createQuestion" class="btn">{{item}}</div>
                 </div>
             </div>
             <div class="sub-Box">
-                <h3>How To Use</h3>
+                <h3 class="sub-Box__title">How To Use</h3>
                 <div v-for="item in FaQ" class="sub-Box__list">
-                    <div @click="createQuestion">{{item}}</div>
+                    <div @click="createQuestion" >{{item}}</div>
                 </div>
             </div>
         </div>
 
         </div>
-        <!-- Form -->
-
+        
        
 
     </div>
@@ -70,13 +78,14 @@
 
 <script>
 import Card from '@/components/Card.vue';
-import InputTag from '@/components/InputTags.vue'
+import InputTag from '@/components/InputTags.vue';
+let marked = require('marked');
 
 import { realpathSync } from 'fs';
 export default {
     name: 'AskQuestion',
     props: {
-        askQuestion : {type: Boolean, default: false}
+        askQuestion : {type: Boolean, default: false},
     },
     components: {
         Card,
@@ -84,6 +93,7 @@ export default {
     },
     data() {
         return{
+            md_text: '# Title',
             inputTitle : '',
             inputHashtag: '',
             inputContent: '',
@@ -133,6 +143,19 @@ export default {
             console.log(this.$route.name);
             return this.$route.name;
         },
+        previewText() {
+            marked.setOptions({
+            renderer: new marked.Renderer(),
+            gfm: true,
+            tables: true,
+            breaks: true,
+            pedantic: false,
+            sanitize: true,
+            smartLists: true,
+            smartypants: false
+            });
+            return marked(this.md_text)
+	}
     }
 }
 </script>
@@ -162,19 +185,52 @@ h3 {
     display: flex;
     justify-content: space-between;
     background-color: var(--color-surface);
+    text-align: center;
     width: 890px;    
 }
+.askMain {
+    width: 100%;
+    margin-right: var(--space-md);
+}
+.notice {
+    width: 100%;
+    height: 300px;
+    padding: var(--space-sm);
+    border: 1px dashed var(--color-accent-light);
+    background-color: rgba(238, 220, 118, 0.5);
+    margin-bottom: var(--space-xs);
+    text-align: center;
+
+    &__title {
+        color: alpha(var(--color-accent), 0.8);
+        font-size: var(--text-xl);
+    }
+
+    &__content {
+        font-size: var(--text-md);
+        font-weight: 600;
+    }
+}
+
 
 .askForm {
         display: flex;
         width: 100%;
-        padding: var(--space-sm);
+        
         flex-direction: column;
         align-content: center;
         
         &__content {
-            height: 150px;
-            resize: none;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+
+            &-md{
+                width: 100%;
+            }
+            &-pre {
+                width: 100%;
+            }
         }
 
         &__code {
@@ -189,6 +245,13 @@ h3 {
     }
 }
 
+#md {
+    width: 50%;
+}
+#pre {
+    width: 50%;
+}
+
 .sub {
     display: flex;
     flex-direction: column;
@@ -196,26 +259,39 @@ h3 {
 
 .sub-Box {
     width: 200px;
-    height: 150px;
+    height: 100%;
     border: 1px solid;
     border-radius: calc(var(--radius, 0.25em));
-    background-color: var(--color-surface-lighter);
+    background-color: alpha(var(--color-surface-dark),0.4);
     text-align: center;
     padding: var(--space-xxs);
     margin-bottom: var(--space-sm);
 
+    &__title {
+        margin-bottom: var(--space-xxs);
+    }
     &__list {
         display: flex;
         flex-direction: column;
         align-items: start;
+        margin-bottom: var(--space-sm);
         width: 100%;
     }
 
     &__list:hover {
-        background-color: var(--color-secondary);
+        cursor: pointer;
+        user-select: none;
+        background-color: var(--color-surface-dark);
     }
 }
-
+.btn {
+    background-color: var(--color-tertiary);
+    color: var(--color-on-tertiary);
+}
+.btn:hover {
+    background-color: var(--color-tertiary-dark);
+    color: var(--color-on-tertiary-dark);
+}
 .inputTitle {
     display: none;
 }
