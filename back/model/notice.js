@@ -122,11 +122,11 @@ const initializeEndpoints = (app) => {
    *          notice pk 전달   
    */
   app.put('/notices/reading/:pk', function(req, res) {
-    var sql = " select * from notice where User = ? ";
-    var params = [req.params.User];
+    var sql = " update notice set is_active =1 where pk = ? ";
+    var params = [req.params.pk];
     connection.query(sql, params, function(err, rows, fields) {
       if (!err) {
-        res.json({status: "success", data: rows});
+        res.json({status: "success"});
       } else {
         console.log('Error while performing Query.', err);
         res.send({status: "fail"});
