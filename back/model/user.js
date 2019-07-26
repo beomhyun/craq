@@ -5,7 +5,7 @@ const secretObj = require("../config/jwt");
 const multer = require('multer');
 //const storage = multer.memoryStorage();
 const path = require("path");
-
+const serverlog = require('./serverlog.js');
 let storage = multer.diskStorage({
     destination: function(req, file ,callback){
         callback(null, "upload/")
@@ -124,11 +124,15 @@ const initializeEndpoints = (app)=>{
    */
   app.get('/users', function(req,res){
       var sql = " SELECT * FROM user ";
+      var ip = req.headers['x-forwarded-for'] ||
+              req.connection.remoteAddress ||
+              req.socket.remoteAddress ||
+              req.connection.socket.remoteAddress;
+      console.log(ip);
       connection.query(sql, function(err, rows, fields) {
               if (!err){
-                // console.log('The solution is: ', rows);
-                // return callback(null,rows);
                 res.json(rows);
+                serverlog.log(connection,0,this.sql,"success",ip);
               }
               else{
                 console.log('Error while performing Query.', err);
@@ -157,6 +161,7 @@ app.get('/email-checking/:email', function(req,res){
     var sql = " select count(*) as checking from user where email like ? ";
     var params = [req.params.email];
     connection.query(sql,params, function(err, rows, fields) {
+      console.log(this.sql);
             if (!err){
               if(rows[0].checking == 0){
                 res.send({status: "success"});
@@ -316,8 +321,8 @@ app.get('/users/email/:email', function(req,res){
                 connection.query(sql,params, function(err, rows, fields) {
                         if (!err){
                             //user profile
-                          sql = " insert into profile(User) values((select u.pk from user as u where username like ?)) ";
-                          params = [req.body.username];
+                          sql = " insert into profile(User) values(?) ";
+                          params = [rows.insertId];
                           connection.query(sql,params, function(err, rows, fields){});
                           res.send({status: "success"});
                         }
@@ -373,7 +378,7 @@ app.get('/users/email/:email', function(req,res){
                         });
               
                   let token = jwt.sign({
-                    email : req.body.email
+                    pk : rows[0].pk
                   },
                   secretObj.secret ,
                   {
@@ -598,7 +603,7 @@ app.delete('/follows', function(req,res){
 
 /**
  * @swagger
- *  /follows:
+ *  /follows/{toUser}:
  *    get:
  *      tags:
  *      - users
@@ -606,28 +611,23 @@ app.delete('/follows', function(req,res){
  *      responses:
  *       200:
  *      parameters:
- *       - in: body
- *         name: follow
- *         description: follow
- *         schema:
- *           type: object
- *           properties:
- *             fromUser:
- *               type: integer
- *             toUser:
- *               type: integer
- *             user_token:
- *               type: string
+ *       - in: path
+ *         name: toUser
+ *         type: integer
+ *       - in: query
+ *         name: user_token
+ *         type: string
  */
-app.get('/follows', function(req,res){
-  jwt.verify(req.body.user_token,  secretObj.secret, function(err, decoded) {
+app.get('/follows/:touser', function(req,res){
+  jwt.verify(req.query.user_token,  secretObj.secret, function(err, decoded) {
+    console.log(decoded);
     if(err) res.status(401).send({error:'invalid token'});
     else{
-      var sql = "delete from follow where fromUser = ? and toUser = ? ";
-      var params = [req.body.fromUser,req.body.toUser];
+      var sql = "select * from follow where toUser = ? ";
+      var params = [req.path.toUser];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
-          res.send({status: "success"});
+          res.send({status: "success", data: rows});
         }else{
           res.send({status: "fail"});
         }
