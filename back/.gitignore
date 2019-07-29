@@ -5,6 +5,9 @@
 logs
 *.log
 
+# jwt secret
+jwt.js
+
 # Runtime data
 pids
 *.pid
