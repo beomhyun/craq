@@ -93,7 +93,7 @@ const initializeEndpoints = (app) => {
    *          사용자 pk 전달   
    */
   app.get('/notices/:User', function(req, res) {
-  var sql = " select * from notice where User = ? ";
+  var sql = " select * from notice where User = ? and is_removed = 0 ";
   var params = [req.params.User];
   connection.query(sql, params, function(err, rows, fields) {
     if (!err) {
@@ -107,7 +107,7 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /notices/reading/{pk}:
+   *  /notices/{pk}:
    *    put:
    *      tags:
    *      - notice
@@ -121,7 +121,7 @@ const initializeEndpoints = (app) => {
    *         description: |
    *          notice pk 전달   
    */
-  app.put('/notices/reading/:pk', function(req, res) {
+  app.put('/notices/:pk', function(req, res) {
     var sql = " update notice set is_active =1 where pk = ? ";
     var params = [req.params.pk];
     connection.query(sql, params, function(err, rows, fields) {
@@ -134,6 +134,34 @@ const initializeEndpoints = (app) => {
     });
   });
 
+  /**
+   * @swagger
+   *  /notices/{pk}:
+   *    delete:
+   *      tags:
+   *      - notice
+   *      description: notice 삭제처리
+   *      responses:
+   *        200:
+   *      parameters:
+   *       - in: path
+   *         name: pk
+   *         type: integer
+   *         description: |
+   *          notice pk 전달   
+   */
+  app.delete('/notices/:pk', function(req, res) {
+    var sql = " update notice set is_removed =1 where pk = ? ";
+    var params = [req.params.pk];
+    connection.query(sql, params, function(err, rows, fields) {
+      if (!err) {
+        res.json({status: "success"});
+      } else {
+        console.log('Error while performing Query.', err);
+        res.send({status: "fail"});
+      }
+    });
+  });
 }
 
 module.exports = initializeEndpoints;
