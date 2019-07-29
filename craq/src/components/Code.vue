@@ -1,8 +1,6 @@
 <template>
     <div>
-      <div class="filler">
-        
-        <div class="container" v-if="!askquestion">
+      <div class="filler" v-if="!askquestion">
 
           <!-- Headline -->
           <div class="headline">
@@ -24,10 +22,10 @@
           </div> <!-- Filter /div -->
 
 
-          <div v-for="list in cardLists" >
-            <router-link to='/code'>
+          <div v-for="list in cardLists" class="content">
+            
             <card class="shadow" :list="list"/>
-            </router-link>
+            
           </div>
           
            
@@ -45,7 +43,6 @@
         </div>
 
       </div>  <!-- Filler -->
-    </div>
 </template>
 
 <script>
@@ -208,18 +205,11 @@ export default {
   width: auto;
   background-color: var(--color-background);
 }
-.container {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  margin-left: auto;
-  margin-right: auto;
-}
 
 .headline {
   background-color: var(--color-surface);
   padding: var(--space-xs);
-  width: 890px;
+  width: 100%;
   height: 75px;
   font-size: var(--text-xxl);
   text-transform: capitalize;
@@ -230,7 +220,7 @@ export default {
   justify-content: center;
   background-color: var(--color-surface);
   margin-top: var(--space-lg);
-  width: 890px;
+  width: 100%;
   height: 30px;
   font-size: var(--text-lg)
 }
@@ -244,7 +234,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   background-color: var(--color-surface);
-  width: 890px;
+  width: 100%;
   font-size: 20px;
   padding-left: 20px;
   padding-right: 20px;
@@ -269,8 +259,19 @@ export default {
 }
 
 .shadow {
-  width: 890px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
+  width: 95%;
+  border: 1px solid var(--color-contrast-low);
+  margin-bottom: var(--space-md);
 }
 
+.shadow:hover {
+  cursor: pointer;
+}
+
+.content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 </style>

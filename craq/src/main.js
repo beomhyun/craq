@@ -7,6 +7,14 @@ import store from './store'
 import VueSession from 'vue-session'
 Vue.use(VueSession);
 //end vue session
+
+// Import Froala Editor css files.
+import 'froala-editor/css/froala_editor.pkgd.min.css';
+// Import and use Vue Froala lib.
+import VueFroala from 'vue-froala-wysiwyg'
+Vue.use(VueFroala)
+//end Froala
+
 // font-awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas} from '@fortawesome/free-solid-svg-icons'

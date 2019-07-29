@@ -5,81 +5,87 @@
         <div class="headline">
             Ask-Question
         </div> <!-- headline -->
+       <!-- Body -->
+       <div class="mainContent">
+           
+            <div class="inputQuestion">
+                <div class="inputQuestion__form">
+                    <label for="title"><strong>Title</strong> - 제목을 입력시 유사한 질문을 표시해 줍니다.</label>
+                    <input type="text" id="title" v-model="inputTitle" class="questionForm" placeholder="Enter a Title" :class="{'openSearchBox' : checkInputTitle}">
+                    
+                    <div class="searchtitle">
 
-        <div class="askQuestion">
-            <div class="askMain">
-            <div class="notice">
-                <div class="notice__title">
-                    !!! Caution !!! 
+                        <div class="searchtitle__head">
+                            <span>당신의 질문과 유사한 유형의 질문을 찾았습니다.</span>
+                        </div>
+                        
+                        <div class="searchtitle__content">
+                            <div v-for="list in cardLists" >
+                                <router-link to='/code'>
+                                    <card :list="list"/>
+                                </router-link>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label for="content"><strong>content</strong> - 문제 해결을 위해 시도한 것들을 상세하게 작성해주십시오.</label>
+                    <froala id="edit content" :tag="'textarea'" :config="config" v-model="model"></froala>
+                    
+
+                    <label for="hashtag"><strong>hashtag</strong> - 사용된 기술들을 태그해두면 질문을 검색하기에 용이합니다.</label>
+                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchBox' : checkInputHashtag}">
+
+                    <div class="searchHashtag">
+
+                        <div class="searchHashtag__head">
+                            <span>Similar HashTag Lists</span>
+                        </div>
+                        
+                        <div class="searchHashtag__content">
+                            
+                            <div v-for="Hlist in hashtagLists" class="searchHashtag__form">
+                                <div class="hashtagComponents">
+                                    <div class="hashtagComponents__title">
+                                        <div class="btn btn--sm">{{ Hlist.title }}</div>
+                                    </div>
+                                    <div class="hashtagComponents__description">
+                                        {{ Hlist.description }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="submit">
+                        <div class="btn">Submit</div>
+                    </div>
                 </div>
-                <div class="notice__content">
-                    질문 하는법을 알려줄건데 여기도 영어로 적엇다간 호되게 욕먹을거 같아요.
+                
+            </div>
+
+            <div class="sub">
+                <div class="sub-Box">
+                    <h3 class="sub-Box__title">Hot HashTags</h3>
+                    <div v-for="item in Hot" class="sub-Box__list">
+                        <div @click="createQuestion" class="btn">{{item}}</div>
+                    </div>
+                </div>
+                <div class="sub-Box">
+                    <h3 class="sub-Box__title">How To Use</h3>
+                    <div v-for="item in FaQ" class="sub-Box__list">
+                        <div @click="createQuestion" >{{item}}</div>
+                    </div>
                 </div>
             </div>
-        <!-- Form -->
-        
-        <form class="askForm" @submit.prevent="createQuestion"> 
             
-            <h3>Content</h3>
-            <div class="askForm__content">    
-                <div id="md" >
-                    <textarea style="height:auto" rows="16" v-model='md_text' class="askForm__content-md"></textarea>
-                </div>
-
-                <div id="preview">
-                    <div v-html='previewText' class="askForm__content-pre"></div>
-                </div>
-            </div>
-    
-
-            <!-- <textarea  name="" class="askForm__content" id="content" v-model="inputContent"></textarea> -->
-            
-            <h3>Hashtag</h3>
-            <input-tag v-model="inputHashtag" class="askForm__hashtag" ></input-tag>
-            <!-- HashtagSearch -->
-            <div :class="{'openInputHashtag' : checkInputHashtag}">
-                <div class="inputHashtag">
-                    <h1>{{ inputHashtag }}</h1>
-                </div>
-            </div>
-            <!-- HashtagSearch -->
-
-            <div class="askForm__submit">
-                <div>
-                    <input type="checkbox" name="" id="visible">
-                    <label for="visible">Visible / Invisible</label>
-                </div>
-                <input type="submit" value="제출">
-            </div>
-        </form>
-            <!-- Form -->
         </div>
-        <div class="sub">
-            <div class="sub-Box">
-                <h3 class="sub-Box__title">Hot HashTags</h3>
-                <div v-for="item in Hot" class="sub-Box__list">
-                    <div @click="createQuestion" class="btn">{{item}}</div>
-                </div>
-            </div>
-            <div class="sub-Box">
-                <h3 class="sub-Box__title">How To Use</h3>
-                <div v-for="item in FaQ" class="sub-Box__list">
-                    <div @click="createQuestion" >{{item}}</div>
-                </div>
-            </div>
-        </div>
-
-        </div>
-        
-       
-
     </div>
 </template>
 
 <script>
-import Card from '@/components/Card.vue';
-import InputTag from '@/components/InputTags.vue';
-let marked = require('marked');
+import Card from '@/components/CardforAsk.vue';
+import VueFroala from 'vue-froala-wysiwyg';
 
 import { realpathSync } from 'fs';
 export default {
@@ -89,14 +95,21 @@ export default {
     },
     components: {
         Card,
-        InputTag,
     },
     data() {
         return{
-            md_text: '# Title',
+            cardLists: [],
+            hashtagLists: [],
+            config: {
+                events: {
+                initialized: function () {
+                    console.log('initialized')
+                }
+                }
+            },
+            model: '',
             inputTitle : '',
             inputHashtag: '',
-            inputContent: '',
             inputCode: '',
             Hot: [
                 'DynamicRouter',
@@ -117,7 +130,7 @@ export default {
         this.askquestion = false;
         this.$emit('childs-event', this.askquestion)
         this.$router.push({name:'code'})
-        }
+        },
        
     },
     computed: {
@@ -143,31 +156,73 @@ export default {
             console.log(this.$route.name);
             return this.$route.name;
         },
-        previewText() {
-            marked.setOptions({
-            renderer: new marked.Renderer(),
-            gfm: true,
-            tables: true,
-            breaks: true,
-            pedantic: false,
-            sanitize: true,
-            smartLists: true,
-            smartypants: false
-            });
-            return marked(this.md_text)
-	}
-    }
+        checkContent() {
+            return this.inputTitle + this.inputHashtag + this.inputCode + this.model
+        }
+    },
+     mounted() {
+        this.askquestion = false;
+        this.cardLists = [{
+                    id: '1',
+                    cardInfo:
+                        {
+                            Answer : '100',
+                            View : '1000',
+                            Helpful : '10000',
+                        },
+
+                    cardMain:
+                        {
+                            Title : 'Title Test - 1',
+                            Content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry'
+                        },
+                }],
+        this.model = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명",
+        this.hashtagLists = [
+            {
+                title: 'C++',
+                description: 'C++ 에 대한 설명이 들어갈 부분입니다.'
+            },
+            {
+                title: 'Java',
+                description: 'java에 대한 설명이 들어갈 부분입니다.'
+            },
+            {
+                title: 'C++',
+                description: 'C++ 에 대한 설명이 들어갈 부분입니다.'
+            },
+            {
+                title: 'Java',
+                description: 'java에 대한 설명이 들어갈 부분입니다.'
+            },
+            {
+                title: 'C++',
+                description: 'C++ 에 대한 설명이 들어갈 부분입니다.'
+            },
+            {
+                title: 'Java',
+                description: 'java에 대한 설명이 들어갈 부분입니다.'
+            },
+            {
+                title: 'C++',
+                description: 'C++ 에 대한 설명이 들어갈 부분입니다.'
+            },
+            {
+                title: 'Java',
+                description: 'java에 대한 설명이 들어갈 부분입니다.'
+            },
+        ]
+    },
+    
 }
 </script>
 
 <style scoped lang="scss">
-h3 {
-    font-weight: bold;
-}
+
 .container {
   display: flex;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
   margin-left: auto;
   margin-right: auto;
 }
@@ -175,81 +230,130 @@ h3 {
 .headline {
   background-color: var(--color-surface);
   padding: var(--space-xs);
-  width: 890px;
+  width: 100%;
   height: 75px;
   font-size: var(--text-xxl);
   text-transform: capitalize;
 }
 
-.askQuestion {
+.mainContent {
     display: flex;
     justify-content: space-between;
-    background-color: var(--color-surface);
-    text-align: center;
-    width: 890px;    
+    margin-top: var(--space-sm);
+    width: 100%;
+    margin-bottom: var(--space-md);
 }
-.askMain {
+
+.inputQuestion {
+    display: flex;
+    justify-content: center;
     width: 100%;
     margin-right: var(--space-md);
-}
-.notice {
-    width: 100%;
-    height: 300px;
-    padding: var(--space-sm);
-    border: 1px dashed var(--color-accent-light);
-    background-color: rgba(238, 220, 118, 0.5);
-    margin-bottom: var(--space-xs);
-    text-align: center;
 
-    &__title {
-        color: alpha(var(--color-accent), 0.8);
-        font-size: var(--text-xl);
+    &__form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 538px;
+    }
+}
+
+label {
+    margin: var(--space-md);
+}
+
+.questionForm {
+    width: 100%;
+    padding: var(--space-xxs);
+    border: 1px solid var(--color-contrast-low);
+    border-radius: var(--radius-lg);
+}
+
+.searchtitle {
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
+    position: relative;
+    width: 100%;
+    transition: visibility 0s, opacity .5s linear;
+
+    margin-top: var(--space-xs);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-contrast-low);
+    background-color: var(--color-surface-lighter);
+    padding-bottom: var(--space-xxs);
+    
+    &__head {
+        width:100%;
+        color: var(--color-on-surface-darker);
+        padding: var(--space-xxs);
+        border-top-left-radius: var(--radius-lg);
+        border-top-right-radius: var(--radius-lg);
+        background-color: var(--color-surface-darker);
     }
 
     &__content {
-        font-size: var(--text-md);
-        font-weight: 600;
+        width:100%;
+        color: var(--color-on-surface);
+        padding: var(--space-xxs);
     }
 }
 
+.openSearchBox ~ .searchtitle {
+    height: auto;
+    visibility: visible;
+    opacity: 1;
+}
 
-.askForm {
+.searchHashtag {
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
+    position: relative;
+    width: 100%;
+    transition: visibility 0s, opacity .5s linear;
+
+    margin-top: var(--space-xs);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-contrast-low);
+    background-color: var(--color-surface-lighter);
+    
+    &__head {
+        width:100%;
+        color: var(--color-on-surface-darker);
+        padding: var(--space-xxs);
+        border-top-left-radius: var(--radius-lg);
+        border-top-right-radius: var(--radius-lg);
+        background-color: var(--color-surface-darker);
+    }
+
+    &__content {
         display: flex;
-        width: 100%;
-        
-        flex-direction: column;
-        align-items: center;
-        
-        &__content {
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        color: var(--color-on-surface);
+        padding: var(--space-xxs);
+    }
 
-            &-md{
-                width: 100%;
-            }
-            &-pre {
-                width: 100%;
-            }
-        }
+    &__form {
+        width: 30%;
+    }
 
-        &__code {
-            height: 150px;
-            resize: none;
-        }
-
-        &__submit {
-        display: flex;
-        justify-content: space-between;
-        margin-top: var(--space-xxxs);
+    &__form:hover {
+        cursor: pointer;
+        background-color: alpha(var(--color-secondary), 0.2);
     }
 }
 
-#md {
-    width: 50%;
+.openSearchBox ~ .searchHashtag {
+    height: auto;
+    visibility: visible;
+    opacity: 1;
 }
-#pre {
-    width: 50%;
+
+.hashtagComponents {
+    height: 150px;
+    padding: var(--space-xs);
 }
 
 .sub {
@@ -259,10 +363,9 @@ h3 {
 
 .sub-Box {
     width: 200px;
-    height: 100%;
-    border: 1px solid;
+    border: 1px dashed var(--color-contrast-high);
     border-radius: var(--radius-md);
-    background-color: alpha(var(--color-surface-dark),0.4);
+    background-color: alpha(var(--color-surface-lighter), 1);
     text-align: center;
     padding: var(--space-xxs);
     margin-bottom: var(--space-sm);
@@ -270,6 +373,7 @@ h3 {
     &__title {
         margin-bottom: var(--space-xxs);
     }
+
     &__list {
         display: flex;
         flex-direction: column;
@@ -280,39 +384,24 @@ h3 {
 
     &__list:hover {
         cursor: pointer;
-        user-select: none;
-        background-color: var(--color-surface-dark);
     }
 }
+
 .btn {
     background-color: var(--color-tertiary);
     color: var(--color-on-tertiary);
 }
+
 .btn:hover {
     background-color: var(--color-tertiary-dark);
     color: var(--color-on-tertiary-dark);
 }
-.inputTitle {
-    display: none;
-}
 
-.openInputTitle .inputTitle{
-    display: block;
-    padding: var(--space-xxxs);
-    background-color: var(--color-background-dark);
-}
-
-.inputHashtag {
-    display: none;
-}
-
-.openInputHashtag .inputHashtag{
-    display: block;
-    height: 120px;
-    background-color: var(--color-background-dark);
-}
-.shadow {
-  box-shadow: var(--shadow-md);
+.submit {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--space-md);
 }
 
 </style>
