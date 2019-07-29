@@ -137,16 +137,18 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /topics/{id}:
+   *  /topics/{pk}:
    *    put:
    *      tags:
    *      - topic
-   *      description: 고유한 id값을 갖는 게시판의 정보를 가져옴
+   *      description: 고유한 id값을 갖는 게시판의 정보를 수정
    *      parameters:
-   *      - name: topicInfo
-   *        in: body
-   *        schema:
-   *          $ref: '#/definitions/topicInfo'
+   *      - name: pk
+   *        in: path
+   *        type: integer
+   *      - name: info
+   *        in: query
+   *        type: string
    *      - in: header
    *        name: user_token
    *        type: string
@@ -155,20 +157,65 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.put('/topics/:id', function(req, res) {
+  app.put('/topics/:pk', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "UPDATE topic SET updatedUser = ?,is_public = ?, is_active = ?, is_removed = ?, ip_address = ?, info = ? WHERE pk = ?";
-        var i = req.body;
-        var params = [i.updatedUser, i.is_public, i.is_active, i.is_removed, i.ip_address, i.info, i.pk];
+        var sql = " UPDATE topic SET info = ? WHERE pk = ? ";
+        var params = [req.query.info, req.params.pk];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
-            res.json(rows);
+            res.send({status: "success"});
           } else {
-            res.send(err);
+            res.send({status: "fail", data: err});
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
+   *  /topics/permission/{pk}:
+   *    put:
+   *      tags:
+   *      - topic
+   *      description: 해당 게시판의 승인
+   *      parameters:
+   *      - name: pk
+   *        in: path
+   *        type: integer
+   *      - in: header
+   *        name: user_token
+   *        type: string
+   *        description: |
+   *         사용자 토큰 전달
+   *      responses:
+   *        200:
+   */
+  app.put('/topics/permission/:pk', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = " UPDATE topic SET is_active = 1 WHERE pk = ? ";
+        var params = [req.params.pk];
+        connection.query(sql, params, function(err, rows, fields) {
+          if (!err) {
+            sql = " insert into manager(topic,user,first) values(?,(select t.createduser from topic as t where t.pk  = ?),1) ";
+            params = [req.params.pk,req.params.pk];
+            connection.query(sql, params, function(err, rows, fields) {
+              if(!err){
+                res.send({status: "success"});
+              }else{
+                res.send({status: "fail", data: err});
+              }
+            });
+          } else {
+            res.send({status: "fail", data: err});
           }
         });
       }
