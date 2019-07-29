@@ -1,10 +1,11 @@
 <template>
-  <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
-    <nav-bar></nav-bar>
-    <component :is="layout" v-if="isLogin"></component>
-    <Landing v-if="!isLogin"/>
-
-  </div>
+    <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
+        <nav-bar></nav-bar>
+        <component :is="layout"></component>
+        <Landing v-if="!isLogin"/>
+        <div class="transparent">{{isLogin}}</div>
+        <Footer/>
+    </div>
 </template>
 
 <script>
@@ -14,35 +15,38 @@ import NavBar from '@/components/NavBar.vue';
 import Default from '@/layouts/Default.vue';
 //end layouts
 import Landing from '@/views/Landing.vue';
+import Footer from '@/components/Footer.vue';
+
 
 export default {
-  components: {
-    NavBar,
-    Default,
-    Landing
-  },
-  data() {
-    return {
-      themeTransition: false,
-    }
-  },
-  methods: {
-  },
-  computed: {
-    layout() {
-      return this.$route.meta.layout || "Default";
+    components: {
+        NavBar,
+        Footer,
+        Default,
+        Landing,
     },
-    theme() {
-      this.themeTransition = true;
-      setTimeout(()=> {
-        this.themeTransition = false;
-      }, 2050);
-      return this.$store.state.theme;
+    data() {
+        return {
+            themeTransition: false,
+        }
     },
-    isLogin() {
-      return this.$store.state.isLogin;
+    methods: {
+    },
+    computed: {
+        layout() {
+            return this.$route.meta.layout || "Default";
+        },
+        theme() {
+            this.themeTransition = true;
+            setTimeout(()=> {
+                this.themeTransition = false;
+            }, 2050);
+            return this.$store.state.theme;
+        },
+        isLogin() {
+            return (this.$session.exists());
+        }
     }
-  },
 }
 
 
@@ -51,21 +55,26 @@ export default {
 
 <style lang="scss">
 #app { //width
-  max-width: 1200px; // desktop size
-  margin: auto; // align center
+    max-width: 1200px; // desktop size
+    margin: auto; // align center
+    background-color: var(--color-bg); //TODO
 }
 body { //TODO
-  background-color: var(--color-black);
+//    background-color: var(--color-bg); //TODO
+}
+.transparent {
+    opacity: 0;
 }
 // dark mode smooth transition
 #app.transition {
-  & *,
-  & *:before,
-  & *:after {
-    transition: none !important;
-    transition: ease-out 2000ms !important;
-    transition-delay: 0 !important;
-  }
+    & *,
+    & *:before,
+    & *:after {
+        transition: none !important;
+        transition: ease-out 2000ms !important;
+        transition-delay: 0 !important;
+    }
 }
+
 // end dark mode smooth transition
 </style>
