@@ -76,7 +76,7 @@ $--card-main-height: 120px;
         justify-content: space-between;
         width: 140px;
         padding: var(--space-md);
-        padding-right: 10px;    
+        padding-right: var(--space-xxs);;    
 
             &__column {
                 display: flex;
@@ -87,7 +87,7 @@ $--card-main-height: 120px;
 
     .main {
         flex: 1;
-        padding: 10px;
+        padding: var(--space-xxs);;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -103,7 +103,7 @@ $--card-main-height: 120px;
     .user {
             background-color: var(--color-surface);
             width: 200px;
-            padding: 15px;
+            padding: var(--space-xs);
                 &__top {
                     display: flex;
                 }
