@@ -29,11 +29,7 @@
                     </div>
 
                     <label for="content"><strong>content</strong> - 문제 해결을 위해 시도한 것들을 상세하게 작성해주십시오.</label>
-                    <froala id="edit content" :tag="'textarea'" :config="config" v-model="model"></froala>
-                    
-
-                    <label for="code"><strong>Code</strong> - <router-link to='/code'> 마크다운 사용법 가이드 </router-link></label>
-                    <vue-simplemde v-model="content" ref="markdownEditor" />
+                    <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
 
                     <label for="hashtag"><strong>hashtag</strong> - 사용된 기술들을 태그해두면 질문을 검색하기에 용이합니다.</label>
                     <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchBox' : checkInputHashtag}">
@@ -111,11 +107,9 @@ export default {
                 }
                 }
             },
-            model: '',
+            inputContent: '',
             inputTitle : '',
-            inputCode : '',
             inputHashtag: '',
-            inputCode: '',
             Hot: [
                 'DynamicRouter',
                 'Vuetify',
@@ -162,7 +156,7 @@ export default {
             return this.$route.name;
         },
         checkContent() {
-            return this.inputTitle + this.inputHashtag + this.inputCode + this.model + this.Code
+            return this.inputTitle + this.inputHashtag + this.inputCode + this.inputContent + this.Code
         }
     },
      mounted() {
@@ -182,7 +176,7 @@ export default {
                             Content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry'
                         },
                 }],
-        this.model = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명",
+        this.inputContent = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 시도한 코드를 작성하십시오. <br> 4. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명 <br> ```<br>이곳에 코드를 작성하십시오.<br>```" ,
         this.hashtagLists = [
             {
                 title: 'C++',

@@ -79,7 +79,7 @@ $--card-main-height: 120px;
         width: 100%;
         height: 120px;
         color: alpha(var(--color-on-surface), 0.2) !important;
-        z-index: 10;
+        
     }
     .badquestion p{
         color: alpha(var(--color-on-surface), 0.2) !important;

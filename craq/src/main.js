@@ -26,18 +26,11 @@ library.add(fas, far, fab);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 //end font awesome
 
+
 //font awesome tester i tag  to svg
 import {dom} from '@fortawesome/fontawesome-svg-core';
 dom.watch()
 //font awesome tester
-
-//markdown View
-import VueSimplemde from 'vue-simplemde'
-import 'simplemde/dist/simplemde.min.css'
-
-Vue.component('vue-simplemde', VueSimplemde)
-//end markdown View
-
 
 Vue.config.productionTip = false
 
