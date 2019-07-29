@@ -22,10 +22,10 @@
           </div> <!-- Filter /div -->
 
 
-          <div v-for="list in cardLists" >
-            <router-link to='/code'>
+          <div v-for="list in cardLists" class="content">
+            
             <card class="shadow" :list="list"/>
-            </router-link>
+            
           </div>
           
            
@@ -205,13 +205,6 @@ export default {
   width: auto;
   background-color: var(--color-background);
 }
-.container {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  margin-left: auto;
-  margin-right: auto;
-}
 
 .headline {
   background-color: var(--color-surface);
@@ -266,8 +259,19 @@ export default {
 }
 
 .shadow {
-  width: 100%;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
+  width: 95%;
+  border: 1px solid var(--color-contrast-low);
+  margin-bottom: var(--space-md);
 }
 
+.shadow:hover {
+  cursor: pointer;
+}
+
+.content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 </style>
