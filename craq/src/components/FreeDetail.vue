@@ -2,7 +2,7 @@
   <div class="board">
     <!-- <h1>Free Detail</h1> -->
     <div v-if="!isEdit">
-      <table class="freedetail" cellpadding="0" cellspacing="0">
+      <table class="freedetail" cellpadding="0 width-100%" cellspacing="0">
         <thead style="text-align:left">
           <tr>
             <th class="th" scope="col" colspan="4">{{info.user_name}}</th>
@@ -48,6 +48,8 @@
       <div v-for="comment in comments">
         <FreeComment :comment="comment"/>
       </div>
+      <input type="text" name="answer" v-model="answer" class="form-control width-90%"/>
+      <button type="button" name="regist" class="btn btn--accent btn--md" @click="commentRegist">등록</button>
       <FreeList/>
     </div>
   </div>

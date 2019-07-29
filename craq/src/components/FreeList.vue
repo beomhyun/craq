@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <table class="freetable table">
-      <col width="10%"><col width="30%"><col width="15%"><col width="20%"><col width="15%"><col width="10%">
+    <table class="freetable table width-100%">
+      <col width="10%"><col width="30%"><col width="10%"><col width="15%"><col width="20%"><col width="15%">
       <thead>
         <tr>
           <th>번호</th>
@@ -13,7 +13,15 @@
         </tr>
       </thead>
       <tbody>
-      <tr v-for="(board, index) in sortedData">
+      <tr v-if="noticeToggle" v-for="notice in topic_notices">
+        <td>공지</td>
+        <td v-html="notice.title" @click="showDetail(notice)"></td>
+        <td v-html="notice.user_name"></td>
+        <td v-html="notice.createAt"></td>
+        <td v-html="notice.views"></td>
+        <td v-html="notice.recommend"></td>
+      </tr>
+      <tr v-for="board in sortedData">
         <td v-html="board.id"></td>
         <td v-html="board.title" @click="showDetail(board)"></td>
         <td v-html="board.user_name"></td>
@@ -24,10 +32,10 @@
       </tbody>
     </table>
     <div class="container max-width-lg">
-      <button class="btn btn--subtle btn--md" style="margin:5px;">공지사항</button>
+      <button class="btn btn--subtle btn--md" style="margin:5px;" @click="notice">공지사항</button>
       <button class="btn btn--subtle btn--md" style="margin:5px;" @click="newest">최신순</button>
       <button class="btn btn--subtle btn--md" style="margin:5px;" @click="viewSort">조회순</button>
-      <button @click="boardwrite" class="btn btn--primary btn--md" style="margin:5px;">글쓰기</button>
+      <button class="btn btn--primary btn--md" style="margin:5px;" @click="boardwrite">글쓰기</button>
     </div>
   </div>
 </template>
@@ -44,6 +52,7 @@ export default {
       newtoggle : true,
       viewtoggle : true,
       isNew : false,
+      noticeToggle : false,
       topic_articles : [
           {
             id : '1',
@@ -92,6 +101,26 @@ export default {
             views : '1800',
             recommend : '31'
           },
+        ],
+        topic_notices : [
+          {
+            id : '5',
+            title : 'First Notice',
+            body : '규정을 잘 지킵시다',
+            user_name : '관리자',
+            createAt : '19.07.29',
+            views : '10000',
+            recommend : '331'
+          },
+          {
+            id : '5',
+            title : 'Second Notice',
+            body : '규정 좀 잘 지킵시다.',
+            user_name : '관리자',
+            createAt : '19.07.29',
+            views : '11000',
+            recommend : '431'
+          }
         ]
       }
     },
@@ -124,12 +153,15 @@ export default {
         }else {
           this.viewtoggle = true;
         }
+      },
+      notice() {
+        this.noticeToggle = !this.noticeToggle;
       }
     },
     computed: {
       sortedData : function() {
         return this.topic_articles.sort((a,b) => {
-          let modifier = 1;
+          
           if(this.isNew) {
             if(this.newtoggle) {
               return a.id - b.id

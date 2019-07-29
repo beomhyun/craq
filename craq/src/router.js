@@ -61,14 +61,7 @@ export default new Router({
       path: '/freeboard/:topic',
       meta: {},
       name: 'freeboard',
-      component: FreeBoard,
-      children : [
-        {
-          path: 'freedetail/:id',
-          name: 'freedetail',
-          component: FreeDetail
-        }
-      ]
+      component: FreeBoard
     },
   ]
 })

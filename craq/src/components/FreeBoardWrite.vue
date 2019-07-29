@@ -3,15 +3,15 @@
     <h2>{{boardName}}</h2>
 
     <form action="" method="post" id="_frmForm" name="frmForm" @submit.prevent="addfreeBoard" class="form-horizontal">
-      <div>
-        <select v-model="selected" class="form-control width 20%">
+      <div class="form-control width-100%">
+        <select v-model="selected" class="form-control width-30%">
           <!-- inline object literal -->
           <option v-bind:value="Notice">Notice</option>
           <option v-bind:value="Chat">Chat</option>
         </select>
-        <input type="text" name="title" v-model="title" class="form-control width 80%">
+        <input type="text" name="title" v-model="title" class="form-control width-70%">
       </div>
-      <textarea rows="10" cols="80" name="content" class="form-control width 100%" v-model="content"/>
+      <textarea rows="10" cols="80" name="content" class="form-control width-100%" v-model="content"/>
       <div>
         <!-- <input type="text" name="filename" v-model="filename" readonly=true/> -->
         <input type="file" @change="previewImage" accept="image/*" class="form-control-file"/>
