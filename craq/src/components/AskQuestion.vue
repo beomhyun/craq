@@ -30,7 +30,7 @@
 
                     <label for="content"><strong>content</strong> - 문제 해결을 위해 시도한 것들을 상세하게 작성해주십시오.</label>
                     <froala id="edit content" :tag="'textarea'" :config="config" v-model="model"></froala>
-                    <froalaView v-model="model"></froalaView>
+                    
 
                     <label for="hashtag"><strong>hashtag</strong> - 사용된 기술들을 태그해두면 질문을 검색하기에 용이합니다.</label>
                     <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchBox' : checkInputHashtag}">
@@ -177,7 +177,7 @@ export default {
                             Content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry'
                         },
                 }],
-        this.model = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 실제로 적용해본 코드 <br> 4. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명",
+        this.model = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명",
         this.hashtagLists = [
             {
                 title: 'C++',
@@ -265,7 +265,6 @@ label {
 .questionForm {
     width: 100%;
     padding: var(--space-xxs);
-    margin-top: var(--space-xs);
     border: 1px solid var(--color-contrast-low);
     border-radius: var(--radius-lg);
 }
