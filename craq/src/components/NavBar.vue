@@ -27,10 +27,8 @@
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
             <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
             <li class="main-header__nav-item main-header__nav-divider" v-if="!onSearch"></li>
-            <li class="main-header__nav-item" v-show="onSearch">
-              <form action="" class="expandable-search">
-                <input type="search" class="form-control" name="q" id="header-search" v-model="searchInput" @blur="searchToggle">
-              </form>
+            <li class="main-header__nav-item">
+                <NavBarSearch @onBlur="searchToggle" :show="onSearch"></NavBarSearch>
             </li>
             <li class="main-header__nav-item" v-show="!onSearch">
               <label for="header-search" class="form-label" @click="searchToggle"><font-awesome-icon icon="search"/></label></li>
@@ -51,10 +49,12 @@
 
 <script>
 import NavBarDropDown from '@/components/NavBarDropDown';
+import NavBarSearch from '@/components/NavBarSearch';
 export default {
   name: "NavBar",
     components: {
-        NavBarDropDown
+        NavBarDropDown,
+        NavBarSearch
     },
   data() {
     return {
@@ -227,7 +227,9 @@ $--expandable-search-size: 1em;
 
 .form-label {
   cursor: pointer;
+
 }
+
 .expandable-search {
   position: relative;
   display: inline-block;
