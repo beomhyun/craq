@@ -6,73 +6,34 @@
             Ask-Question
         </div> <!-- headline -->
 
-        <div class="askQuestion">
-            <div class="askMain">
-            <div class="notice">
-                <div class="notice__title">
-                    !!! Caution !!! 
-                </div>
-                <div class="notice__content">
-                    질문 하는법을 알려줄건데 여기도 영어로 적엇다간 호되게 욕먹을거 같아요.
-                </div>
+       <!-- Body -->
+       <div class="mainContent">
+        <div class="inputQuestion">
+                <label for="title">title</label>
+                <input type="text" id="title">
+                <label for="content">content</label>
+                <input type="text" id="content">
+                <label for="code">code</label>
+                <input type="text" id="code">
+                <label for="hashtag">hashtag</label>
+                <input type="text" id="hashtag">
             </div>
-        <!-- Form -->
-        
-        <form class="askForm" @submit.prevent="createQuestion"> 
-            
-            <h3>Content</h3>
-            <div class="askForm__content">    
-                <div id="md" >
-                    <textarea style="height:auto" rows="16" v-model='md_text' class="askForm__content-md"></textarea>
-                </div>
 
-                <div id="preview">
-                    <div v-html='previewText' class="askForm__content-pre"></div>
+            <div class="sub">
+                <div class="sub-Box">
+                    <h3 class="sub-Box__title">Hot HashTags</h3>
+                    <div v-for="item in Hot" class="sub-Box__list">
+                        <div @click="createQuestion" class="btn">{{item}}</div>
+                    </div>
                 </div>
-            </div>
-    
-
-            <!-- <textarea  name="" class="askForm__content" id="content" v-model="inputContent"></textarea> -->
-            
-            <h3>Hashtag</h3>
-            <input-tag v-model="inputHashtag" class="askForm__hashtag" ></input-tag>
-            <!-- HashtagSearch -->
-            <div :class="{'openInputHashtag' : checkInputHashtag}">
-                <div class="inputHashtag">
-                    <h1>{{ inputHashtag }}</h1>
-                </div>
-            </div>
-            <!-- HashtagSearch -->
-
-            <div class="askForm__submit">
-                <div>
-                    <input type="checkbox" name="" id="visible">
-                    <label for="visible">Visible / Invisible</label>
-                </div>
-                <input type="submit" value="제출">
-            </div>
-        </form>
-            <!-- Form -->
-        </div>
-        <div class="sub">
-            <div class="sub-Box">
-                <h3 class="sub-Box__title">Hot HashTags</h3>
-                <div v-for="item in Hot" class="sub-Box__list">
-                    <div @click="createQuestion" class="btn">{{item}}</div>
-                </div>
-            </div>
-            <div class="sub-Box">
-                <h3 class="sub-Box__title">How To Use</h3>
-                <div v-for="item in FaQ" class="sub-Box__list">
-                    <div @click="createQuestion" >{{item}}</div>
+                <div class="sub-Box">
+                    <h3 class="sub-Box__title">How To Use</h3>
+                    <div v-for="item in FaQ" class="sub-Box__list">
+                        <div @click="createQuestion" >{{item}}</div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        </div>
-        
-       
-
     </div>
 </template>
 
@@ -161,13 +122,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
-h3 {
-    font-weight: bold;
-}
+
 .container {
   display: flex;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
   margin-left: auto;
   margin-right: auto;
 }
@@ -175,81 +134,20 @@ h3 {
 .headline {
   background-color: var(--color-surface);
   padding: var(--space-xs);
-  width: 890px;
+  width: 100%;
   height: 75px;
   font-size: var(--text-xxl);
   text-transform: capitalize;
 }
 
-.askQuestion {
+.mainContent {
     display: flex;
     justify-content: space-between;
-    background-color: var(--color-surface);
-    text-align: center;
-    width: 890px;    
-}
-.askMain {
-    width: 100%;
-    margin-right: var(--space-md);
-}
-.notice {
-    width: 100%;
-    height: 300px;
-    padding: var(--space-sm);
-    border: 1px dashed var(--color-accent-light);
-    background-color: rgba(238, 220, 118, 0.5);
-    margin-bottom: var(--space-xs);
-    text-align: center;
-
-    &__title {
-        color: alpha(var(--color-accent), 0.8);
-        font-size: var(--text-xl);
-    }
-
-    &__content {
-        font-size: var(--text-md);
-        font-weight: 600;
-    }
 }
 
-
-.askForm {
-        display: flex;
-        width: 100%;
-        
-        flex-direction: column;
-        align-items: center;
-        
-        &__content {
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-
-            &-md{
-                width: 100%;
-            }
-            &-pre {
-                width: 100%;
-            }
-        }
-
-        &__code {
-            height: 150px;
-            resize: none;
-        }
-
-        &__submit {
-        display: flex;
-        justify-content: space-between;
-        margin-top: var(--space-xxxs);
-    }
-}
-
-#md {
-    width: 50%;
-}
-#pre {
-    width: 50%;
+.inputQuestion {
+    display: flex;
+    flex-direction: column;
 }
 
 .sub {
@@ -260,9 +158,9 @@ h3 {
 .sub-Box {
     width: 200px;
     height: 100%;
-    border: 1px solid;
+    border: 1px dashed;
     border-radius: var(--radius-md);
-    background-color: alpha(var(--color-surface-dark),0.4);
+    background-color: alpha(var(--color-surface-dark),0.2);
     text-align: center;
     padding: var(--space-xxs);
     margin-bottom: var(--space-sm);
@@ -291,28 +189,6 @@ h3 {
 .btn:hover {
     background-color: var(--color-tertiary-dark);
     color: var(--color-on-tertiary-dark);
-}
-.inputTitle {
-    display: none;
-}
-
-.openInputTitle .inputTitle{
-    display: block;
-    padding: var(--space-xxxs);
-    background-color: var(--color-background-dark);
-}
-
-.inputHashtag {
-    display: none;
-}
-
-.openInputHashtag .inputHashtag{
-    display: block;
-    height: 120px;
-    background-color: var(--color-background-dark);
-}
-.shadow {
-  box-shadow: var(--shadow-md);
 }
 
 </style>
