@@ -34,6 +34,7 @@
               <label for="header-search" class="form-label" @click="searchToggle"><font-awesome-icon icon="search"/></label></li>
             <li class="main-header__nav-item">
               <div style="position: relative;">
+                
                 <NavBarDropDown :noties="noties" @onClose="notyClose" @onGo="notyGo" @signOut="signOut"></NavBarDropDown>
                 <span class="counter counter--primary counter--docked" v-if="notiesLength">
                   {{notiesLength}}
