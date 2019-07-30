@@ -577,6 +577,6 @@ const initializeEndpoints = (app) => {
     });
   });
   
-  //test1
+  //test2
 };
 module.exports = initializeEndpoints;
