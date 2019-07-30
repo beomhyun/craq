@@ -220,10 +220,6 @@ const initializeEndpoints = (app) => {
    *        in: path
    *        type: integer
    *        description: article들을 가져올 page위치의 값
-   *      - name: article_type
-   *        in: query
-   *        type: integer
-   *        description: 질문 article일 경우 0을 입력해줌 ( 그 외엔 입력 X )
    *      - name: user_token
    *        in: query
    *        type: string
@@ -247,10 +243,7 @@ const initializeEndpoints = (app) => {
             if (totalArticle > totalPage * ARTICLE_PER_PAGE) {
               totalPage++;
             }
-            sql = `SELECT B.ROWNUM, B.TOPIC, B.TITLE, B.CREATEDUSER, B.CREATED_AT FROM ( SELECT ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS ROWNUM, A.TOPIC, C.TITLE, C.CREATEDUSER, C.CREATED_AT, ( SELECT COUNT(ARTICLE) FROM VIEW WHERE ARTICLE = A.PK ) AS VIEW, ( SELECT SUM(GOOD) FROM VOTE WHERE ARTICLE = A.PK ) AS VOTE FROM ARTICLE AS A JOIN CONTENT AS C ON A.CONTENT = C.PK WHERE A.TOPIC = ${req.params.topic} AND A.IS_REMOVED = ${FALSE}) AS B WHERE ROWNUM > ${ARTICLE_PER_PAGE}*(${req.params.page}-1) AND ROWNUM <= ${req.params.page}*${ARTICLE_PER_PAGE}`;
-            if(req.query.article_type == 0){ // 얻어올 article의 형식이 질문일 경우
-              sql = `SELECT B.ROWNUM, B.TOPIC, B.TITLE, B.CREATEDUSER, B.CREATED_AT FROM ( SELECT ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS ROWNUM, A.TOPIC, C.TITLE, C.CREATEDUSER, C.CREATED_AT, ( SELECT COUNT(ARTICLE) FROM VIEW WHERE ARTICLE = A.PK ) AS VIEW, ( SELECT SUM(GOOD) FROM VOTE WHERE ARTICLE = A.PK ) AS VOTE FROM ARTICLE AS A JOIN CONTENT AS C ON A.CONTENT = C.PK WHERE A.TOPIC = ${req.params.topic} AND A.IS_REMOVED = ${FALSE} AND A.ARTICLE = ${IS_QUESTION}) AS B WHERE ROWNUM > ${ARTICLE_PER_PAGE}*(${req.params.page}-1) AND ROWNUM <= ${req.params.page}*${ARTICLE_PER_PAGE}`;
-            }
+            sql = `SELECT B.ROWNUM, B.TOPIC, B.TITLE, B.CREATEDUSER, B.CREATED_AT FROM ( SELECT ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS ROWNUM, A.TOPIC, C.TITLE, C.CREATEDUSER, C.CREATED_AT, ( SELECT COUNT(ARTICLE) FROM VIEW WHERE ARTICLE = A.PK ) AS VIEW, ( SELECT SUM(GOOD) FROM VOTE WHERE ARTICLE = A.PK ) AS VOTE FROM ARTICLE AS A JOIN CONTENT AS C ON A.CONTENT = C.PK WHERE A.TOPIC = ${req.params.topic} AND A.IS_REMOVED = ${FALSE}) AS B WHERE ROWNUM >  ${ARTICLE_PER_PAGE}*(${req.params.page}-1) AND ROWNUM <= ${req.params.page}*${ARTICLE_PER_PAGE}`;
             connection.query(sql, function(err, rows, fields) {
               if (!err) {
                 res.json(rows);
@@ -284,10 +277,6 @@ const initializeEndpoints = (app) => {
    *        in: path
    *        type: integer
    *        description: 최신 article들을 받아올 갯수
-   *      - name: article_type
-   *        in: query
-   *        type: integer
-   *        description: 질문 article일 경우 0을 입력해줌 ( 그 외엔 입력 X )
    *      - name: user_token
    *        in: query
    *        type: string
@@ -301,13 +290,7 @@ const initializeEndpoints = (app) => {
         error: 'invalid token'
       });
       else {
-        var sql = '';
-        if(req.query.article_type == 0){
-          // 질문 article을 얻고자 할 때  (article == 0일 때 질문글)
-          sql = `SELECT ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS ROWNUM, A.TOPIC, C.TITLE, A.CREATEDUSER FROM ARTICLE AS A JOIN CONTENT AS C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = ${FALSE} AND A.ARTICLE = ${req.query.article_type} AND A.TOPIC = ${req.params.topic} LIMIT ${req.params.limit}`;
-        }else{
-          sql = `SELECT ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS ROWNUM, A.TOPIC, C.TITLE, A.CREATEDUSER FROM ARTICLE AS A JOIN CONTENT AS C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = ${FALSE} AND A.TOPIC = ${req.params.topic} LIMIT ${req.params.limit}`;
-        }
+        sql = `SELECT ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS ROWNUM, A.TOPIC, C.TITLE, A.CREATEDUSER FROM ARTICLE AS A JOIN CONTENT AS C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = ${FALSE} AND A.TOPIC = ${req.params.topic} LIMIT ${req.params.limit}`;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             res.json(rows);
