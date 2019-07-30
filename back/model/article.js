@@ -365,6 +365,181 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
+   *  /articles/helpful/{user}/{article}:
+   *    post:
+   *      tags:
+   *      - article
+   *      description: 특정글의 helpful 정보를 수정함.
+   *      parameters:
+   *      - name: user
+   *        in: path
+   *        type: integer
+   *        description: 추천한 유저의 id값 전달
+   *      - name: article
+   *        in: path
+   *        type: integer
+   *        description: 추천 받을 글의 id값 전달
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.post('/articles/helpful/:user/:article', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = " select count(*) checking, good from vote where article = ? and user = ? ";
+        var params = [req.params.article,req.params.user];
+        connection.query(sql, params,function(err, rows, fields) {
+          if (!err) {
+            if(rows[0].checking == 0){
+              sql = " insert into vote(article, user, good) values(?,?,1) ";
+              connection.query(sql, params,function(err, rows, fields) {
+                if(!err){
+                  res.send({status: "success"});
+                }else{
+                  res.send({status: "fail", data: err});
+                }
+              });
+
+            }else if(good == -1){
+              sql = " update vote set good = 1 where article = ? and user = ? ";
+              connection.query(sql, params,function(err, rows, fields) {
+                if(!err) res.send({status: "success"});
+                else res.send({status: "fail", data: err});
+              });
+            }else{
+              res.send({status: "fail", data: "alredy votes"});
+            }
+          } else {
+            console.log('article insert err ', err);
+            res.send({status: "fail", data: err});
+          }
+        });
+      }
+    });
+  });
+  /**
+   * @swagger
+   *  /articles/unhelpful/{user}/{article}:
+   *    post:
+   *      tags:
+   *      - article
+   *      description: 특정글의 helpful 정보를 수정함.
+   *      parameters:
+   *      - name: user
+   *        in: path
+   *        type: integer
+   *        description: 추천한 유저의 id값 전달
+   *      - name: article
+   *        in: path
+   *        type: integer
+   *        description: 추천 받을 글의 id값 전달
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.post('/articles/unhelpful/:user/:article', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = " select count(*) checking, good from vote where article = ? and user = ? ";
+        var params = [req.params.article,req.params.user];
+        connection.query(sql, params,function(err, rows, fields) {
+          if (!err) {
+            if(rows[0].checking == 0){
+              sql = " insert into vote(article, user, good) values(?,?,-1) ";
+              connection.query(sql, params,function(err, rows, fields) {
+                if(!err){
+                  res.send({status: "success"});
+                }else{
+                  res.send({status: "fail", data: err});
+                }
+              });
+
+            }else if(good == 1){
+              sql = " update vote set good = -1 where article = ? and user = ? ";
+              connection.query(sql, params,function(err, rows, fields) {
+                if(!err) res.send({status: "success"});
+                else res.send({status: "fail", data: err});
+              });
+            }else{
+              res.send({status: "fail", data: "alredy votes"});
+            }
+          } else {
+            console.log('article insert err ', err);
+            res.send({status: "fail", data: err});
+          }
+        });
+      }
+    });
+  });
+  /**
+   * @swagger
+   *  /articles/views/{user}/{article}:
+   *    post:
+   *      tags:
+   *      - article
+   *      description: 특정글의 조회 정보를 수정함.
+   *      parameters:
+   *      - name: user
+   *        in: path
+   *        type: integer
+   *        description: 조회 유저의 id값 전달
+   *      - name: article
+   *        in: path
+   *        type: integer
+   *        description: 조회 받을 글의 id값 전달
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.post('/articles/views/:user/:article', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = " select count(*) checking from view where article = ? and user = ? ";
+        var params = [req.params.article,req.params.user];
+        connection.query(sql, params,function(err, rows, fields) {
+          if (!err) {
+            if(rows[0].checking == 0){
+              sql = " insert into view(article, user) values(?,?) ";
+              connection.query(sql, params,function(err, rows, fields) {
+                if(!err){
+                  res.send({status: "success"});
+                }else{
+                  res.send({status: "fail", data: err});
+                }
+              });
+
+            }else{
+              res.send({status: "fail", data: "alredy views"});
+            }
+          } else {
+            console.log('article insert err ', err);
+            res.send({status: "fail", data: err});
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
    *  /articles/{id}:
    *    delete:
    *      tags:
