@@ -32,6 +32,9 @@
                     <froala id="edit content" :tag="'textarea'" :config="config" v-model="model"></froala>
                     
 
+                    <label for="code"><strong>Code</strong> - <router-link to='/code'> 마크다운 사용법 가이드 </router-link></label>
+                    <vue-simplemde v-model="content" ref="markdownEditor" />
+
                     <label for="hashtag"><strong>hashtag</strong> - 사용된 기술들을 태그해두면 질문을 검색하기에 용이합니다.</label>
                     <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchBox' : checkInputHashtag}">
 
@@ -86,8 +89,8 @@
 <script>
 import Card from '@/components/CardforAsk.vue';
 import VueFroala from 'vue-froala-wysiwyg';
+import VueSimplemde from 'vue-simplemde';
 
-import { realpathSync } from 'fs';
 export default {
     name: 'AskQuestion',
     props: {
@@ -95,6 +98,7 @@ export default {
     },
     components: {
         Card,
+        VueSimplemde
     },
     data() {
         return{
@@ -109,6 +113,7 @@ export default {
             },
             model: '',
             inputTitle : '',
+            inputCode : '',
             inputHashtag: '',
             inputCode: '',
             Hot: [
@@ -157,7 +162,7 @@ export default {
             return this.$route.name;
         },
         checkContent() {
-            return this.inputTitle + this.inputHashtag + this.inputCode + this.model
+            return this.inputTitle + this.inputHashtag + this.inputCode + this.model + this.Code
         }
     },
      mounted() {
@@ -218,7 +223,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
+@import '~simplemde/dist/simplemde.min.css';
 .container {
   display: flex;
   flex-direction: column;
