@@ -98,7 +98,7 @@ $--card-main-height: 120px;
         border-radius: calc(var(--radius, 0.25em));
         display: flex;
         justify-content: space-between;
-        background-color:var(--color-surface);
+        background-color:var(--color-surface-light);
         color:var(--color-on-surface);
         margin-top: var(--space-xxxs);
         width: 100%;
