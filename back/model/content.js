@@ -6,6 +6,18 @@ const multer = require('multer');
 const path = require("path");
 const TRUE = 1;
 
+let storage = multer.diskStorage({
+  destination: function(req, file, callback) {
+    callback(null, "image/contents/")
+  },
+  filename: function(req, file, callback) {
+    callback(null, new Date().valueOf() + path.extname(file.originalname));
+  }
+});
+const upload = multer({
+  storage
+});
+
 const initializeEndpoints = (app) => {
   /**
    * @swagger
@@ -13,42 +25,45 @@ const initializeEndpoints = (app) => {
    *    post:
    *      tags:
    *      - content
-   *      description: 처음으로 content를 작성.(article도 post 됨)
+   *      description: content를 작성
    *      parameters:
-   *      - name: contentInfo
-   *        in: body
-   *        schema:
-   *          type: object
-   *          properties:
-   *            article_id:
-   *              type: integer
-   *              description: 작성할 article id값 전달.
-   *            beforeContent:
-   *              type: integer
-   *              description: 참고한 content id값 전달
-   *            title:
-   *              type: string
-   *              description: content의 제목 전달
-   *            body:
-   *              type: string
-   *              description: content의 내용 전달
-   *            image:
-   *              type: string
-   *              description: image 링크를 전달
-   *            user_id:
-   *              type: integer
-   *              description: 작성자의 user id값 전달
-   *            topic_id:
-   *              type: integer
-   *              description: topic id값 전달(질문과답변 등...)
-   *            user_token:
-   *              type: string
-   *              description: 사용자의 token 정보
+   *      - in: query
+   *        name: topic_id
+   *        type: integer
+   *        description: topic의 id 값
+   *      - in: query
+   *        name: article_id
+   *        type: integer
+   *        description: 최초 작성 시에 질문인지, 답변 글인지 넣어줄 값
+   *      - in: query
+   *        name: beforeContent
+   *        type: integer
+   *        description: 작성하기 전에 참고할 content id값
+   *      - in: query
+   *        name: title
+   *        type: string
+   *        description: content에 넣을 title
+   *      - in: query
+   *        name: body
+   *        type: string
+   *        description: content에 넣을 body
+   *      - in: formData
+   *        name: image
+   *        type: file
+   *        description: content에 넣을 image
+   *      - in: query
+   *        name: user_id
+   *        type: integer
+   *        description: 작성자의 user id값
+   *      - in: query
+   *        name: user_token
+   *        type: string
+   *        description: 작성자의 token값
    *      responses:
    *        200:
    */
-  app.post('/contents', function(req, res) {
-    var i = req.body;
+  app.post('/contents', upload.single('image'), function(req, res) {
+    var i = req.query;
     var sql = "";
     var params = [];
     jwt.verify(i.user_token, secretObj.secret, function(err, decoded) {
@@ -56,16 +71,26 @@ const initializeEndpoints = (app) => {
         error: 'invalid token'
       });
       else {
-        if (i.beforeContent === 0) { // 이전에 작성한 content가 없는 최초의 article 작성일 때
+        if (i.beforeContent == 0) { // 이전에 작성한 content가 없는 최초의 article 작성일 때
           sql = "INSERT INTO content(title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?)";
           params = [i.title, i.body, i.image, i.user_id, i.user_id];
           connection.query(sql, params, function(err, rows, fields) {
             if (!err) {
+              var contentId = rows.insertId;
               sql = "INSERT INTO article(topic,article,content,createdUser,updatedUser) VALUES(?,?,?,?,?)"
-              params = [i.topic_id, i.article_id, rows.insertId, i.user_id, i.user_id];
+              params = [i.topic_id, i.article_id, contentId, i.user_id, i.user_id];
               connection.query(sql, params, function(err, rows, fields) {
                 if (!err) {
-                  res.json(rows);
+                  console.log("rows.insertId = " + rows.insertId);
+                  sql = `UPDATE CONTENT SET ARTICLE = ${rows.insertId} WHERE pk = ${contentId}`;
+                  connection.query(sql, params, function(err, rows, fields) {
+                    if (!err) {
+                      res.json(rows);
+                    } else {
+                      console.log('content update err.', err);
+                      res.send(err);
+                    }
+                  });
                 } else {
                   console.log('Error while performing Query.', err);
                   res.send(err);
@@ -78,12 +103,12 @@ const initializeEndpoints = (app) => {
           });
         } else { // 이전에 작성한 content가 있고 기존의 article이 존재할 때
           sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?,?,?)";
-          params = [i.article_id, i.beforeContent, i.title, i.body, i.image, i.user_id, i.user_id];
+          params = [i.article_id, i.beforeContent, i.title, i.body, req.file.filename, i.user_id, i.user_id];
           connection.query(sql, params, function(err, rows, fields) {
             if (!err) {
               // 기존 article의 content 값을 추가한 contetn id값으로 변경, updatedUser 수정
               sql = "UPDATE article SET content = ?, updatedUser = ? WHERE pk = ?";
-              params = [row.insertId, i.user_id, i.article_id];
+              params = [rows.insertId, i.user_id, i.article_id];
               connection.query(sql, params, function(err, rows, fields) {
                 if (!err) {
                   res.json(rows);
@@ -98,6 +123,36 @@ const initializeEndpoints = (app) => {
             }
           });
         }
+      }
+    });
+  });
+
+  /**
+   * @swagger
+   *  /contents/content-image/{pk}:
+   *    get:
+   *      tags:
+   *      - content
+   *      description: 해당 content의 이미지를 가져옴.
+   *      responses:
+   *       200:
+   *      parameters:
+   *       - in: path
+   *         name: pk
+   *         type: integer
+   *         description: 사용자 pk 전달
+   */
+  app.get('/contents/content-image/:pk', function(req, res) {
+    var sql = " select count(*) as cheking, image from content where pk = ? ";
+    var params = [req.params.pk];
+    connection.query(sql, params, function(err, rows, fields) {
+      if (!err) {
+        var img = '<img src="/' + rows[0].image + '">';
+        res.send(img);
+      } else {
+        res.send({
+          status: "fail"
+        });
       }
     });
   });
@@ -258,7 +313,7 @@ const initializeEndpoints = (app) => {
       });
       else {
         var sql = "UPDATE content SET title = ?,body = ?, image = ? WHERE pk = ?";
-        var params = [req.query.title,req.query.body,req.query.image,req.params.id];
+        var params = [req.query.title, req.query.body, req.query.image, req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
             res.json(rows);
