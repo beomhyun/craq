@@ -9,6 +9,7 @@
        <div class="mainContent">
            
             <div class="inputQuestion">
+                <div class="test">
                 <div class="inputQuestion__form">
                     <label for="title"><strong>Title</strong> - 제목을 입력시 유사한 질문을 표시해 줍니다.</label>
                     <input type="text" id="title" v-model="inputTitle" class="questionForm" placeholder="Enter a Title" :class="{'openSearchBox' : checkInputTitle}">
@@ -32,7 +33,7 @@
                     <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
 
                     <label for="hashtag"><strong>hashtag</strong> - 사용된 기술들을 태그해두면 질문을 검색하기에 용이합니다.</label>
-                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchBox' : checkInputHashtag}">
+                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : checkInputHashtag}">
 
                     <div class="searchHashtag">
 
@@ -57,12 +58,12 @@
                     </div>
 
                     <div class="submit">
-                        <div class="btn">Submit</div>
+                        <div class="btn btn__submit">Submit</div>
                     </div>
                 </div>
                 
             </div>
-
+</div>
             <div class="sub">
                 <div class="sub-Box">
                     <h3 class="sub-Box__title">Hot HashTags</h3>
@@ -102,10 +103,11 @@ export default {
             hashtagLists: [],
             config: {
                 events: {
-                initialized: function () {
-                    console.log('initialized')
-                }
-                }
+                    initialized: function () {  
+                        console.log('initialized')
+                    },
+                },
+                width: '800'
             },
             inputContent: '',
             inputTitle : '',
@@ -238,7 +240,9 @@ export default {
 .mainContent {
     display: flex;
     justify-content: space-between;
-    margin-top: var(--space-sm);
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-xl);
+    background-color: var(--color-surface);
     width: 100%;
     margin-bottom: var(--space-md);
 }
@@ -253,12 +257,22 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 538px;
+        width: 800px;
     }
+}
+.test {
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-light);
+    padding: var(--space-xl) var(--space-md);
 }
 
 label {
     margin: var(--space-md);
+}
+
+strong {
+    font-size: var(--text-md);
 }
 
 .questionForm {
@@ -344,7 +358,7 @@ label {
     }
 }
 
-.openSearchBox ~ .searchHashtag {
+.openSearchHBox ~ .searchHashtag {
     height: auto;
     visibility: visible;
     opacity: 1;
@@ -388,12 +402,18 @@ label {
 
 .btn {
     background-color: var(--color-tertiary);
-    color: var(--color-on-tertiary);
+    color: var(--color-black);
+    box-shadow: none;
+    
+    &__submit{
+        background-color: var(--color-primary-dark);
+
+    }
 }
 
 .btn:hover {
-    background-color: var(--color-tertiary-dark);
-    color: var(--color-on-tertiary-dark);
+    background-color: var(--color-tertiary-light);
+    color: var(--color-black);
 }
 
 .submit {

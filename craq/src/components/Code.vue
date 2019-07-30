@@ -250,11 +250,13 @@ export default {
 }
 
 .btn {
+  color: #ffffff;
+  background-color: var(--color-primary-dark);
   margin-right: var(--space-xxs); 
 }
 
 .btn:hover {
-  background-color: var(--color-primary-light);
+  background-color: var(--color-primary-darker);
   color: var(--color-on-primary-light);
 }
 
