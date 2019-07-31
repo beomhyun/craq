@@ -255,18 +255,93 @@ const initializeEndpoints = (app) => {
    *        200:
    */
   app.get('/contents/:id', function(req, res) {
+    const ARTICLE_PER_PAGE = 20;
     jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "SELECT * FROM content WHERE pk = ?";
-        var params = [req.params.id];
-        connection.query(sql, params, function(err, rows, fields) {
+        /*
+            content의 정보를 받아오기 전에
+            해당 content를 포함하는 article이
+            목록으로 나열했을 때 위치하는 페이지 값과(page)
+            페이지 최대 값(maxPage)을 계산하여
+            두번째 쿼리 실행후 res에 data에 추가하여 같이 보낸다.
+        */
+        var sql = `
+                    SELECT 	B.ROWNUM
+                    FROM	(
+                    				SELECT 	ROW_NUMBER() OVER(ORDER BY A.PK DESC)
+                    			  				AS ROWNUM
+                    			 			  ,	A.PK
+                    				FROM		ARTICLE AS A
+                    				JOIN		CONTENT AS C
+                    				ON			A.CONTENT = C.PK
+                    				WHERE 	A.IS_REMOVED = 0
+                    			) AS B
+                    WHERE 	B.PK =
+                    			(
+                    				SELECT 	ARTICLE
+                    				FROM		CONTENT
+                    				WHERE		PK = ${req.params.id}
+                    			)
+                  `;
+        connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            res.json(rows);
+            var rowNum = rows[0].ROWNUM;
+            var nowPage = rowNum / ARTICLE_PER_PAGE;
+            if (rowNum % ARTICLE_PER_PAGE != 0) {
+              nowPage++;
+            }
+            nowPage = parseInt(nowPage);
+
+            // rowNum을 카운트하여 게시판의 글 개수를 구한 후
+            // 계산하여 maxPage값도 구한다.
+            sql = `
+                    SELECT 	  COUNT(B.ROWNUM) AS COUNT
+                    FROM		(
+                              SELECT 	ROW_NUMBER() OVER(ORDER BY A.PK DESC)
+                                      AS ROWNUM
+                                  ,	A.PK
+                              FROM		ARTICLE AS A
+                              JOIN		CONTENT AS C
+                              ON			A.CONTENT = C.PK
+                              WHERE 	A.IS_REMOVED = 0
+                            ) AS B
+                  `;
+            connection.query(sql, function(err, rows, fields) {
+              if (!err) {
+                var count = rows[0].COUNT;
+                var maxPage = count / ARTICLE_PER_PAGE;
+                if (count % ARTICLE_PER_PAGE != 0) {
+                  maxPage++;
+                }
+                maxPage = parseInt(maxPage);
+
+                sql = `SELECT * FROM CONTENT WHERE PK = ${req.params.id}`;
+                connection.query(sql, function(err, rows, fields) {
+                  if (!err) {
+                    res.send({
+                      status: "success",
+                      data: rows[0],
+                      nowPage: nowPage,
+                      maxPage: maxPage
+                    });
+                  } else {
+                    res.send({
+                      status: "fail"
+                    });
+                  }
+                });
+              } else {
+                res.send({
+                  status: "fail"
+                });
+              }
+            });
+
           } else {
-            console.log('article insert err ', err);
+            console.log('SELECT ROWNUM err ', err);
             res.send(err);
           }
         });
