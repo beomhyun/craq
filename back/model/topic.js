@@ -69,12 +69,12 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /topics/{user_token}:
+   *  /topics:
    *    get:
    *      tags:
    *      - topic
    *      parameters:
-   *       - in: path
+   *       - in: header
    *         name: user_token
    *         type: string
    *         description: |
@@ -83,8 +83,8 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/topics/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
+  app.get('/topics', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -103,12 +103,12 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /topics/actived/{user_token}:
+   *  /topics/actived:
    *    get:
    *      tags:
    *      - topic
    *      parameters:
-   *       - in: path
+   *       - in: header
    *         name: user_token
    *         type: string
    *         description: |
@@ -117,8 +117,8 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/topics/actived/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
+  app.get('/topics/actived', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -137,17 +137,19 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /topics/{id}/{user_token}:
+   *  /topics/{pk}:
    *    put:
    *      tags:
    *      - topic
-   *      description: 고유한 id값을 갖는 게시판의 정보를 가져옴
+   *      description: 고유한 id값을 갖는 게시판의 정보를 수정
    *      parameters:
-   *      - name: topicInfo
-   *        in: body
-   *        schema:
-   *          $ref: '#/definitions/topicInfo'
-   *      - in: path
+   *      - name: pk
+   *        in: path
+   *        type: integer
+   *      - name: info
+   *        in: query
+   *        type: string
+   *      - in: header
    *        name: user_token
    *        type: string
    *        description: |
@@ -155,20 +157,19 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.put('/topics/:id/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
+  app.put('/topics/:pk', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "UPDATE topic SET updatedUser = ?,is_public = ?, is_active = ?, is_removed = ?, ip_address = ?, info = ? WHERE pk = ?";
-        var i = req.body;
-        var params = [i.updatedUser, i.is_public, i.is_active, i.is_removed, i.ip_address, i.info, i.pk];
+        var sql = " UPDATE topic SET info = ? WHERE pk = ? ";
+        var params = [req.query.info, req.params.pk];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
-            res.json(rows);
+            res.send({status: "success"});
           } else {
-            res.send(err);
+            res.send({status: "fail", data: err});
           }
         });
       }
@@ -177,7 +178,53 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /topics/{id}/{user_token}:
+   *  /topics/permission/{pk}:
+   *    put:
+   *      tags:
+   *      - topic
+   *      description: 해당 게시판의 승인
+   *      parameters:
+   *      - name: pk
+   *        in: path
+   *        type: integer
+   *      - in: header
+   *        name: user_token
+   *        type: string
+   *        description: |
+   *         사용자 토큰 전달
+   *      responses:
+   *        200:
+   */
+  app.put('/topics/permission/:pk', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = " UPDATE topic SET is_active = 1 WHERE pk = ? ";
+        var params = [req.params.pk];
+        connection.query(sql, params, function(err, rows, fields) {
+          if (!err) {
+            sql = " insert into manager(topic,user,first) values(?,(select t.createduser from topic as t where t.pk  = ?),1) ";
+            params = [req.params.pk,req.params.pk];
+            connection.query(sql, params, function(err, rows, fields) {
+              if(!err){
+                res.send({status: "success"});
+              }else{
+                res.send({status: "fail", data: err});
+              }
+            });
+          } else {
+            res.send({status: "fail", data: err});
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
+   *  /topics/{id}:
    *    delete:
    *      tags:
    *      - topic
@@ -186,7 +233,7 @@ const initializeEndpoints = (app) => {
    *      - name: id
    *        in: path
    *        type: integer
-   *      - in: path
+   *      - in: header
    *        name: user_token
    *        type: string
    *        description: |
@@ -194,8 +241,8 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.delete('/topics/:id/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
+  app.delete('/topics/:id', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -212,6 +259,50 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-};
+ /**
+   * @swagger
+   *  /topics/search:
+   *    get:
+   *      tags:
+   *      - topic
+   *      parameters:
+   *       - in: query
+   *         name: title
+   *         type: string
+   *         description: |
+   *          검색할 게시판 제목 전달
+   *       - in: header
+   *         name: user_token
+   *         type: string
+   *         description: |
+   *          사용자 토큰 전달
+   *      description: 사용자의 토큰, 제목 검색 키워드를 받아 활성화된 게시판을 보여줌.
+   *      responses:
+   *        200:
+   */
+  app.get('/topics/search', function(req, res) {
+    console.log(req.headers.user_token);
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        //var sql = ' SELECT pk,topic FROM topic WHERE topic like "'+'%' + req.query.title + '%" and is_active =  1 ';
+        sql = ` SELECT pk,topic FROM topic WHERE topic like "%${req.query.title}%" and is_active =  ${TRUE}`;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err) {
+            console.log(this.sql);
+            res.json(rows);
+          } else {
+            console.log(err);
+            res.send(err);
+          }
+        });
+      }
+    });
+  });
 
+
+};
+ 
 module.exports = initializeEndpoints;

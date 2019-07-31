@@ -2,8 +2,10 @@ const express = require('express');
 const user = require('./model/user');
 const topic = require('./model/topic');
 const notice = require('./model/notice');
-const content = require('./model/content');
 const article = require('./model/article');
+const comment = require('./model/comment');
+const content = require('./model/content');
+const hashtag = require('./model/hashtag');
 const tag = require('./model/tag');
 const swaggerDoc = require('./swaggerDoc');
 const bodyParser = require('body-parser');
@@ -15,9 +17,12 @@ app.use(bodyParser.json());
 user(app);
 topic(app);
 notice(app);
-content(app);
 article(app);
+comment(app);
+content(app);
+hashtag(app);
 tag(app);
+
 swaggerDoc(app);
 
 app.all('/*', function(req, res, next) {
