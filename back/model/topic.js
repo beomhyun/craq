@@ -49,20 +49,30 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *      - name: topicInfo
    *        in: body
    *        schema:
    *          $ref: '#/definitions/topicInfo'
    */
   app.post('/topics', function(req, res) {
-    var sql = "INSERT INTO topic(topic,createdUser,updatedUser) VALUES(?,?,?)";
-    var params = [req.body.topic, req.body.user_id, req.body.user_id];
-    connection.query(sql, params, function(err, rows, fields) {
-      if (!err) {
-        res.json(rows);
-      } else {
-        console.log('Error while performing Query.', err);
-        res.send(err);
+    jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+      if(err) res.status(401).send({error:'invalid token'});
+      else{
+        var sql = "INSERT INTO topic(topic,createdUser,updatedUser) VALUES(?,?,?)";
+        var params = [req.body.topic, req.body.user_id, req.body.user_id];
+        connection.query(sql, params, function(err, rows, fields) {
+          if (!err) {
+            res.json(rows);
+          } else {
+            console.log('Error while performing Query.', err);
+            res.send(err);
+          }
+        });
+        
       }
     });
   });
