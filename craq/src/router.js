@@ -10,6 +10,7 @@ import Main from '@/components/Main.vue'
 // Code
 import Code from '@/components/Code.vue';
 import AskQuestion from '@/components/AskQuestion.vue';
+import CodeDetail from '@/components/CodeDetail.vue';
 
 //Community
 import Community from '@/components/Community.vue';
@@ -91,5 +92,10 @@ export default new Router({
       name: 'freeboard',
       component: FreeBoard
     },
+    {
+      path: '/code/:question_id',
+      name: 'Questions',
+      component: CodeDetail,
+    }
   ]
 })
