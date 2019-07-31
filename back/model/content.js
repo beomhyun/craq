@@ -5,7 +5,7 @@ const secretObj = require("../config/jwt");
 const multer = require('multer');
 const path = require("path");
 const TRUE = 1;
-​
+
 let storage = multer.diskStorage({
   destination: function(req, file, callback) {
     callback(null, "image/contents/")
@@ -17,7 +17,7 @@ let storage = multer.diskStorage({
 const upload = multer({
   storage
 });
-​
+
 const initializeEndpoints = (app) => {
   /**
    * @swagger
@@ -55,7 +55,7 @@ const initializeEndpoints = (app) => {
    *        name: user_id
    *        type: integer
    *        description: 작성자의 user id값
-   *      - in: header
+   *      - in: query
    *        name: user_token
    *        type: string
    *        description: 작성자의 token값
@@ -66,7 +66,7 @@ const initializeEndpoints = (app) => {
     var i = req.query;
     var sql = "";
     var params = [];
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(i.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -109,35 +109,37 @@ const initializeEndpoints = (app) => {
                               CONTENT
                             WHERE 1=1
                               AND ARTICLE = ${i.article_id}`;
-          connection.query(sql, params, function(err, rows, fields) {
-            if(!err) version = rows[0].C +1;
-            else res.send({status: "fail"})
-          });
-          sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?,?)";
-          params = [i.article_id, i.beforeContent, i.title, i.body, req.file.filename, i.user_id, i.user_id];
-          connection.query(sql, params, function(err, rows, fields) {
-            if (!err) {
-              // 기존 article의 content 값을 추가한 contetn id값으로 변경, updatedUser 수정
-              sql = "UPDATE article SET content = ?, updatedUser = ? WHERE pk = ?";
-              params = [rows.insertId, i.user_id, i.article_id];
+          connection.query(getversion, function(err, rows, fields) {
+            if(!err) {
+              version = rows[0].C +1;
+              sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?)";
+              params = [i.article_id, i.beforeContent, i.title, i.body, req.file.filename, i.user_id, i.user_id,version];
               connection.query(sql, params, function(err, rows, fields) {
                 if (!err) {
-                  res.json(rows);
+                  // 기존 article의 content 값을 추가한 contetn id값으로 변경, updatedUser 수정
+                  sql = "UPDATE article SET content = ?, updatedUser = ? WHERE pk = ?";
+                  params = [rows.insertId, i.user_id, i.article_id];
+                  connection.query(sql, params, function(err, rows, fields) {
+                    if (!err) {
+                      res.json(rows);
+                    } else {
+                      console.log('Error while performing Query.', err);
+                      res.send(err);
+                    }
+                  });
                 } else {
                   console.log('Error while performing Query.', err);
                   res.send(err);
                 }
               });
-            } else {
-              console.log('Error while performing Query.', err);
-              res.send(err);
-            }
+            }else res.send({status: "fail"})
           });
+
         }
       }
     });
   });
-​
+
   /**
    * @swagger
    *  /contents/content-image/{pk}:
@@ -147,38 +149,27 @@ const initializeEndpoints = (app) => {
    *      description: 해당 content의 이미지를 가져옴.
    *      responses:
    *       200:
-   *      parameters: 
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token값을 전달.
+   *      parameters:
    *       - in: path
    *         name: pk
    *         type: integer
    *         description: 사용자 pk 전달
    */
   app.get('/contents/content-image/:pk', function(req, res) {
-    jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-      if(err) res.status(401).send({error:'invalid token'});
-      else{
-        var sql = " select count(*) as cheking, image from content where pk = ? ";
-        var params = [req.params.pk];
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            var img = '<img src="/' + rows[0].image + '">';
-            res.send(img);
-          } else {
-            res.send({
-              status: "fail"
-            });
-          }
+    var sql = " select count(*) as cheking, image from content where pk = ? ";
+    var params = [req.params.pk];
+    connection.query(sql, params, function(err, rows, fields) {
+      if (!err) {
+        var img = '<img src="/' + rows[0].image + '">';
+        res.send(img);
+      } else {
+        res.send({
+          status: "fail"
         });
       }
     });
-
-
   });
-​
+
   /**
    * @swagger
    *  /contents/articles/{id}:
@@ -192,14 +183,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article의 id 값을 전달.
    *      - name: user_token
-   *        in: header
+   *        in: query
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/contents/articles/:id', function(req, res) {
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -217,7 +208,7 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-​
+
   /**
    * @swagger
    *  /contents/last/articles/{id}:
@@ -231,14 +222,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article의 id 값을 전달.
    *      - name: user_token
-   *        in: header
+   *        in: query
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/contents/last/articles/:id', function(req, res) {
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -256,7 +247,7 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-​
+
   /**
    * @swagger
    *  /contents/{id}:
@@ -270,7 +261,7 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: content id 값을 전달.
    *      - name: user_token
-   *        in: header
+   *        in: query
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
@@ -278,7 +269,7 @@ const initializeEndpoints = (app) => {
    */
   app.get('/contents/:id', function(req, res) {
     const ARTICLE_PER_PAGE = 20;
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -316,7 +307,7 @@ const initializeEndpoints = (app) => {
               nowPage++;
             }
             nowPage = parseInt(nowPage);
-​
+
             // rowNum을 카운트하여 게시판의 글 개수를 구한 후
             // 계산하여 maxPage값도 구한다.
             sql = `
@@ -339,7 +330,7 @@ const initializeEndpoints = (app) => {
                   maxPage++;
                 }
                 maxPage = parseInt(maxPage);
-​
+
                 sql = `SELECT * FROM CONTENT WHERE PK = ${req.params.id}`;
                 connection.query(sql, function(err, rows, fields) {
                   if (!err) {
@@ -361,7 +352,7 @@ const initializeEndpoints = (app) => {
                 });
               }
             });
-​
+
           } else {
             console.log('SELECT ROWNUM err ', err);
             res.send(err);
@@ -370,7 +361,7 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-​
+
   /**
    * @swagger
    *  /contents/{id}:
@@ -396,15 +387,15 @@ const initializeEndpoints = (app) => {
    *        type: string
    *        description: image의 링크 전달.
    *      - name: user_token
-   *        in: header
+   *        in: query
    *        type: string
    *        description: 사용자의 token값을 전달.
    *      responses:
    *        200:
    */
   app.put('/contents/:id', function(req, res) {
-​
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+
+    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -422,7 +413,7 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-​
+
   /**
    * @swagger
    *  /contents/{id}:
@@ -436,14 +427,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: content id 값을 전달.
    *      - name: user_token
-   *        in: header
+   *        in: query
    *        type: string
    *        description: 사용자의 token값을 전달.
    *      responses:
    *        200:
    */
   app.delete('/contents/:id', function(req, res) {
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
