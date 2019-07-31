@@ -14,6 +14,10 @@ const initializeEndpoints = (app) => {
    *      - tag
    *      description: 하나의 태그를 작성
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *      - name: tagInfo
    *        in: body
    *        schema:
@@ -28,15 +32,12 @@ const initializeEndpoints = (app) => {
    *            user_id:
    *              type: integer
    *              description: 작성자의 user id값
-   *            user_token:
-   *              type: string
-   *              description: 사용자의 token 정보
    *      responses:
    *        200:
    */
   app.post('/tags', function(req, res) {
     var i = req.body;
-    jwt.verify(i.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -68,14 +69,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: tag들을 가져올 page위치의 값
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.get('/tags/mains/:page', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -115,14 +116,14 @@ const initializeEndpoints = (app) => {
    *      description: 모든 태그를 받아옴.
    *      parameters:
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.get('/tags', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -153,14 +154,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 특정 태그의 id 값을 전달
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.get('/tags/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -200,14 +201,14 @@ const initializeEndpoints = (app) => {
    *        type: string
    *        description: 수정할 내용
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.put('/tags/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -239,14 +240,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 특정 태그의 id 값을 전달
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.delete('/tags/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
