@@ -6,14 +6,14 @@
 </template>
 
 <script>
-import Community from '@/components/Community.vue'
-import CreateTree from '@/components/CreateTree.vue'
+// import Community from '@/components/Community.vue'
+// import CreateTree from '@/components/CreateTree.vue'
 
 export default {
   name : 'Tree',
   components : {
-    Community,
-    CreateTree
+    // Community,
+    // CreateTree
   },
 }
 

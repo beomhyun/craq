@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import FreeHome from '@/components/FreeHome.vue'
+import FreeHome from '@/components/freeboardDir/FreeHome.vue'
 
 export default {
   name : 'FreeBoard',

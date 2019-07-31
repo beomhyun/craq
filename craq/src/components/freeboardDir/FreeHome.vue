@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import FreeList from '@/components/FreeList.vue'
+import FreeList from '@/components/freeboardDir/FreeList.vue'
 
 export default {
   name : 'FreeHome',

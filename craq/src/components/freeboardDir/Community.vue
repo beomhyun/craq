@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import MyCommunities from '@/components/MyCommunities.vue'
-import AllCommunity from '@/components/AllCommunity.vue'
+import MyCommunities from '@/components/freeboardDir/MyCommunities.vue'
+import AllCommunity from '@/components/freeboardDir/AllCommunity.vue'
 
 export default {
   name : "Community",

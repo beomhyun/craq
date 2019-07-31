@@ -57,8 +57,8 @@
 </template>
 
 <script>
-import FreeComment from '@/components/FreeComment.vue'
-import FreeList from '@/components/FreeList.vue'
+import FreeComment from '@/components/freeboardDir/FreeComment.vue'
+import FreeList from '@/components/freeboardDir/FreeList.vue'
 import FreeEdit from '@/components/freeboardDir/FreeEdit.vue'
 import ShowDetail from '@/components/freeboardDir/ShowDetail.vue'
 

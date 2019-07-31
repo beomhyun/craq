@@ -14,10 +14,10 @@ import Profile from '@/components/Profile.vue';
 import Main from '@/components/Main.vue'
 
 //Community
-import FreeBoard from '@/components/FreeBoard.vue';
-import FreeHome from '@/components/FreeHome.vue';
-import FreeBoardWrite from '@/components/FreeBoardWrite.vue';
-import FreeDetail from '@/components/FreeDetail.vue';
+import FreeBoard from '@/components/freeboardDir/FreeBoard.vue';
+import FreeHome from '@/components/freeboardDir/FreeHome.vue';
+import FreeBoardWrite from '@/components/freeboardDir/FreeBoardWrite.vue';
+import FreeDetail from '@/components/freeboardDir/FreeDetail.vue';
 
 import ShowDetail from '@/components/freeboardDir/ShowDetail.vue'
 import FreeEdit from '@/components/freeboardDir/FreeEdit.vue'
