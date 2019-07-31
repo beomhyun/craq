@@ -121,6 +121,7 @@ export default {
             } else {
                 
                 this.$axios.get("username-checking/" + checker).then(res=>{
+                    console.log(res.data);
                     this.username = (res.data.status == 'success');
 
                 }).
@@ -269,6 +270,7 @@ export default {
 }
 @-webkit-keyframes pulse {
     from {
+        
         -webkit-transform: scale3d(1, 1, 1);
         transform: scale3d(1, 1, 1);
     }

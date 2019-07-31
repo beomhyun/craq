@@ -52,6 +52,7 @@ export default {
     },
     data() {
       return {
+        carddata : '',
         messages: '',
         latested: true,
         cardLists: [],
@@ -59,6 +60,7 @@ export default {
     },
     
     mounted() {
+
         this.cardLists = [{
                     id: '1',
                     cardInfo:
@@ -181,6 +183,7 @@ export default {
       this.askquestion = askquestion // 자식으로 부터받은 메시지를 사용
       }
     },
+
     computed: {
       currentRouteName() {
         console.log(this.$route.name);

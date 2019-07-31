@@ -22,45 +22,18 @@
             <div>{{list.cardMain.Created_at}}| {{list.cardMain.Updated_at}} | {{list.cardMain.Answered_at}}</div>
         </div>
         
-        <div :class="{'none' : list.cardInfo.Answer === '0'}">
-            <div class="user" >
-                <div class="user__top">
-                    <div class="user__image">
-                        <img :src="list.answerUser.img" alt="img">
-                    </div>
-                    <div  class="user__name">
-                        <h4>{{list.answerUser.Name}}</h4>
-                        <p>{{list.answerUser.Mail}}</p>
-                    </div>
-                </div>
-                
-
-                <div class="user__bottom">
-                    <div class="user__bottom-left">
-                        <p>Score</p>
-                        <p>Answers</p>
-                    </div>
-                    <div class="user__bottom__right">
-                        <p>{{list.answerUser.Score}}</p>
-                        <p>{{list.answerUser.Answers}}</p>
-                    </div>
-                </div>
-
-                <div class="user__card">
-                    <div class="user__card__title">
-                        No Answer
-                    </div>
-                    <div class="user__card__content">
-                        This question dosen`t have Answer.<br> please answer
-                    </div>
-                </div>
-            </div>
+        <div class="user" >
+            <UserCard/>
         </div>
     </div>
 </template>
 <script>
+import UserCard from '@/components/UserCard.vue';
 export default {
     name: 'Card',
+    components: {
+        UserCard,
+    },
     props: [
         'list'
     ],
@@ -155,8 +128,6 @@ $--card-main-height: 120px;
     .none .user {
         width: 300px;
         height: 100%;
-        padding: var(--space-xs);
-        background-color: alpha(var(--color-accent), 0.3);
 
             &__top {
                     display: none;
@@ -191,8 +162,6 @@ $--card-main-height: 120px;
     .user {
             width: 300px;
             height: 100%;
-            padding: var(--space-xs);
-            background-color: alpha(var(--color-primary-light), 0.2);
                 &__top {
                     display: flex;
                     font-weight: bold;
