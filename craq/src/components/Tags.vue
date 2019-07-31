@@ -41,8 +41,8 @@
 //import Card from '@/components/Card.vue';
 //import Ask from '@/components/AskQuestion.vue';
 import TagsCard from '@/components/TagsCard.vue';
-import axios from 'axios';
-const apiUrl = "https://jsonplaceholder.typicode.com/posts"
+//import axios from 'axios';
+//const apiUrl = "https://jsonplaceholder.typicode.com/posts"
 export default {
     name: "Tags",
     components: {
@@ -65,11 +65,9 @@ export default {
         },
     },
     mounted () {
-        axios.get(apiUrl)
-            .then(res=> {
-                this.tags = res.data;
-            })
-        
+        this.$axios.get('hashtags').then(res=> {
+            this.tags = res.data;
+        })
     }
 }
 
