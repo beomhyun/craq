@@ -833,7 +833,7 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-​
+
   /**
   * @swagger
   *  /questions/{now_page}:
@@ -951,6 +951,6 @@ const initializeEndpoints = (app) => {
      }
    });
  });
-​
+
 };
 module.exports = initializeEndpoints;

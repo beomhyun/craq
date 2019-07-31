@@ -9,7 +9,7 @@ const crypto = require('crypto');
 
 let storage = multer.diskStorage({
     destination: function(req, file ,callback){
-        callback(null, "upload/")
+        callback(null, "image/profile/")
     },
     filename: function(req, file, callback){
         callback(null, new Date().valueOf() + path.extname(file.originalname));
@@ -332,7 +332,7 @@ app.get('/users/email/:email', function(req,res){
                           res.send(err);
                         }
                       });
-                
+
               }
             });
     }
@@ -377,7 +377,7 @@ app.get('/users/email/:email', function(req,res){
                             res.send(err);
                           }
                         });
-              
+
                   let token = jwt.sign({
                     pk : rows[0].pk
                   },
@@ -679,7 +679,7 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
     if(req.file){
 //      console.log("파일있음 !");
       sql = " update profile set ssafy_years = ?, is_major = ?, region = ?, grade = ?, intro= ?, gitUrl = ?, profile_image = ?, updated_at = now() where User = ? ";
-      params = [req.query.ssafy_years, req.query.is_major, req.query.region, req.query.grade, req.query.intro, req.query.gitUrl, req.file.filename, req.query.User];      
+      params = [req.query.ssafy_years, req.query.is_major, req.query.region, req.query.grade, req.query.intro, req.query.gitUrl, req.file.filename, req.query.User];
     }else{
 //      console.log("파일없음 !");
       sql = " update profile set ssafy_years = ?, is_major = ?, region = ?, grade = ?, intro= ?, gitUrl = ?, updated_at = now() where User = ? ";
@@ -723,7 +723,7 @@ app.get('/users/profile-image/:pk', function(req,res){
         }else{
           res.send({status: "fail"});
         }
-      });    
+      });
 }
 );
 /**
@@ -751,7 +751,7 @@ app.get('/users/profile/:pk', function(req,res){
     }else{
       res.send({status: "fail"});
     }
-  });    
+  });
 }
 );
 
