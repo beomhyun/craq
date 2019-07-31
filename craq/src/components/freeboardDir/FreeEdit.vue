@@ -1,9 +1,9 @@
 <template>
   <div>
-    <table class="freedetail table" cellpadding="0" cellspacing="0">
+    <table class="freeEdit" cellpadding="0" cellspacing="0">
       <thead style="text-align:left">
         <tr>
-          <th scope="col" colspan="4">{{freeInfo.user_name}}</th>
+          <th scope="col" colspan="4" v-html="freeInfo.user_name"></th>
         </tr>
         <tr>
           <th scope="col" colspan="3">
@@ -19,16 +19,16 @@
       <tbody>
         <tr class="detail">
           <th scope="row">DATE</th>
-          <td>{{freeInfo.createAt}}</td>
+          <td v-html="freeInfo.createAt"></td>
           <th scope="row">VIEW</th>
-          <td>{{freeInfo.views}}</td>
+          <td v-html="freeInfo.views"></td>
         </tr>
         <!-- <tr>
           <th scope="col" colspan="4" class="hide"></th>
         </tr> -->
         <tr>
           <td class="body" colspan="4">
-            <textarea name="content" rows="8" cols="80" v-model="body" class="form-control width-100%"></textarea>
+            <textarea name="body" rows="8" cols="80" v-model="body" class="form-control width-100%"></textarea>
           </td>
         </tr>
         <tr>
@@ -46,9 +46,9 @@
 
 export default {
   name : "FreeEdit",
-  props : {
-    freeInfo : {type : null}
-  },
+  props : [
+    'freeInfo'
+  ],
   data() {
     return {
       title : this.freeInfo.title,
@@ -61,40 +61,40 @@ export default {
   methods : {
     update() {
       // axios
-
-      const freeEdit = false;
-      this.$emit('edit-event', freeEdit)
+// alert("update")
+      this.$router.go(-1);
     }
   }
 }
 </script>
 
-<style lang="css" scoped>
-table.freedetail {
+<style lang="scss" scoped>
+.freeEdit {
     border-collapse: collapse;
     text-align: left;
     line-height: 1.5;
     border-top: 1px solid #ccc;
     border-left: 3px solid #369;
-  margin : 20px 10px;
-}
-table.freedetail th {
-    width: 147px;
-    padding: 10px;
-    font-weight: bold;
-    vertical-align: top;
-    color: #153d73;
-    border-top: 1px solid #ccc;
-    /* border-right: 1px solid #ccc; */
-    /* border-bottom: 1px solid #ccc; */
+    margin : 20px 10px;
 
-}
-table.freedetail td {
-    width: 349px;
-    padding: 10px;
-    vertical-align: top;
-    border-top: 1px solid #ccc;
-    /* border-right: 1px solid #ccc; */
-    border-bottom: 1px solid #ccc;
+    &__th {
+        width: 147px;
+        padding: 10px;
+        font-weight: bold;
+        vertical-align: top;
+        color: #153d73;
+        border-top: 1px solid #ccc;
+        /* border-right: 1px solid #ccc; */
+        /* border-bottom: 1px solid #ccc; */
+
+    }
+    &__td {
+        width: 349px;
+        padding: 10px;
+        vertical-align: top;
+        border-top: 1px solid #ccc;
+        /* border-right: 1px solid #ccc; */
+        border-bottom: 1px solid #ccc;
+    }
 }
 </style>

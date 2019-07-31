@@ -8,7 +8,7 @@
           <th scope="col" >{{comment.content}}</th>
           <th scope="col" style="text-align : center;">{{comment.createAt}}</th>
           <th scope="col" style="text-align : center;">
-            <button type="button" name="repeat" class="btn btn--primary btn--md" @click="commnetAnswer">답글</button>
+            <button type="button" name="repeat" class="btn btn--primary btn--md" @click="commentAnswer">답글</button>
           </th>
         </tr>
       </thead>
@@ -31,21 +31,24 @@ export default {
   data() {
     return {
       isAnswer : false,
-      answer : ''
+      answer : "answer",
     }
   },
   props : {
     comment : {type : null}
   },
-
   methods : {
-    commnetAnswer() {
+    commentAnswer() {
       this.isAnswer = !this.isAnswer;
     },
     commentRegist() {
       // axios
       this.isAnswer = !this.isAnswer;
     }
+  },
+  mounted() {
+    this.isAnswer = false;
+    this.answer = "answer";
   },
 }
 </script>

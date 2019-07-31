@@ -1,7 +1,8 @@
 <template>
   <div class="board">
     <!-- <h1>Free Detail</h1> -->
-    <div v-if="!isEdit">
+    <div class="board">
+
       <table class="freedetail" cellpadding="0 width-100%" cellspacing="0">
         <thead style="text-align:left">
           <tr>
@@ -39,10 +40,10 @@
         </tbody>
       </table>
     </div>
-    <div v-else>
-      <!-- <h1>Edit Page</h1> -->
-      <FreeEdit :freeInfo="info" @edit-event="editMethod"></FreeEdit>
-    </div>
+    <!-- <h3>{{info.title}}</h3> -->
+    <!-- <router-view></router-view> -->
+
+    <!-- </div> -->
     <div style="text-align : center">
       <h5 class="h5">Comments</h5>
       <div v-for="comment in comments">
@@ -57,23 +58,24 @@
 
 <script>
 import FreeComment from '@/components/FreeComment.vue'
-import FreeEdit from '@/components/FreeEdit.vue'
 import FreeList from '@/components/FreeList.vue'
+import FreeEdit from '@/components/freeboardDir/FreeEdit.vue'
+import ShowDetail from '@/components/freeboardDir/ShowDetail.vue'
 
 export default {
   name : 'FreeDetail',
-  props : {
-    info : {type: null}
-  },
+  props : [
+    'info'
+  ],
   components : {
     FreeComment,
     FreeEdit,
-    FreeList
+    FreeList,
+    ShowDetail
   },
   data() {
     return {
       isEdit : false,
-      freedelete : '',
       comments : [
         {
           id : "1",
@@ -122,21 +124,13 @@ export default {
   },
   created() {
     // axios.get().then()
+
   },
   methods : {
     goEditPage() {
-      this.isEdit = true;
-    },
-    editMethod(editFlag) {
-      this.isEdit = editFlag;
-    },
-    freeDelete() {
-      this.freedelete = 'freeboard';
-      // alert(this.freedelete)
-      this.$emit('childs-event', this.freedelete);
+      this.$router.push({name : 'freeedit', params : {freeInfo : this.info}});
     }
   }
-
 }
 
 

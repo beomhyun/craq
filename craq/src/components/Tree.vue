@@ -1,19 +1,7 @@
 <template>
   <div>
-    <div v-if="!addtree">
-      <div class="container max-width-lg" style="display: flex">
-        <h2 style="display: inline; width: 100%">CRAQ NODE</h2>
-        <button @click="addTree" class="btn btn--subtle btn--md" style="">Add Tree</button>
-      </div>
-        <!-- <button><router-link :to="{name: 'createtree', params: {addtree}}">Add Tree</router-link></button> -->
-      <Community/>
-    </div>
-    <div v-else>
-      <h2>Add Tree</h2>
-      <CreateTree @childs-event="parentsMethod"/>
-    </div>
-
-    <!-- <router-view></router-view> -->
+    <!-- <router-views -->
+    <router-view></router-view>
   </div>
 </template>
 
@@ -27,23 +15,6 @@ export default {
     Community,
     CreateTree
   },
-  data () {
-    return {
-      addtree : false
-    }
-  },
-  mounted() {
-    this.addtree = false
-  },
-  methods : {
-    addTree : function() {
-      // this.$router.push({name:'createtree'});
-      this.addtree = true;
-    },
-    parentsMethod: function(addtree) {
-      this.addtree = addtree // 자식으로 부터받은 메시지를 사용
-    }
-  }
 }
 
 </script>

@@ -14,10 +14,8 @@
 export default {
 
   name: "CreateTree",
-  props : {
-    addtree : {type: Boolean, default: false}
-  }
-  ,data() {
+
+  data() {
     return {
       topic: 'topic',
       body: 'body',
@@ -33,9 +31,8 @@ export default {
       // .then((response) => {
       //
       // })
-      this.addtree = false;
-      this.$emit('childs-event', this.addtree)
-      // this.$router.push({name:'tree'})
+
+      this.$router.push({name:'community'});
     }
   }
 }

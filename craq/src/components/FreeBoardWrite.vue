@@ -28,9 +28,6 @@
 
 export default {
   name : 'FreeBoardWrite',
-  props : {
-    freeState : {type: String, default: 'addboard'}
-  },
   data() {
     return {
       boardName : this.$route.params.topic,
@@ -46,8 +43,10 @@ export default {
 
     },
     submitForm() {
-      this.freeState = 'freeboard';
-      this.$emit('childs-event', this.freeState)
+      //axios
+      // this.$router.push({path : `/freeboard/${this.boardName}`});
+      this.$router.go(-1);
+      // this.$router.push({name : 'freeboard', params : {topic : this.boardName}});
     },
     addfreeBoard() {
       // axios.post('http://192.168.31.58:10123/api-docs/', {

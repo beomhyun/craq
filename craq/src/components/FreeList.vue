@@ -13,9 +13,10 @@
         </tr>
       </thead>
       <tbody>
-      <tr v-if="noticeToggle" v-for="notice in topic_notices">
+      <tr v-for="notice in topic_notices" v-if="noticeToggle">
         <td>공지</td>
-        <td v-html="notice.title" @click="showDetail(notice)"></td>
+        <td v-html="notice.title" @click="showDetail(notice)"></router-link></td>
+        <!-- <td v-html="notice.title"><router-link :to="{ name: 'freedetail', params: {id : notice.id} }"></router-link></td> -->
         <td v-html="notice.user_name"></td>
         <td v-html="notice.createAt"></td>
         <td v-html="notice.views"></td>
@@ -24,6 +25,7 @@
       <tr v-for="board in sortedData">
         <td v-html="board.id"></td>
         <td v-html="board.title" @click="showDetail(board)"></td>
+        <!-- <td v-html="board.title"><router-link :to="{ name: 'freedetail', params: {id : board.id} }"></router-link></td> -->
         <td v-html="board.user_name"></td>
         <td v-html="board.createAt"></td>
         <td v-html="board.views"></td>
@@ -46,9 +48,11 @@ export default {
   components : {
 
   },
+  props :[
+    'topic'
+  ],
   data() {
     return {
-      freeState : 'freelist',
       newtoggle : true,
       viewtoggle : true,
       isNew : false,
@@ -125,16 +129,16 @@ export default {
       }
     },
     created() {
-
+      // alert(this.topic);
     },
     methods : {
       boardwrite() {
-        this.freeState = 'addboard';
-        this.$emit('write-event', this.freeState);
+        this.$router.push({name:'freewrite'});
+        // this.$router.push({name:"write"});
       },
       showDetail(board) {
-        this.freeState = 'freeDetail';
-        this.$emit('detail-event', this.freeState, board);
+        // this.$router.push({path: `${this.topic}/detail/${board.id}`, params: { info : board}});
+        this.$router.push({name: 'freedetail' , params: { id: board.id, info : board}});
       },
       newest: function() {
         // Set slice() to avoid to generate an infinite loop!
@@ -161,7 +165,7 @@ export default {
     computed: {
       sortedData : function() {
         return this.topic_articles.sort((a,b) => {
-          
+
           if(this.isNew) {
             if(this.newtoggle) {
               return a.id - b.id
