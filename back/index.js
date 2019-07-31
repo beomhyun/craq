@@ -6,6 +6,7 @@ const article = require('./model/article');
 const comment = require('./model/comment');
 const content = require('./model/content');
 const hashtag = require('./model/hashtag');
+const subscribe = require('./model/subscribe');
 const tag = require('./model/tag');
 const swaggerDoc = require('./swaggerDoc');
 const bodyParser = require('body-parser');
@@ -22,7 +23,7 @@ comment(app);
 content(app);
 hashtag(app);
 tag(app);
-
+subscribe(app);
 swaggerDoc(app);
 
 app.all('/*', function(req, res, next) {
