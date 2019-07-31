@@ -20,7 +20,7 @@
 
             <div class="grid  grid-gap-xl margin-lg">
                 <template v-for="tag in tags" v-key="i">
-                    <TagsCard class="col-3" :title="tag.title" :body="tag.body" :id="tag.id"></TagsCard>
+                    <TagsCard class="col-3" :tag="tag"></TagsCard>
                 </template>
             </div>
 
@@ -65,7 +65,8 @@ export default {
         },
     },
     mounted () {
-        this.$axios.get('hashtags').then(res=> {
+        this.$axios.get('tags').then(res=> {
+            console.log(res);
             this.tags = res.data;
         })
     }

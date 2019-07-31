@@ -2,8 +2,8 @@
     <div class="p-table">
         <div class="p-table__item p-table__item--popular col-4@md">
             <div class="flex justify-between items-center margin-bottom-xxs">
-                <h4 class="p-table__title"><v-clamp autoresize :max-lines="1">{{title}}</v-clamp></h4>
-                <span class="p-table__badge">{{id}}</span>
+                <h4 class="p-table__title"><v-clamp autoresize :max-lines="1">{{tag.title}}</v-clamp></h4>
+                <span class="p-table__badge">{{tag.pk}}</span>
             </div>
 
             <div class="p-table__count margin-bottom-sm"><span>#151</span> <i>/ view1</i></div>
@@ -26,7 +26,7 @@ import VClamp from 'vue-clamp'
 export default {
     name: "TagsCard",
     props: [
-        "title", "body", "id"
+        "tag"
     ],
     components: {
         VClamp
