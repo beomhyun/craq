@@ -183,7 +183,6 @@ export default {
             return this.$axios.post(apiUrl, data, {headers:headers});
         },
         login() {
-            const apiUrl = baseUrl + '/login';
             const headers = {
                 "Content-Type": "application/json"
             };
@@ -191,14 +190,14 @@ export default {
                 "email": this.inputEmail,
                 "password": SHA512(this.inputPassword1).toString()
             }
-            this.$axios.post(apiUrl, data, {headers: headers}).then(res=> {
+            this.$axios.post('login', data, {headers: headers}).then(res=> {
                 if (res.data.status == "fail") {
                     return alert('check email or password');
                 } 
                 this.$session.start();
-                this.$session.set('jwt', res.data.data);
-                this.$router.go('/');
-
+                this.$session.set('jwt', res.data.jwt);
+                this.$axios.defaults.headers.common['user_token'] = res.data.jwt;
+                this.$router.push('/');
             }).catch(err => console.log(err));
 
         },
