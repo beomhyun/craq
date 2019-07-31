@@ -385,6 +385,123 @@ const initializeEndpoints = (app) => {
     });
   });
 
+  /**
+  * @swagger
+  *  /questions/{now_page}:
+  *    get:
+  *      tags:
+  *      - article
+  *      description: 질문게시판의 모든 질문글을 페이징해서 보여줌
+  *      parameters:
+  *      - name: now_page
+  *        in: path
+  *        type: integer
+  *        description: 요청하는 페이지 값을 전달.
+  *      - name: order_by
+  *        in: query
+  *        type: string
+  *        description: 정렬할 기준을 전달.<br> VIEWS, HELPFUL, ANSWER, RELIABLE
+  *      - name: user_token
+  *        in: header
+  *        type: string
+  *        description: 사용자의 token 값을 전달.
+  *      responses:
+  *        200:
+  */
+ app.get('/questions/:now_page', function(req, res) {
+   jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+     if (err) res.status(401).send({
+       error: 'invalid token'
+     });
+     else {
+       var perpage = 20;
+       var page = (req.params.now_page-1)*perpage;
+       // console.log(page);
+       var sql = ` SELECT
+       ASK.PK
+       ,CON.TITLE
+       ,CON.BODY
+       ,ASK.CREATED_AT AS ASKED_TIME
+       ,ANSWER.CREATED_AT AS ANSERD_TIME
+       ,(SELECT
+           GROUP_CONCAT(T.TITLE SEPARATOR ", ")
+         FROM
+           HASHTAG AS H
+             LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+         WHERE
+           CON.PK = H.CONTENT) AS HASHTAG
+       ,(SELECT
+           COUNT(*)
+         FROM
+           VIEW AS V
+         WHERE
+           ASK.PK = V.ARTICLE) AS VIEWS
+       ,(SELECT
+           SUM(V.GOOD)
+         FROM VOTE AS V
+         WHERE ASK.PK = V.ARTICLE) AS HELPFUL
+       ,U.PK AS ANSWER_USERPK
+       ,U.USERNAME AS ANSWER_USERNAME
+       ,(SELECT
+           COUNT(*)
+         FROM
+           ARTICLE AS A
+         WHERE
+           A.ARTICLE != 0
+           AND A.CREATEDUSER = U.PK
+           AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+       , (SELECT
+           COUNT(*)
+         FROM
+           ARTICLE AS A
+         WHERE
+           A.ARTICLE != 0
+           AND A.CREATEDUSER = U.PK) AS ANSWER
+       , ((SELECT
+           COUNT(*)
+         FROM
+           ARTICLE AS A
+         WHERE
+           A.ARTICLE != 0
+           AND A.CREATEDUSER = U.PK
+           AND A.IS_ACTIVE = 1)/(SELECT
+           COUNT(*)
+         FROM
+           ARTICLE AS A
+         WHERE
+           A.ARTICLE != 0
+           AND A.CREATEDUSER = U.PK)) AS RELIABLE
+   FROM
+     ARTICLE AS ASK
+         LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
+           LEFT OUTER JOIN ARTICLE AS ANSWER ON ASK.ANSWER = ANSWER.PK
+             LEFT OUTER JOIN USER AS U ON ANSWER.CREATEDUSER = U.PK
+   WHERE 1=1
+     AND CON.IS_REMOVED = 0
+     AND ASK.ARTICLE = 0
+       AND ASK.TOPIC = 1
+   ORDER BY ${req.query.order_by} DESC
+   LIMIT ${page}, ${perpage} `;
+         // console.log(sql);
+       connection.query(sql, function(err, rows, fields) {
+         if (!err) {
+           sql =  `select count(*) as total from article where topic = 1`
+           connection.query(sql, function(err, rows2, fields) {
+             if(!err){
+               var max_page = rows2[0].total/perpage +1;
+               res.json({status: "success", nowpage: req.params.now_page, max_page: parseInt(max_page), data: rows});
+             }else{
+               res.send({status: "fail", data: err});
+             }
+           });
+         } else {
+           console.log('article insert err ', err);
+           res.send({status: "fail", data: err});
+         }
+       });
+     }
+   });
+ });
 
 };
 module.exports = initializeEndpoints;
