@@ -22,7 +22,6 @@
 
 
                         </li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><button @click.prevent="test">test</button></li>
                         <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/code" :class="{'main-header__nav-selected': currentRouteName == 'code'}">Code</router-link></li>
                         <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
                         <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
@@ -101,14 +100,6 @@ export default {
         }
     },
     methods: {
-        test() {
-            this.$axios.get('hashtags').then(res=> {
-                console.log(res.data);
-            });
-            console.log(this.$axios.defaults.headers.common);
-
-        },
-
         searchToggle() {
             this.onSearch = !this.onSearch;
         },
