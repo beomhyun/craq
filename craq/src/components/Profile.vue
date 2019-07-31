@@ -53,12 +53,12 @@
                         <div class="information__content-details">
                             <strong>Region</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editRegion" v-model="Profiles.Region" @keydown.enter="Toggle.editRegion = !Toggle.editRegion">
+                                <input class="editInput" v-show="Toggle.editRegion" v-model="Profiles.Region" @keydown.enter="Toggle.editRegion = !Toggle.editRegion"> 
                                 <span v-show="!Toggle.editRegion">{{ Profiles.Region }}</span> &nbsp;
                                 <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editRegion = !Toggle.editRegion"></font-awesome-icon>
                             </div>
                         </div>
-                        <div class="information__content-details">
+                        <div class="information__content-github">
                             <strong>Git URL</strong>
                             <div>
                                 <input class="editInput" v-show="Toggle.editGitUrl" v-model="Profiles.GitUrl" @keydown.enter="Toggle.editGitUrl = !Toggle.editGitUrl">
@@ -76,35 +76,14 @@
                         Skill    
                     </div>
                     <div class="information__content">
-                        <p class="skill-icon">
-                            <font-awesome-icon :icon="['fab', 'java']"></font-awesome-icon>
-                            <font-awesome-icon :icon="['fab', 'python']"></font-awesome-icon>
-                            <font-awesome-icon :icon="['fab', 'html5']"></font-awesome-icon>
-                            <font-awesome-icon :icon="['fab', 'js-square']"></font-awesome-icon>
-                            <font-awesome-icon :icon="['fab', 'css3']"></font-awesome-icon>
-                            <font-awesome-icon :icon="['fab', 'node']"></font-awesome-icon>
-                            자바
-
-html
-
-css
-
-javascript
-
-spring
-
-vue
-
-django
-
-sqlite
-
-서블릿?
-
-jdbc API
-
-spring note
-                        </p>
+                        <div class="skill-icon" :key="skill" v-for="skill in skillIcon" v-show="Toggle.editSkill">
+                            <input type="checkbox" :id="skill.title" :value="skill" v-model="checkedSkill">
+                            <label :for="skill.title"><img :src="skill.url" alt="" class="skill-icon-img"></label>
+                        </div>
+                        <div class="skill-icon" :key="check" v-for="check in checkedSkill" v-show="!Toggle.editSkill">
+                            <img :src="check.url" alt="" class="skill-icon-img">
+                        </div>
+                        <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editSkill = !Toggle.editSkill"></font-awesome-icon>
                     </div>
                 </div>
 
@@ -115,35 +94,16 @@ spring note
                         Self-Introduction
                     </div>
                     <div class="information__content">
+                        <div v-show="!Toggle.editIntroduce" class="selfintroduce">{{selfIntroduce}} </div>
+                        <textarea class="selfintroduce__form" v-model="selfIntroduce" v-show="Toggle.editIntroduce" autofocus></textarea>
+                        <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editIntroduce = !Toggle.editIntroduce"></font-awesome-icon>
                     </div>
                 </div>
                 
             </div>
             
-            <div class="activity" v-show="setActivity">
-                <div class="activity__filter">
-                    <div class="btn">Ask</div>
-                    <div class="btn">Answer</div>
-                    <div class="btn">Post</div>
-                    <div class="btn">Comment</div>
-                </div>
-                <div class="activity__card">
-                    <div class="activity__filter__ask"></div>
-                    <div class="activity__filter__answer"></div>
-                    <div class="activity__filter__post"></div>
-                    <div class="activity__filter__comment"></div>
-                </div>
-            </div>
-
-            <div class="follow" v-show="setFollow">
-                <div class="follow__filter">
-                    <button>Following</button>
-                    <button>Follower</button>
-                </div>
-                <div class="follow__card">
-                    User Card
-                </div>
-            </div>
+            <ProfileActivity v-show="setActivity"/>
+            <ProfileFollow class="follow" v-show="setFollow"/>
 
             <div class="Notify" v-show="setNotify">
                 Notify
@@ -158,14 +118,30 @@ spring note
 </template>
 <script>
 import Noty from '@/components/Noty.vue';
+import ProfileActivity from '@/components/ProfileActivity.vue';
+import ProfileFollow from '@/components/ProfileFollow.vue';
 
 export default {
     name: 'profile',
     components: {
-        Noty
+        Noty,
+        ProfileActivity,
+        ProfileFollow,
     },
     data() {
         return {
+            skillIcon: [
+                { title: 'Java', url : require('@/assets/Java.png') },
+                { title: 'Python', url : require('@/assets/Python.png') },
+                { title: 'Vue', url : require('@/assets/Vue.png') },
+                { title: 'CSS', url : require('@/assets/CSS.png') },
+                { title: 'HTML', url : require('@/assets/HTML.png') },
+                { title: 'Node', url : require('@/assets/Node.png') },
+                { title: 'Django', url : require('@/assets/Django.png') },
+                { title: 'Spring', url : require('@/assets/Spring.png') },
+            ],
+            checkedSkill : [],
+            selfIntroduce: 'Edit Your Introduce',
             noties: [
                 {
                     id: 1,
@@ -220,6 +196,8 @@ export default {
                 editSwGrade: false,
                 editRegion: false,
                 editGitUrl: false,
+                editSkill: false,
+                editIntroduce: false
             }
             
             
@@ -400,6 +378,16 @@ $--menu-width: 22rem;
             font-size: var(--text-md);
             margin-bottom: var(--space-sm);
         }
+
+        &-github {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            height: 34px;
+            font-size: var(--text-md);
+            margin-bottom: var(--space-sm);
+        }
     }
 
     &__profile {
@@ -413,7 +401,6 @@ $--menu-width: 22rem;
 
     &__skill {
         width: 100%;
-        height: 300px;
         background-color: var(--color-surface);
 
         padding: var(--space-sm);
@@ -465,10 +452,38 @@ $--menu-width: 22rem;
 }
 
 .skill-icon {
-    font-size: 3rem;
+    font-size: 5rem;
     color: var(--color-primary-darker);
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    user-select: none;
+
+    &-img {
+        margin-right: var(--space-xxxs);
+        width: 100px;
+        height: 100px;
+    }
 }
+
+.information__content .skill-icon input[type="checknox"] {
+    display: none;
+}
+
+.selfintroduce {
+    width: 100%;
+    height: 200px;
+    border: 1px solid var(--color-contrast-low); 
+
+    &__form {
+        width: 100%;
+        height: 200px;
+        border: 1px solid var(--color-contrast-low); 
+        resize: none;
+    }
+}
+
+
 </style>
 

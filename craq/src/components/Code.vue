@@ -252,7 +252,7 @@ export default {
 .btn {
   color: #ffffff;
   background-color: var(--color-primary-dark);
-  margin-right: var(--space-xxs); 
+  margin: var(--space-xxs); 
 }
 
 .btn:hover {
@@ -265,10 +265,6 @@ export default {
   width: 95%;
   border: 1px solid var(--color-contrast-low);
   margin-bottom: var(--space-md);
-}
-
-.shadow:hover {
-  cursor: pointer;
 }
 
 .content {
