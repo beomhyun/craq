@@ -1,6 +1,5 @@
 <template>
     <div class="container">
-    
         <!-- Headline -->
         <div class="headline">
             Ask-Question
@@ -22,7 +21,7 @@
                         
                         <div class="searchtitle__content">
                             <div v-for="list in cardLists" >
-                                <router-link to='/code'>
+                                <router-link to='/'>
                                     <card :list="list"/>
                                 </router-link>
                             </div>
@@ -68,13 +67,13 @@
                 <div class="sub-Box">
                     <h3 class="sub-Box__title">Hot HashTags</h3>
                     <div v-for="item in Hot" class="sub-Box__list">
-                        <div @click="createQuestion" class="btn">{{item}}</div>
+                        <div class="btn">{{item}}</div>
                     </div>
                 </div>
                 <div class="sub-Box">
                     <h3 class="sub-Box__title">How To Use</h3>
                     <div v-for="item in FaQ" class="sub-Box__list">
-                        <div @click="createQuestion" >{{item}}</div>
+                        <div>{{item}}</div>
                     </div>
                 </div>
             </div>
@@ -90,9 +89,6 @@ import VueSimplemde from 'vue-simplemde';
 
 export default {
     name: 'AskQuestion',
-    props: {
-        askQuestion : {type: Boolean, default: false},
-    },
     components: {
         Card,
         VueSimplemde
@@ -126,14 +122,6 @@ export default {
             ]
         }
     },
-    methods: {
-        createQuestion : function() {
-        this.askquestion = false;
-        this.$emit('childs-event', this.askquestion)
-        this.$router.push({name:'code'})
-        },
-       
-    },
     computed: {
         checkInputTitle () {
            if (this.inputTitle === '') {
@@ -162,7 +150,6 @@ export default {
         }
     },
      mounted() {
-        this.askquestion = false;
         this.cardLists = [{
                     id: '1',
                     cardInfo:
