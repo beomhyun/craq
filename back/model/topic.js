@@ -49,20 +49,29 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *      - name: topicInfo
    *        in: body
    *        schema:
    *          $ref: '#/definitions/topicInfo'
    */
   app.post('/topics', function(req, res) {
-    var sql = "INSERT INTO topic(topic,createdUser,updatedUser) VALUES(?,?,?)";
-    var params = [req.body.topic, req.body.user_id, req.body.user_id];
-    connection.query(sql, params, function(err, rows, fields) {
-      if (!err) {
-        res.json(rows);
-      } else {
-        console.log('Error while performing Query.', err);
-        res.send(err);
+    jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+      if(err) res.status(401).send({error:'invalid token'});
+      else{
+        var sql = "INSERT INTO topic(topic,createdUser,updatedUser) VALUES(?,?,?)";
+        var params = [req.body.topic, decoded.pk, req.body.user_id];
+        connection.query(sql, params, function(err, rows, fields) {
+          if (!err) {
+            res.json(rows);
+          } else {
+            console.log('Error while performing Query.', err);
+            res.send(err);
+          }
+        });
       }
     });
   });
@@ -89,7 +98,72 @@ const initializeEndpoints = (app) => {
         error: 'invalid token'
       });
       else {
-        var sql = "SELECT pk,topic FROM topic";
+        var sql = ` SELECT
+                      T.PK AS PK
+                      ,T.TOPIC
+                      ,IFNULL(S.CNT, 0) AS SUBSCRIBES
+                      ,T.IS_ACTIVE AS ACTIVED
+                    FROM 
+                      TOPIC AS T
+                        LEFT OUTER JOIN (SELECT
+                                      TOPIC,
+                                      COUNT(TOPIC) AS CNT
+                                    FROM
+                                      SUBSCRIBE
+                                    GROUP BY TOPIC) AS S
+                        ON T.PK = S.TOPIC `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err) {
+            res.json(rows);
+          } else {
+            res.send(err);
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
+   *  /topics/{user}:
+   *    get:
+   *      tags:
+   *      - topic
+   *      parameters:
+   *       - in: header
+   *         name: user_token
+   *         type: string
+   *         description: |
+   *          사용자 토큰 전달
+   *       - in: path
+   *         name: user
+   *         type: string
+   *         description: 유저 아이디를 전달
+   *      description: 해당 유저가 만든 게시판을 보여줌
+   *      responses:
+   *        200:
+   */
+  app.get('/topics/:user', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = ` SELECT
+                      T.PK AS PK
+                      ,T.TOPIC AS TOPIC
+                      ,IFNULL(S.CNT, 0) AS SUBSCRIBES
+                      ,T.IS_ACTIVE AS ACTIVED
+                    FROM 
+                      TOPIC AS T
+                        LEFT OUTER JOIN (SELECT
+                                      TOPIC,
+                                      COUNT(TOPIC) AS CNT
+                                    FROM
+                                      SUBSCRIBE
+                                    GROUP BY TOPIC) AS S
+                        ON T.PK = S.TOPIC
+                    WHERE T.CREATEDUSER = ${req.params.user} `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             res.json(rows);
@@ -123,7 +197,21 @@ const initializeEndpoints = (app) => {
         error: 'invalid token'
       });
       else {
-        var sql = `SELECT pk,topic FROM topic WHERE is_active = ${TRUE}`;
+        var sql = ` SELECT
+                      T.PK AS PK
+                      ,T.TOPIC
+                      ,IFNULL(S.CNT, 0) AS SUBSCRIBES
+                    FROM 
+                      TOPIC AS T
+                        LEFT OUTER JOIN (SELECT
+                                      TOPIC,
+                                      USER,
+                                      COUNT(TOPIC) AS CNT
+                                    FROM
+                                      SUBSCRIBE
+                                    GROUP BY TOPIC) AS S
+                        ON T.PK = S.TOPIC
+                    WHERE T.IS_ACTIVE = ${TRUE} `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             res.json(rows);
