@@ -14,6 +14,10 @@ const initializeEndpoints = (app) => {
    *      - tag
    *      description: 하나의 태그를 작성
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *      - name: tagInfo
    *        in: body
    *        schema:
@@ -28,15 +32,12 @@ const initializeEndpoints = (app) => {
    *            user_id:
    *              type: integer
    *              description: 작성자의 user id값
-   *            user_token:
-   *              type: string
-   *              description: 사용자의 token 정보
    *      responses:
    *        200:
    */
   app.post('/tags', function(req, res) {
     var i = req.body;
-    jwt.verify(i.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -57,6 +58,57 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
+   *  /tags/mains/{page}:
+   *    get:
+   *      tags:
+   *      - tag
+   *      description: page위치에 해당하는 특정 tag의 article들을 가져옴.
+   *      parameters:
+   *      - name: page
+   *        in: path
+   *        type: integer
+   *        description: tag들을 가져올 page위치의 값
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달
+   *      responses:
+   *        200:
+   */
+  app.get('/tags/mains/:page', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = `SELECT COUNT(PK) AS TOTAL_TAG FROM TAG WHERE IS_REMOVED = ${FALSE}`;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err) {
+            var totalTag = rows[0].TOTAL_TAG;
+            var totalPage = totalTag / TAG_PER_PAGE;
+            if (totalTag > totalPage * TAG_PER_PAGE) {
+              totalPage++;
+            }
+            sql = `SELECT A.ROWNUM, A.TITLE, A.BODY, A.CREATEDUSER FROM ( SELECT ROW_NUMBER() OVER( ORDER BY PK DESC ) AS ROWNUM, TITLE, BODY, CREATEDUSER FROM TAG WHERE IS_REMOVED = ${FALSE} ) AS A WHERE ROWNUM >(${req.params.page}-1)*${TAG_PER_PAGE} LIMIT ${TAG_PER_PAGE}`;
+            connection.query(sql, function(err, rows, fields) {
+              if (!err) {
+                res.json(rows);
+              } else {
+                console.log('select page val err.', err);
+                res.send(err);
+              }
+            });
+          } else {
+            console.log('select count sql err', err);
+            res.send(err);
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
    *  /tags:
    *    get:
    *      tags:
@@ -64,14 +116,14 @@ const initializeEndpoints = (app) => {
    *      description: 모든 태그를 받아옴.
    *      parameters:
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.get('/tags', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -102,14 +154,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 특정 태그의 id 값을 전달
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.get('/tags/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -149,14 +201,14 @@ const initializeEndpoints = (app) => {
    *        type: string
    *        description: 수정할 내용
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.put('/tags/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -188,14 +240,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 특정 태그의 id 값을 전달
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
   app.delete('/tags/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
