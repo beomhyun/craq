@@ -76,10 +76,11 @@ export default {
 <style  lang="scss" scoped>
 $--card-main-height: 120px;
     .badquestion {
+        user-select: none;
         width: 100%;
         height: 120px;
         color: alpha(var(--color-on-surface), 0.2) !important;
-        z-index: 10;
+        
     }
     .badquestion p{
         color: alpha(var(--color-on-surface), 0.2) !important;
@@ -95,10 +96,11 @@ $--card-main-height: 120px;
         background-color: alpha(var(--color-tertiary), 0.4);
     }
     .card {
+        user-select: none;
         border-radius: calc(var(--radius, 0.25em));
         display: flex;
         justify-content: space-between;
-        background-color:var(--color-surface);
+        background-color:var(--color-surface-light);
         color:var(--color-on-surface);
         margin-top: var(--space-xxxs);
         width: 100%;
@@ -144,10 +146,14 @@ $--card-main-height: 120px;
         &__title {
             font-size: calc(#{$--card-main-height} * 0.2);   
         }
+
+        &__title:hover {
+            cursor: pointer;
+        }
         
     }
     .none .user {
-        width: 200px;
+        width: 300px;
         height: 100%;
         padding: var(--space-xs);
         background-color: alpha(var(--color-accent), 0.3);
@@ -183,7 +189,7 @@ $--card-main-height: 120px;
     }
 
     .user {
-            width: 200px;
+            width: 300px;
             height: 100%;
             padding: var(--space-xs);
             background-color: alpha(var(--color-primary-light), 0.2);

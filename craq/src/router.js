@@ -77,15 +77,13 @@ export default new Router({
 
       },
       component: Code,
+    },
+    {
+      path: '/askquestion',
+      meta: {},
+      name: 'askquestion',
 
-      children: [
-        {
-          path: 'askquestion',
-          meta: {},
-          name: 'askquestion',
-          component: AskQuestion
-        },
-      ]
+      component: AskQuestion
     },
     {
       path: '/freeboard/:topic',

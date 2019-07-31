@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="filler" v-if="!askquestion">
+      <div class="filler">
 
           <!-- Headline -->
           <div class="headline">
@@ -17,7 +17,7 @@
               <div class="btn btn--sm">View</div>
             </div>
             <div class="filter__ask">
-              <div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div>
+              <router-link to="/askquestion"><div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div></router-link>
             </div>
           </div> <!-- Filter /div -->
 
@@ -37,11 +37,6 @@
           </div>  <!-- pagenation -->
         
         </div> <!-- Container /div -->
-
-        <div v-else>
-          <ask @childs-event="parentsMethod"/>
-        </div>
-
       </div>  <!-- Filler -->
 </template>
 
@@ -58,14 +53,12 @@ export default {
     data() {
       return {
         messages: '',
-        askquestion: false,
         latested: true,
         cardLists: [],
       }
     },
     
     mounted() {
-      this.askquestion = false;
         this.cardLists = [{
                     id: '1',
                     cardInfo:
@@ -250,11 +243,13 @@ export default {
 }
 
 .btn {
-  margin-right: var(--space-xxs); 
+  color: #ffffff;
+  background-color: var(--color-primary-dark);
+  margin: var(--space-xxs); 
 }
 
 .btn:hover {
-  background-color: var(--color-primary-light);
+  background-color: var(--color-primary-darker);
   color: var(--color-on-primary-light);
 }
 
@@ -263,10 +258,6 @@ export default {
   width: 95%;
   border: 1px solid var(--color-contrast-low);
   margin-bottom: var(--space-md);
-}
-
-.shadow:hover {
-  cursor: pointer;
 }
 
 .content {
