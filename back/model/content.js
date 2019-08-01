@@ -27,6 +27,10 @@ const initializeEndpoints = (app) => {
    *      - content
    *      description: content를 작성
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *      - in: query
    *        name: topic_id
    *        type: integer
@@ -55,10 +59,6 @@ const initializeEndpoints = (app) => {
    *        name: user_id
    *        type: integer
    *        description: 작성자의 user id값
-   *      - in: query
-   *        name: user_token
-   *        type: string
-   *        description: 작성자의 token값
    *      responses:
    *        200:
    */
@@ -66,7 +66,7 @@ const initializeEndpoints = (app) => {
     var i = req.query;
     var sql = "";
     var params = [];
-    jwt.verify(i.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -150,21 +150,30 @@ const initializeEndpoints = (app) => {
    *      responses:
    *       200:
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *       - in: path
    *         name: pk
    *         type: integer
    *         description: 사용자 pk 전달
    */
   app.get('/contents/content-image/:pk', function(req, res) {
-    var sql = " select count(*) as cheking, image from content where pk = ? ";
-    var params = [req.params.pk];
-    connection.query(sql, params, function(err, rows, fields) {
-      if (!err) {
-        var img = '<img src="/' + rows[0].image + '">';
-        res.send(img);
-      } else {
-        res.send({
-          status: "fail"
+    jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+      if(err) res.status(401).send({error:'invalid token'});
+      else{
+        var sql = " select count(*) as cheking, image from content where pk = ? ";
+        var params = [req.params.pk];
+        connection.query(sql, params, function(err, rows, fields) {
+          if (!err) {
+            var img = '<img src="/' + rows[0].image + '">';
+            res.send(img);
+          } else {
+            res.send({
+              status: "fail"
+            });
+          }
         });
       }
     });
@@ -183,14 +192,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article의 id 값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/contents/articles/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -222,14 +231,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article의 id 값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/contents/last/articles/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -261,7 +270,7 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: content id 값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
@@ -269,7 +278,7 @@ const initializeEndpoints = (app) => {
    */
   app.get('/contents/:id', function(req, res) {
     const ARTICLE_PER_PAGE = 20;
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -387,7 +396,7 @@ const initializeEndpoints = (app) => {
    *        type: string
    *        description: image의 링크 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달.
    *      responses:
@@ -395,7 +404,7 @@ const initializeEndpoints = (app) => {
    */
   app.put('/contents/:id', function(req, res) {
 
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -427,14 +436,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: content id 값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달.
    *      responses:
    *        200:
    */
   app.delete('/contents/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
