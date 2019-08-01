@@ -12,43 +12,58 @@ const initializeEndpoints = (app) => {
    *    post:
    *      tags:
    *      - tag
-   *      description: 하나의 태그를 작성
+   *      description: 하나의 태그를 작성, 이름이 정확히 일치할 경우 생성하지 않음
    *      parameters:
-   *      - name: tagInfo
-   *        in: body
-   *        schema:
-   *          type: object
-   *          properties:
-   *            title:
-   *              type: string
-   *              description: 태그명
-   *            body:
-   *              type: string
-   *              description: 태그의 내용 및 설명
-   *            user_id:
-   *              type: integer
-   *              description: 작성자의 user id값
-   *            user_token:
-   *              type: string
-   *              description: 사용자의 token 정보
+   *      - in: query
+   *        name: title
+   *        type: string
+   *        description: 태그명
+   *      - in: query
+   *        name: body
+   *        type: string
+   *        description: 태그의 내용 및 설명
+   *      - in: query
+   *        name: user_id
+   *        type: integer
+   *        description: 작성자의 user id값
+   *      - in: header
+   *        name: user_token
+   *        type: string
+   *        description: 사용자의 token 값
    *      responses:
    *        200:
    */
   app.post('/tags', function(req, res) {
-    var i = req.body;
-    jwt.verify(i.user_token, secretObj.secret, function(err, decoded) {
+    var i = req.query;
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "INSERT INTO tag(title,body,createdUser,updatedUser) VALUES(?,?,?,?)";
-        var params = [i.title, i.body, i.user_id, i.user_id];
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('Error while performing Query.', err);
-            res.send(err);
+        sql =
+              `
+                SELECT   COUNT( PK ) AS COUNT
+                FROM     TAG
+                WHERE    TITLE LIKE '${i.title}'
+              `;
+        connection.query(sql, function(err, rows, fields) {
+          if( rows[0].COUNT == 0 ){ // 작성된 topic이 없다면
+            console.log(rows[0].COUNT);
+            sql =
+            `
+              INSERT  INTO
+              TAG     ( TITLE, BODY, CREATEDUSER, UPDATEDUSER )
+              VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${i.user_id}, ${i.user_id} )
+            `;
+            connection.query(sql, function(err, rows, fields) {
+              if(!err){
+                res.send({status: "success"});
+              }else{
+                res.send({status: "fail"});
+              }
+            });
+          }else{
+            res.send({status: "fail"});
           }
         });
       }
