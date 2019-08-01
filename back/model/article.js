@@ -326,7 +326,7 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article들을 가져올 page위치의 값
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
@@ -334,7 +334,7 @@ const initializeEndpoints = (app) => {
    */
   app.get('/articles/goods/:topic/:page', function(req, res) {
     var sql = '';
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
