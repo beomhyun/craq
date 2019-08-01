@@ -12,14 +12,7 @@
                                 <CodeDetailVote></CodeDetailVote>
                             </div>
                             <div class="postcell post-layout--right">
-                                <div class="post-text" item-prop="text">
-                                    <p>
-                                    What's the best way to extend the User model (bundled with Django's authentication app) with custom fields? I would also possibly like to use the email as the username (for authentication purposes).
-                                    </p>
-                                    <p>
-                                    I've already seen a few to do it, but can't decide on which one is the best.ways
-                                    </p>
-                                </div>
+                                <CodeDetailContent></CodeDetailContent>
                                 <CodeDetailTagList></CodeDetailTagList>
                                 <CodeDetailQuestionSignature></CodeDetailQuestionSignature>
                                 <div style="grid-column: 1 / 3;"></div>
@@ -44,10 +37,12 @@ import CodeDetailVote from '@/components/CodeDetailVote.vue';
 import CodeDetailTagList from '@/components/CodeDetailTagList.vue';
 import CodeDetailQuestionSignature from '@/components/CodeDetailQuestionSignature';
 import CodeDetailComments from '@/components/CodeDetailComments.vue';
+import CodeDetailContent from '@/components/CodeDetailContent.vue';
 
 export default {
     name: "CodeDetail",
     components: {
+        CodeDetailContent,
         CodeDetailComments,
         CodeDetailQuestionHeader,
         CodeDetailQuestionHeaderBottom,
@@ -81,21 +76,6 @@ export default {
     vertical-align: top;
 }
 
-.post {
-
-    &-text {
-        margin-bottom: 5px;
-        word-wrap: break-word;
-        font-size: 1rem; // TODO
-        line-height: 1.3;
-        font-family: Arial, "Helvetica Neue",Helvetica, sans-serif;
-
-    }
-
-}
-
-
-
 .post-layout {
     display: grid;
     grid-template-columns: max-content 1fr;
@@ -111,9 +91,6 @@ export default {
     }
 }
 
-
-
-
 .clearfix::after {
     content: "";
     display: table;
@@ -125,11 +102,4 @@ export default {
 .d-block {
     display: block !important;
 }
-
-
-
-
-
-
-
 </style>
