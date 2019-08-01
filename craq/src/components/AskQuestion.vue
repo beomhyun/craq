@@ -8,7 +8,7 @@
        <div class="mainContent">
            
             <div class="inputQuestion">
-                <div class="test">
+                <div class="layout">
                 <div class="inputQuestion__form">
                     <label for="title"><strong>Title</strong> - 제목을 입력시 유사한 질문을 표시해 줍니다.</label>
                     <input type="text" id="title" v-model="inputTitle" class="questionForm" placeholder="Enter a Title" :class="{'openSearchBox' : checkInputTitle}">
@@ -31,29 +31,36 @@
                     <label for="content"><strong>content</strong> - 문제 해결을 위해 시도한 것들을 상세하게 작성해주십시오.</label>
                     <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
 
-                    <label for="hashtag"><strong>hashtag</strong> - 사용된 기술들을 태그해두면 질문을 검색하기에 용이합니다.</label>
-                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : checkInputHashtag}">
+                    <label for="hashtag"><strong>TagSearch</strong> - 태그를 검색합니다.</label>
+                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : checkInputHashtag}"  @keydown.enter="inputTag(inputHashtag)">
 
                     <div class="searchHashtag">
-
+                        
                         <div class="searchHashtag__head">
                             <span>Similar HashTag Lists</span>
                         </div>
                         
                         <div class="searchHashtag__content">
                             
-                            <div v-for="Hlist in hashtagLists" class="searchHashtag__form">
-                                <div class="hashtagComponents">
-                                    <div class="hashtagComponents__title">
-                                        <div class="btn btn--sm">{{ Hlist.title }}</div>
+                            <div class="searchHashtag__form">
+                                <template v-for="tag in tags">
+                                    <div @click="inputTag(tag.title)">
+                                        <TagsCard class="tagsCard" :tag="tag" ></TagsCard>
                                     </div>
-                                    <div class="hashtagComponents__description">
-                                        {{ Hlist.description }}
-                                    </div>
-                                </div>
+                                </template>
                             </div>
+
                         </div>
 
+                    </div>
+
+                    <label for="mytag"><strong>Tags</strong> - 선택한 태그 목록입니다.</label>
+                    <div id="mytag" class="tagsForm">
+                        <div :key="tag" v-for="tag in myTags">
+                            <div class="btn btn--sm tagsForm__btn">
+                                {{tag}}&nbsp; <font-awesome-icon icon='times' @click="deleteTag(tag.title)"/>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="submit">
@@ -84,6 +91,7 @@
 
 <script>
 import Card from '@/components/CardforAsk.vue';
+import TagsCard from '@/components/TagsCard.vue';
 import VueFroala from 'vue-froala-wysiwyg';
 import VueSimplemde from 'vue-simplemde';
 
@@ -91,12 +99,15 @@ export default {
     name: 'AskQuestion',
     components: {
         Card,
+        TagsCard,
         VueSimplemde
     },
     data() {
         return{
+            tags: [],
             cardLists: [],
-            hashtagLists: [],
+            tagLists: [],
+            myTags: [],
             config: {
                 events: {
                     initialized: function () {  
@@ -121,6 +132,22 @@ export default {
                 '팁과 정보'
             ]
         }
+    },
+    methods: {
+        inputTag(title) {
+            console.log(title)
+            if (!(this.myTags.includes(title))) {
+                this.myTags.push(title)
+            } else {
+                alert("이미 포함된 태그입니다.")
+            }
+            
+            this.inputHashtag = ''
+            this.tags = []  
+            },
+        deleteTag(title) {
+            this.myTags.pop(title)
+            }
     },
     computed: {
         checkInputTitle () {
@@ -147,9 +174,14 @@ export default {
         },
         checkContent() {
             return this.inputTitle + this.inputHashtag + this.inputCode + this.inputContent + this.Code
-        }
+        },
+        
     },
      mounted() {
+        this.$axios.get('tags').then(res=> {
+            console.log(res);
+            this.tagLists = res.data;
+        }),
         this.cardLists = [{
                     id: '1',
                     cardInfo:
@@ -165,42 +197,23 @@ export default {
                             Content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry'
                         },
                 }],
-        this.inputContent = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 시도한 코드를 작성하십시오. <br> 4. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명 <br> ```<br>이곳에 코드를 작성하십시오.<br>```" ,
-        this.hashtagLists = [
-            {
-                title: 'C++',
-                description: 'C++ 에 대한 설명이 들어갈 부분입니다.'
-            },
-            {
-                title: 'Java',
-                description: 'java에 대한 설명이 들어갈 부분입니다.'
-            },
-            {
-                title: 'C++',
-                description: 'C++ 에 대한 설명이 들어갈 부분입니다.'
-            },
-            {
-                title: 'Java',
-                description: 'java에 대한 설명이 들어갈 부분입니다.'
-            },
-            {
-                title: 'C++',
-                description: 'C++ 에 대한 설명이 들어갈 부분입니다.'
-            },
-            {
-                title: 'Java',
-                description: 'java에 대한 설명이 들어갈 부분입니다.'
-            },
-            {
-                title: 'C++',
-                description: 'C++ 에 대한 설명이 들어갈 부분입니다.'
-            },
-            {
-                title: 'Java',
-                description: 'java에 대한 설명이 들어갈 부분입니다.'
-            },
-        ]
+        this.inputContent = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 시도한 코드를 작성하십시오. <br> 4. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명 <br> ```<br>이곳에 코드를 작성하십시오.<br>```"
     },
+    watch: {
+        inputHashtag: function (a, b) {
+            this.tagLists.forEach((tag) => {
+                if (tag.title.toLowerCase().startsWith(a.toLowerCase())  && a != '') {
+                    if (!(this.tags.includes(tag))) {
+                        this.tags.push(tag)
+                    } 
+                };
+                if (a === '') {
+                    this.tags = []
+                }
+            })
+        },
+
+    }
     
 }
 </script>
@@ -243,11 +256,12 @@ export default {
     &__form {
         display: flex;
         flex-direction: column;
+        flex-wrap: wrap;
         align-items: center;
         width: 800px;
     }
 }
-.test {
+.layout {
     box-shadow: var(--shadow-sm);
     border-radius: var(--radius-sm);
     background-color: var(--color-surface-light);
@@ -267,6 +281,24 @@ strong {
     padding: var(--space-xxs);
     border: 1px solid var(--color-contrast-low);
     border-radius: var(--radius-lg);
+}
+
+.tagsForm {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+
+    width: 100%;
+    height: 40px;
+    padding: var(--space-xxs);
+
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-contrast-low);
+    border-radius: var(--radius-lg);
+
+    &__btn {
+        margin-right: var(--space-xxs); 
+    }
 }
 
 .searchtitle {
@@ -336,12 +368,14 @@ strong {
     }
 
     &__form {
-        width: 30%;
-    }
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
 
-    &__form:hover {
-        cursor: pointer;
-        background-color: alpha(var(--color-secondary), 0.2);
+        padding: var(--space-md);
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
     }
 }
 
@@ -410,5 +444,8 @@ strong {
     margin-top: var(--space-md);
 }
 
+.tagsCard {
+    margin: var(--space-sm);
+}
 </style>
 

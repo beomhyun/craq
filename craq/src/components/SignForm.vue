@@ -197,6 +197,8 @@ export default {
                 } 
                 this.$session.start();
                 this.$session.set('jwt', res.data.jwt);
+                this.$session.set('username', res.data.username);
+                this.$session.set('userPk', res.data.pk);
                 this.$axios.defaults.headers.common['user_token'] = res.data.jwt;
                 this.$router.push('/');
             }).catch(err => console.log(err));
