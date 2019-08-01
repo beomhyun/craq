@@ -9,6 +9,9 @@
                     <div id="question" class="question">
                         <Article></Article>
                     </div>
+                    <div id="answers">
+                        <CodeDetailAnswerHeader></CodeDetailAnswerHeader>
+                    </div>
 
                 </div>
             </div>
@@ -21,10 +24,12 @@
 import CodeDetailQuestionHeader from '@/components/CodeDetailQuestionHeader.vue';
 import CodeDetailQuestionHeaderBottom from '@/components/CodeDetailQuestionHeaderBottom.vue';
 import Article from '@/components/Article.vue';
+import CodeDetailAnswerHeader from '@/components/CodeDetailAnswerHeader.vue';
 
 export default {
     name: "CodeDetail",
     components: {
+        CodeDetailAnswerHeader,
         CodeDetailQuestionHeader,
         CodeDetailQuestionHeaderBottom,
         Article,

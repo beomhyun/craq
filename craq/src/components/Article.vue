@@ -5,7 +5,7 @@
         </div>
         <div class="postcell post-layout--right">
             <ArticleContent></ArticleContent>
-            <ArticleTag></ArticleTag>
+            <ArticleTagList></ArticleTagList>
             <ArticleSignature></ArticleSignature>
             <div style="grid-column: 1 / 3;"></div>
             <div class="post-layout--right">
