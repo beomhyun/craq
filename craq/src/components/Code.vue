@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="filler" v-if="!askquestion">
+      <div class="filler">
 
           <!-- Headline -->
           <div class="headline">
@@ -18,7 +18,7 @@
               <div class="btn btn--sm">View</div>
             </div>
             <div class="filter__ask">
-              <div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div>
+              <router-link to="/askquestion"><div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div></router-link>
             </div>
           </div> <!-- Filter /div -->
 
@@ -38,11 +38,6 @@
           </div>  <!-- pagenation -->
         
         </div> <!-- Container /div -->
-
-        <div v-else>
-          <ask @childs-event="parentsMethod"/>
-        </div>
-
       </div>  <!-- Filler -->
 </template>
 
@@ -60,15 +55,15 @@ export default {
     },
     data() {
       return {
+        carddata : '',
         messages: '',
-        askquestion: false,
         latested: true,
         cardLists: [],
       }
     },
     
     mounted() {
-      this.askquestion = false;
+
         this.cardLists = [{
                     id: '1',
                     cardInfo:
@@ -196,6 +191,7 @@ export default {
       this.askquestion = askquestion // 자식으로 부터받은 메시지를 사용
       }
     },
+
     computed: {
       currentRouteName() {
         console.log(this.$route.name);
@@ -260,7 +256,7 @@ export default {
 .btn {
   color: #ffffff;
   background-color: var(--color-primary-dark);
-  margin-right: var(--space-xxs); 
+  margin: var(--space-xxs); 
 }
 
 .btn:hover {
@@ -273,10 +269,6 @@ export default {
   width: 95%;
   border: 1px solid var(--color-contrast-low);
   margin-bottom: var(--space-md);
-}
-
-.shadow:hover {
-  cursor: pointer;
 }
 
 .content {

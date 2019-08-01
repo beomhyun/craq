@@ -1,6 +1,7 @@
 const path = require("path");
 
 module.exports = {
+  transpileDependencies: ['vue-clamp', 'resize-detector'],
   pluginOptions: {
     "style-resources-loader": {
       preProcessor: "scss",

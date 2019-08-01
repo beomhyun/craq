@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+
 //vue session
 import VueSession from 'vue-session'
 Vue.use(VueSession);
@@ -31,6 +32,26 @@ Vue.component('font-awesome-icon', FontAwesomeIcon);
 import {dom} from '@fortawesome/fontawesome-svg-core';
 dom.watch()
 //font awesome tester
+
+//markdown View
+import VueSimplemde from 'vue-simplemde'
+import 'simplemde/dist/simplemde.min.css'
+
+Vue.component('vue-simplemde', VueSimplemde)
+//end markdown View
+
+// axios
+import axios from 'axios'
+
+Vue.use({
+  install(Vue) {
+    Vue.prototype.$axios = axios.create({
+      baseURL: 'http://192.168.31.58:10123/'
+    })
+  }
+})
+
+//
 
 Vue.config.productionTip = false
 

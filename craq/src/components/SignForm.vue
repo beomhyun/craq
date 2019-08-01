@@ -89,7 +89,6 @@
 import Steps from '@/components/SignForm/Steps.vue';
 import Modal from '@/components/Modal.vue';
 import Spinner from '@/components/Spinner.vue';
-const axios = require('axios');
 const SHA512 = require('crypto-js/sha512');
 
 const baseUrl = 'http://192.168.31.58:10123'
@@ -120,7 +119,9 @@ export default {
                 this.username = false;
                 return;
             } else {
-                axios.get(baseUrl + "/username-checking/" + checker).then(res=>{
+                
+                this.$axios.get("username-checking/" + checker).then(res=>{
+                    console.log(res.data);
                     this.username = (res.data.status == 'success');
 
                 }).
@@ -134,7 +135,7 @@ export default {
                 this.email = false;
                 return;
             }
-            axios.get(baseUrl + "/email-checking/" + checker).then(res=>{
+            this.$axios.get("email-checking/" + checker).then(res=>{
                 this.email = (res.data.status == 'success');
             }).
                 catch(err=>console.log(err));
@@ -180,10 +181,9 @@ export default {
                 username: this.inputUsername,
                 password: SHA512(this.inputPassword1).toString()
             }
-            return axios.post(apiUrl, data, {headers:headers});
+            return this.$axios.post(apiUrl, data, {headers:headers});
         },
         login() {
-            const apiUrl = baseUrl + '/login';
             const headers = {
                 "Content-Type": "application/json"
             };
@@ -191,14 +191,14 @@ export default {
                 "email": this.inputEmail,
                 "password": SHA512(this.inputPassword1).toString()
             }
-            axios.post(apiUrl, data, {headers: headers}).then(res=> {
+            this.$axios.post('login', data, {headers: headers}).then(res=> {
                 if (res.data.status == "fail") {
                     return alert('check email or password');
                 } 
                 this.$session.start();
-                this.$session.set('jwt', res.data.data);
-                this.$router.go('/');
-
+                this.$session.set('jwt', res.data.jwt);
+                this.$axios.defaults.headers.common['user_token'] = res.data.jwt;
+                this.$router.push('/');
             }).catch(err => console.log(err));
 
         },
@@ -270,6 +270,7 @@ export default {
 }
 @-webkit-keyframes pulse {
     from {
+        
         -webkit-transform: scale3d(1, 1, 1);
         transform: scale3d(1, 1, 1);
     }
