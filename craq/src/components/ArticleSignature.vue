@@ -10,18 +10,17 @@
                 </div>
             </div>
             <CodeDetailQuestionSignatureCard></CodeDetailQuestionSignatureCard>
-
         </div>
     </div>
 
 </template>
 
 <script>
-import CodeDetailQuestionSignatureCard from '@/components/CodeDetailQuestionSignatureCard.vue';
+import ArticleSignatureCard from '@/components/ArticleSignatureCard.vue';
 export default {
-    name: "CodeDetailQuestionSignature",
+    name: "ArticleSignature",
     components: {
-        CodeDetailQuestionSignatureCard
+        ArticleSignatureCard
     }
 }
 

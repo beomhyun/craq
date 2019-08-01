@@ -2,11 +2,10 @@
     <div>
         <div class="comments">
             <ul class="comments-list">
-                <CodeDetailCommentsCard></CodeDetailCommentsCard>
-                <CodeDetailCommentsCard></CodeDetailCommentsCard>
-                <CodeDetailCommentsCard></CodeDetailCommentsCard>
-                <CodeDetailCommentsCard></CodeDetailCommentsCard>
-                <CodeDetailCommentsCard></CodeDetailCommentsCard>
+                <ArticleCommentsCard></ArticleCommentsCard>
+                <ArticleCommentsCard></ArticleCommentsCard>
+                <ArticleCommentsCard></ArticleCommentsCard>
+                <ArticleCommentsCard></ArticleCommentsCard>
             </ul>
         </div>
         <div>
@@ -19,11 +18,11 @@
 </template>
 
 <script>
-import CodeDetailCommentsCard from '@/components/CodeDetailCommentsCard.vue';
+import ArticleCommentsCard from '@/components/ArticleCommentsCard.vue';
 export default {
-    name: "CodeDetailComments",
+    name: "ArticleComments",
     components: {
-        CodeDetailCommentsCard
+        ArticleCommentsCard
     }
 }
 </script>

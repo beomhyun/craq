@@ -22,16 +22,8 @@
 </template>
 
 <script>
-import JQUERY from 'jquery'
-const $ = JQUERY;
 export default {
-    name: "CodeDetailCommentsCard",
-    mounted() { // TODO
-        this.$nextTick(function() {
-            $('.removed').contents().unwrap();
-        })
-
-    }
+    name: "ArticleCommentsCard",
 }
 
 </script>

@@ -25,7 +25,7 @@
 
 <script>
 export default {
-    name: "CodeDetailTagList"
+    name: "ArticleTagList"
 }
 
 </script>

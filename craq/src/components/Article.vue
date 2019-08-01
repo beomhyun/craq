@@ -1,15 +1,15 @@
 <template>
     <div class="post-layout">
         <div class="votecell post-layout--left">
-            <CodeDetailVote></CodeDetailVote>
+            <ArticleVote></ArticleVote>
         </div>
         <div class="postcell post-layout--right">
-            <CodeDetailContent></CodeDetailContent>
-            <CodeDetailTagList></CodeDetailTagList>
-            <CodeDetailQuestionSignature></CodeDetailQuestionSignature>
+            <ArticleContent></ArticleContent>
+            <ArticleTag></ArticleTag>
+            <ArticleSignature></ArticleSignature>
             <div style="grid-column: 1 / 3;"></div>
             <div class="post-layout--right">
-                <CodeDetailComments></CodeDetailComments>
+                <ArticleComments></ArticleComments>
             </div>
         </div>
     </div>
@@ -17,20 +17,20 @@
 
 
 <script>
-import CodeDetailVote from '@/components/CodeDetailVote.vue';
-import CodeDetailTagList from '@/components/CodeDetailTagList.vue';
-import CodeDetailQuestionSignature from '@/components/CodeDetailQuestionSignature';
-import CodeDetailComments from '@/components/CodeDetailComments.vue';
-import CodeDetailContent from '@/components/CodeDetailContent.vue';
+import ArticleVote from '@/components/ArticleVote.vue';
+import ArticleContent from '@/components/ArticleContent.vue';
+import ArticleTagList from '@/components/ArticleTagList.vue';
+import ArticleSignature from '@/components/ArticleSignature';
+import ArticleComments from '@/components/ArticleComments.vue';
 
 export default {
     name: "Article",
     components: {
-        CodeDetailContent,
-        CodeDetailComments,
-        CodeDetailVote,
-        CodeDetailTagList,
-        CodeDetailQuestionSignature,
+        ArticleContent,
+        ArticleComments,
+        ArticleVote,
+        ArticleTagList,
+        ArticleSignature,
     }
 }
 
