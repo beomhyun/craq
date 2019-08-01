@@ -14,8 +14,6 @@ const TRUE = 1;
  *         type: integer
  *       user_id:
  *         type: integer
- *       user_token:
- *         type: string
  *   subscribeInfo:
  *     type: object
  *     properties:
