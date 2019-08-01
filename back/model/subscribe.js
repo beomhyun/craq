@@ -163,7 +163,7 @@ const initializeEndpoints = (app) => {
                         LEFT OUTER JOIN TOPIC AS T ON S.TOPIC = T.PK
                     WHERE
                       USER = ? `;
-        var params = [decoded.pk];
+        var params = [req.params.user];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
             res.json(rows);
