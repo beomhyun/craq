@@ -106,42 +106,72 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /tags/{id}:
+   *  /tags/{title}:
    *    get:
    *      tags:
    *      - tag
-   *      description: 특정 태그의 정보를 받아옴(1)
+   *      description: 특정 태그의 정보를 받아옴(1). 없으면 생성함.
    *      parameters:
-   *      - name: id
-   *        in: path
-   *        type: integer
-   *        description: 특정 태그의 id 값을 전달
-   *      - name: user_token
+   *      - name: title
    *        in: query
+   *        type: string
+   *        description: 검색할 tag의 이름(title)을 전달.
+   *      - name: user_token
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달
    *      responses:
    *        200:
    */
-  app.get('/tags/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+  app.get('/tags/:title', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "SELECT * FROM tag WHERE pk = ?";
-        var params = req.params.id;
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('Error while performing Query.', err);
-            res.send(err);
+        var sql =
+                  `
+                    SELECT   COUNT(PK) AS COUNT
+                    FROM     TAG
+                    WHERE    TITLE LIKE '${req.query.title}'
+                  `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err){
+            if(rows[0].COUNT == 0){ // 해당 tag가 존재하지 않는다면
+              // 받아온 title명으로 tag를 등록한다.
+              sql =
+              `
+                INSERT  INTO
+                TAG     ( TITLE )
+                VALUES  ( '${req.query.title}')
+              `;
+              connection.query(sql, function(err, rows, fields) {
+                if (err){
+                  res.send({status: "fail"});
+                }
+              });
+            }
+            // 존재하고 있던, 또는 생성한 후에 해당정보를 가져온다.
+            sql =
+                  `
+                    SELECT  *
+                    FROM    TAG
+                    WHERE   TITLE LIKE '${req.query.title}'
+                  `;
+            connection.query(sql, function(err, rows, fields) {
+              if (!err){
+                res.send({status: "success",data:rows[0]});
+              }else{
+                res.send({status: "fail"});
+              }
+            });
           }
         });
       }
     });
   });
+
+
 
   /**
    * @swagger
