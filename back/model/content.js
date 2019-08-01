@@ -55,7 +55,7 @@ const initializeEndpoints = (app) => {
    *        name: user_id
    *        type: integer
    *        description: 작성자의 user id값
-   *      - in: query
+   *      - in: header
    *        name: user_token
    *        type: string
    *        description: 작성자의 token값
@@ -65,61 +65,119 @@ const initializeEndpoints = (app) => {
   app.post('/contents', upload.single('image'), function(req, res) {
     var i = req.query;
     var sql = "";
-    var params = [];
-    jwt.verify(i.user_token, secretObj.secret, function(err, decoded) {
+    function post_notice(req,i){
+      // 작성한 글이 어느 질문에 대한 답변일 때
+      if( i.topic_id == 1 && i.article_id != 0){ // 질문 글이면서
+        // 질문 글의 작성자를 얻어온다
+        sql =
+              `
+                SELECT    A.CREATEDUSER
+                        , C.TITLE
+                FROM      ARTICLE AS A
+                JOIN      CONTENT AS C
+                ON        A.CONTENT = C.PK
+                WHERE     PK = ${i.article_id}
+              `;
+        connection.query(sql, function(err, rows, fields) {
+          console.log(rows);
+          var created_user = rows[0].CREATEDUSER;
+          var title = row[0].TITLE;
+          // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+          var msg = `${title} 글에 답변이 달렸습니다`;
+          sql =
+                `
+                  INSERT  INTO
+                  NOTICE  ( USER, TYPE, BODY )
+                  VALUES  ( ${created_user}, 1, ${msg} )
+                `;
+          connection.query(sql, function(err, rows, fields) {
+            if (!err){
+              res.send({status: "success2"});
+            }else{
+              res.send({status: "fail4"});
+            }
+          });
+        });
+      }
+    }
+
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        if (i.beforeContent == 0) { // 이전에 작성한 content가 없는 최초의 article 작성일 때
-          sql = "INSERT INTO content(title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?)";
-          params = [i.title, i.body, i.image, i.user_id, i.user_id];
-          connection.query(sql, params, function(err, rows, fields) {
+        if (i.beforeContent == 0) {
+          // 이전에 작성한 content가 없는 최초의 article 작성일 때
+          sql =
+          `
+            INSERT    INTO
+            CONTENT   ( TITLE, BODY, IMAGE, CREATEDUSER, UPDATEDUSER )
+            VALUES    ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${"'"+req.file.filename+"'"}, ${i.user_id}, ${i.user_id} )
+          `;
+          connection.query(sql, function(err, rows, fields) {
             if (!err) {
               var contentId = rows.insertId;
-              sql = "INSERT INTO article(topic,article,content,createdUser,updatedUser) VALUES(?,?,?,?,?)"
-              params = [i.topic_id, i.article_id, contentId, i.user_id, i.user_id];
-              connection.query(sql, params, function(err, rows, fields) {
+              sql =
+                    `
+                      INSERT    INTO
+                      ARTICLE   ( TOPIC, ARTICLE, CONTENT, CREATEDUSER, UPDATEDUSER )
+                      VALUES    ( ${i.topic_id}, ${i.article_id}, ${contentId}, ${i.user_id}, ${i.user_id} )
+                    `;
+              connection.query(sql, function(err, rows, fields) {
                 if (!err) {
-                  console.log("rows.insertId = " + rows.insertId);
-                  sql = `UPDATE CONTENT SET ARTICLE = ${rows.insertId} WHERE pk = ${contentId}`;
-                  connection.query(sql, params, function(err, rows, fields) {
-                    if (!err) {
-                      res.json(rows);
-                    } else {
-                      console.log('content update err.', err);
-                      res.send(err);
+                  //console.log("rows.insertId = " + rows.insertId);
+                  //생성한 article에 작성한 content id를 입력해준다.
+                  sql =
+                        `
+                          UPDATE  CONTENT
+                          SET     ARTICLE = ${rows.insertId}
+                          WHERE   PK      = ${contentId}
+                        `;
+                  connection.query(sql, function(err, rows, fields) {
+                    if (!err){
+                      console.log("insert finish!!");
+                      post_notice(req,i);
+                      res.send({status: "success"});
+                    }else{
+                      res.send({status: "fail1"});
                     }
                   });
                 } else {
-                  console.log('Error while performing Query.', err);
-                  res.send(err);
+                  res.send({status: "fail2"});
                 }
               });
             } else {
-              console.log('Error while performing Query.', err);
-              res.send(err);
+              res.send({status: "fail3"});
             }
           });
-        } else { // 이전에 작성한 content가 있고 기존의 article이 존재할 때
-          sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?,?,?)";
-          params = [i.article_id, i.beforeContent, i.title, i.body, req.file.filename, i.user_id, i.user_id];
-          connection.query(sql, params, function(err, rows, fields) {
+        } else {
+          // 이전에 작성한 content가 있고 기존의 article이 존재할 때
+          sql =
+                `
+                  INSERT    INTO
+                  CONTENT   ( ARTICLE, BEFORECONTENT, TITLE, BODY, IMAGE, CREATEDUSER, UPDATEDUSER )
+                  VALUES    ( ${i.article_id}, ${i.beforeContent}, ${i.title}, ${i.body}, ${"'"+req.file.filename+"'"},${i.user_id},${i.user_id})
+                `;
+          connection.query(sql, function(err, rows, fields) {
             if (!err) {
               // 기존 article의 content 값을 추가한 contetn id값으로 변경, updatedUser 수정
-              sql = "UPDATE article SET content = ?, updatedUser = ? WHERE pk = ?";
-              params = [rows.insertId, i.user_id, i.article_id];
-              connection.query(sql, params, function(err, rows, fields) {
-                if (!err) {
-                  res.json(rows);
-                } else {
-                  console.log('Error while performing Query.', err);
-                  res.send(err);
+              sql =
+                    `
+                      UPDATE    ARTICLE
+                      SET       CONTENT       = ${rows.insertId}
+                              , UPDATEDUSER   = ${i.user_id}
+                      WHERE     PK            = ${i.article_id}
+                    `;
+
+              connection.query(sql, function(err, rows, fields) {
+                if (!err){
+                  res.send({status: "success"});
+                }else{
+                  res.send({status: "fail1"});
                 }
               });
-            } else {
-              console.log('Error while performing Query.', err);
-              res.send(err);
+            }else{
+              res.send({status: "fail1"});
             }
           });
         }
