@@ -203,6 +203,14 @@ export default {
             
         }
     },
+    mounted() {
+        const headers = {
+                "Content-Type": "application/json"
+            };
+        this.$axios.get("articles/questions", {headers: headers}).then(res=>{
+                    console.log(res.data);
+                })
+    },
     methods: {
         notyClose(id) {
           this.noties = this.noties.filter(noty=>noty.id != id);
