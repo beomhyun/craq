@@ -5,6 +5,7 @@
           <!-- Headline -->
           <div class="headline">
             {{currentRouteName}}
+            <div class="btn" @click="testAxios">test</div>
           </div> <!-- headline -->
 
            <!-- Filter && Card -->
@@ -48,6 +49,8 @@
 <script>
 import Card from '@/components/Card.vue';
 import Ask from '@/components/AskQuestion.vue';
+const axios = require('axios');
+const baseUrl = 'http://192.168.31.58:10123'
 
 export default {
     name: "User",
@@ -180,6 +183,11 @@ export default {
                 ]
     },
     methods: {
+      testAxios() {
+        axios.get(baseUrl + '/articles/questions', {headers : headers}).then(res=>{
+          console.log(res.data);
+        })
+      },
       askQuestion : function() {
       this.$router.push({name:'askquestion'});
       this.askquestion = true;
