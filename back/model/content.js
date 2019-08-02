@@ -169,44 +169,72 @@ const initializeEndpoints = (app) => {
     });
   });
 
-  /**
-   * @swagger
-   *  /contents/articles/{id}:
-   *    get:
-   *      tags:
-   *      - content
-   *      description: 특정 article의 모든 content를 받아옴.
-   *      parameters:
-   *      - name: id
-   *        in: path
-   *        type: integer
-   *        description: article의 id 값을 전달.
-   *      - name: user_token
-   *        in: query
-   *        type: string
-   *        description: 사용자의 token 값을 전달.
-   *      responses:
-   *        200:
-   */
-  app.get('/contents/articles/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
-      else {
-        var sql = "SELECT * FROM content WHERE article = ?";
-        var params = [req.params.id];
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('article insert err ', err);
-            res.send(err);
-          }
-        });
-      }
+/**
+  * @swagger
+  *  /contents/articles/{id}:
+  *    get:
+  *      tags:
+  *      - content
+  *      description: 특정 article의 모든 content를 받아옴.
+  *      parameters:
+  *      - name: id
+  *        in: path
+  *        type: integer
+  *        description: article의 id 값을 전달.
+  *      - name: user_token
+  *        in: header
+  *        type: string
+  *        description: 사용자의 token 값을 전달.
+  *      responses:
+  *        200:
+  */
+ app.get('/contents/articles/:id', function(req, res) {
+  jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    if (err) res.status(401).send({
+      error: 'invalid token'
     });
+    else {
+      var sql =
+                `
+                  SELECT    TITLE
+                            , BODY
+                          , IMAGE
+                          , (
+                                 SELECT    USERNAME
+                                 FROM         USER
+                                 WHERE     PK = C.CREATEDUSER
+                             ) USERNAME
+                             , (
+                                 SELECT     SUM(GOOD)
+                                 FROM         VOTE
+                                 WHERE     ARTICLE = ${req.params.id}
+                             ) VOTE
+                             , (
+                                 SELECT     COUNT(ARTICLE)
+                                 FROM         VIEW
+                                 WHERE     ARTICLE = ${req.params.id}
+                             ) VIEW
+                         , (
+                           SELECT   CREATED_AT
+                           FROM     ARTICLE
+                           WHERE    PK = ${req.params.id}
+                         ) CREATED_AT
+                  FROM         CONTENT C
+                  WHERE     ARTICLE = ${req.params.id}
+                  AND         IS_REMOVED = 0
+                `;
+      connection.query(sql, function(err, rows, fields) {
+        if (!err){
+          res.send({status: "success",data:rows});
+          //res.json(rows);
+        }else{
+          res.send({status: "fail1"});
+          //res.send(err);
+        }
+      });
+    }
   });
+});
 
   /**
    * @swagger
