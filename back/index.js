@@ -12,6 +12,7 @@ const swaggerDoc = require('./swaggerDoc');
 const bodyParser = require('body-parser');
 const app = express(express);
 
+
 app.use(express.static('./image/profile'));
 app.use(express.static('./image/contents'));
 app.use(bodyParser.json());
