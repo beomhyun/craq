@@ -21,12 +21,13 @@
             </div>
           </div> <!-- Filter /div -->
 
-
-          <div v-for="list in cardLists" class="content">
-            
-            <card class="shadow" :list="list"/>
-            
-          </div>
+          
+            <div :key="idx" v-for="(list, idx) in cardLists" >
+              <router-link to="/code/1" class="content">
+                <card class="shadow" :list="list"/>
+              </router-link>
+            </div>
+          
           
            
           <!-- Pagenation -->

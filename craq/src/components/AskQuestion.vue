@@ -135,12 +135,15 @@ export default {
     },
     methods: {
         inputTag(title) {
-            console.log(title)
+            if (title != '') {
+                alert("태그는 최소 1글자 이상 작성 하셔야 합니다.")
+            }
             if (!(this.myTags.includes(title))) {
                 this.myTags.push(title)
             } else {
                 alert("이미 포함된 태그입니다.")
-            }
+            };
+            
             
             this.inputHashtag = ''
             this.tags = []  
@@ -202,9 +205,13 @@ export default {
     watch: {
         inputHashtag: function (a, b) {
             this.tagLists.forEach((tag) => {
-                if (tag.title.toLowerCase().startsWith(a.toLowerCase())  && a != '') {
+                if (tag.title.toLowerCase().includes(a.toLowerCase())  && a != '') {
                     if (!(this.tags.includes(tag))) {
                         this.tags.push(tag)
+                    } 
+                } else if (!(tag.title.toLowerCase().includes(a.toLowerCase()))) {
+                    if (this.tags.includes(tag)) {
+                        this.tags.pop(tag)
                     } 
                 };
                 if (a === '') {
