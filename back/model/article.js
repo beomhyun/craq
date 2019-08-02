@@ -259,6 +259,8 @@ const initializeEndpoints = (app) => {
                       , B.TITLE
                       , B.USERNAME
                       , B.CREATED_AT
+                      , B.VOTE
+                      , B.VIEW
               FROM 	  (
                         SELECT	  ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
                                   ROWNUM
@@ -443,53 +445,6 @@ const initializeEndpoints = (app) => {
           } else {
             console.log('article insert err ', err);
             res.send(err);
-          }
-        });
-      }
-    });
-  });
-
-  /**
-   * @swagger
-   *  /articles/news:
-   *    get:
-   *      tags:
-   *      - article
-   *      description: 모든 게시글 중에서 최신 글 10개를 받아온다.
-   *      parameters:
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token 값을 전달.
-   *      responses:
-   *        200:
-   */
-  app.get('/articles/news', function(req, res) {
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
-      else {
-        var sql =
-        // topic = 1 은 "질문&답변" 주제
-        `
-          SELECT    *
-          FROM      ARTICLE
-          WHERE     IS_REMOVED = ${FALSE}
-          AND       TOPIC      != 1
-          ORDER By  PK DESC
-          LIMIT     10
-        `;
-        connection.query(sql, function(err, rows, fields) {
-          if (!err) {
-            res.json({
-              status: "success", data: rows
-            });
-          } else {
-            res.send({
-              status: "fail",
-              data: err
-            });
           }
         });
       }

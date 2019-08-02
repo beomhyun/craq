@@ -3,8 +3,8 @@ module.exports = (function () {
     local: { // localhost
       host: '192.168.31.58',
       post: 3306,
-      user: 'root',
-      password: 'root',
+      user: 'josujang',
+      password: 'josujang',
       database: 'craq'
     },
     real: { // real server db info
