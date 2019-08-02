@@ -1,10 +1,11 @@
 <template>
     <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
         <nav-bar></nav-bar>
-        <component :is="layout"></component>
+        <component :is="layout" v-if="isLogin"></component>
         <Landing v-if="!isLogin"/>
         <div class="transparent">{{isLogin}}</div>
         <Footer/>
+            <Tester></Tester>
     </div>
 </template>
 
@@ -16,6 +17,7 @@ import Default from '@/layouts/Default.vue';
 //end layouts
 import Landing from '@/views/Landing.vue';
 import Footer from '@/components/Footer.vue';
+import Tester from '@/components/tester.vue';
 
 
 export default {
@@ -24,6 +26,7 @@ export default {
         Footer,
         Default,
         Landing,
+        Tester
     },
     data() {
         return {
@@ -46,6 +49,9 @@ export default {
         isLogin() {
             return (this.$session.exists());
         }
+    },
+    mounted() {
+        this.$axios.defaults.headers.common['user_token'] = this.$session.get('jwt'); 
     }
 }
 
@@ -60,7 +66,7 @@ export default {
     background-color: var(--color-bg); //TODO
 }
 body { //TODO
-//    background-color: var(--color-bg); //TODO
+    //    background-color: var(--color-bg); //TODO
 }
 .transparent {
     opacity: 0;
