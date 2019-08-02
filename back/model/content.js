@@ -27,43 +27,37 @@ const initializeEndpoints = (app) => {
    *      - content
    *      description: content를 작성
    *      parameters:
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token값을 전달.
-   *      - in: query
-   *        name: topic_id
-   *        type: integer
-   *        description: topic의 id 값
-   *      - in: query
-   *        name: article_id
-   *        type: integer
-   *        description: 최초 작성 시에 질문인지, 답변 글인지 넣어줄 값
-   *      - in: query
-   *        name: beforeContent
-   *        type: integer
-   *        description: 작성하기 전에 참고할 content id값
-   *      - in: query
-   *        name: title
-   *        type: string
-   *        description: content에 넣을 title
-   *      - in: query
-   *        name: body
-   *        type: string
-   *        description: content에 넣을 body
+   *      - in: body
+   *        name: contentsbody
+   *        schema:
+   *          type: object
+   *          properties:
+   *            topic_id:
+   *              type: integer
+   *            article_id:
+   *              type: integer
+   *            beforeContent:
+   *              type: integer
+   *            title:
+   *              type: string
+   *            body:
+   *              type: string
+   *            user_id:
+   *              type: integer
    *      - in: formData
    *        name: image
    *        type: file
    *        description: content에 넣을 image
-   *      - in: query
-   *        name: user_id
-   *        type: integer
-   *        description: 작성자의 user id값
+   *      - in: header
+   *        name: user_token
+   *        type: string
+   *        description: 작성자의 token값
    *      responses:
    *        200:
    */
   app.post('/contents', upload.single('image'), function(req, res) {
-    var i = req.query;
+    console.log("request post contents1");
+    var i = req.body;
     var sql = "";
 
     function post_notice(req,i){
@@ -107,15 +101,14 @@ const initializeEndpoints = (app) => {
         error: 'invalid token'
       });
       else {
-        if (i.beforeContent == 0) {
-          // 이전에 작성한 content가 없는 최초의 article 작성일 때
-          sql =
-          `
-            INSERT    INTO
-            CONTENT   ( TITLE, BODY, IMAGE, CREATEDUSER, UPDATEDUSER )
-            VALUES    ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${"'"+req.file.filename+"'"}, ${i.user_id}, ${i.user_id} )
-          `;
-          connection.query(sql, function(err, rows, fields) {
+        console.log("request post contents2");
+        console.log("beforeContent : " + i.beforeContent);
+        if (i.beforeContent == 0) { // 이전에 작성한 content가 없는 최초의 article 작성일 때
+          console.log("request post contents3");
+
+          sql = "INSERT INTO content(title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?)";
+          params = [i.title, i.body, i.image, i.user_id, i.user_id];
+          connection.query(sql, params, function(err, rows, fields) {
             if (!err) {
               var contentId = rows.insertId;
               sql =
@@ -126,21 +119,15 @@ const initializeEndpoints = (app) => {
                     `;
               connection.query(sql, function(err, rows, fields) {
                 if (!err) {
-                  //console.log("rows.insertId = " + rows.insertId);
-                  //생성한 article에 작성한 content id를 입력해준다.
-                  sql =
-                        `
-                          UPDATE  CONTENT
-                          SET     ARTICLE = ${rows.insertId}
-                          WHERE   PK      = ${contentId}
-                        `;
-                  connection.query(sql, function(err, rows, fields) {
-                    if (!err){
-                      console.log("insert finish!!");
-                      post_notice(req,i);
-                      res.send({status: "success"});
-                    }else{
-                      res.send({status: "fail1"});
+                  console.log("rows.insertId = " + rows.insertId);
+                  sql = `UPDATE CONTENT SET ARTICLE = ${rows.insertId} WHERE pk = ${contentId}`;
+                  connection.query(sql, params, function(err, rows, fields) {
+                    if (!err) {
+                      console.log(rows);
+                      res.json({status:"success"});
+                    } else {
+                      console.log('content update err.', err);
+                      res.send(err);
                     }
                   });
                 } else {
