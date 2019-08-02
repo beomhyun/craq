@@ -2,7 +2,7 @@
     <div id="question-header">
         <h1>
             <a class="question-hyperlink margin-bottom-xs" href="">
-                Extending the User model with custom fields in django 
+                {{title}}
             </a>
         </h1>
         <div class="ask-question">
@@ -15,6 +15,9 @@
 <script>
 export default {
     name: "CodeDetailQuestionHeader",
+    props: [
+        "title"
+    ]
 }
 </script>
 

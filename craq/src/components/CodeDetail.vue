@@ -2,8 +2,11 @@
     <div class="container padding-sm">
         <div>
             <div class="inner-content clearfix">
-                <CodeDetailQuestionHeader></CodeDetailQuestionHeader>
-                <CodeDetailQuestionHeaderBottom></CodeDetailQuestionHeaderBottom>
+                <CodeDetailQuestionHeader :title="question.versions.slice(-1)[0].TITLE"></CodeDetailQuestionHeader>
+                <CodeDetailQuestionHeaderBottom 
+                 :created_at="question.versions[0].CREATED_AT"
+                 :updated_at="question.versions.slice(-1)[0].CREATED_AT"
+                ></CodeDetailQuestionHeaderBottom>
                 <div id="mainbar">
 
                     <div id="question" class="question">
@@ -36,6 +39,56 @@ export default {
         CodeDetailQuestionHeader,
         CodeDetailQuestionHeaderBottom,
         Article,
+    },
+    data() {
+        return {
+            question: {
+                user_pk: 0,
+                user_name: "test",
+                answers: 0,
+                helpful: 0,
+                pk: 0,
+                wards: 0,
+                answers: 0,
+                versions: [
+                    {
+                        PK: 0,
+                        VERSION: 0,
+                        TITLE: '',
+                        BODY: '',
+                        USER_PK:'',
+                        USER_NAME: 0,
+                        CREATED_AT: '',
+                    }
+
+                ],
+            },
+            answers: [
+
+            ]
+
+        }
+    },
+    props: [
+        "pk"
+    ],
+    mounted() {
+        this.$axios.get(`questions/detail/${this.pk}`, {headers: {'user_token': this.$session.get('jwt')
+        }}).then((res) => {
+            const data = res.data;
+            let question = data.question[0]
+            //console.log(question);
+            this.question.user_name = question.USER_NAME;
+            //TODO user_pk
+            this.question.pk = question.PK;
+            this.wards = question.WARDS;
+            
+            let qversions = data.versions;
+            //console.log(qversions);
+            //question versions
+            this.question.versions = qversions;
+        }
+        )
     }
 }
 

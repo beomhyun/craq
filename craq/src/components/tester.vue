@@ -11,7 +11,7 @@ export default {
     name: "Tester",
     methods: {
         click() {
-            this.$axios.get('/questions/all/1?order_by=pk').then((res) => console.log(res));
+            this.$axios.get('/questions/detail/1').then((res) => console.log(res));
         }
 
     }

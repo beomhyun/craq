@@ -51,7 +51,18 @@ Vue.use({
   }
 })
 
-//
+// end axios
+
+// date format 
+import moment from 'moment'
+
+Vue.filter('formatDate', function(value) {
+  if (value) {
+    return moment(String(value)).format('MM/DD/YYYY hh:mm')
+  }
+}
+// {{date | formatDate}}
+// end date format
 
 Vue.config.productionTip = false
 
