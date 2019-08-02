@@ -59,13 +59,17 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *      - name: postInfo
    *        in: body
    *        schema:
    *          $ref: '#/definitions/postInfo'
    */
   app.post('/subscribes', function(req, res) {
-    jwt.verify(req.body.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -86,12 +90,12 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /subscribes/{user_token}:
+   *  /subscribes:
    *    get:
    *      tags:
    *      - subscribe
    *      parameters:
-   *      - in: path
+   *      - in: header
    *        name: user_token
    *        type: string
    *        description:  사용자 토큰 전달
@@ -99,8 +103,8 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/subscribes/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
+  app.get('/subscribes', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -120,7 +124,7 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /subscribes/{user}/{user_token}:
+   *  /subscribes/{user}:
    *    get:
    *      tags:
    *      - subscribe
@@ -129,7 +133,7 @@ const initializeEndpoints = (app) => {
    *        name: user
    *        type: integer
    *        description:  user의 id 값 전달
-   *      - in: path
+   *      - in: header
    *        name: user_token
    *        type: string
    *        description:  사용자 토큰 전달
@@ -137,8 +141,8 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/subscribes/:user/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
+  app.get('/subscribes/:user', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -160,7 +164,7 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /subscribes/{topic}/{user}/{user_token}:
+   *  /subscribes/{topic}/{user}:
    *    get:
    *      tags:
    *      - subscribe
@@ -173,7 +177,7 @@ const initializeEndpoints = (app) => {
    *        name: user
    *        type: integer
    *        description:  user의 id 값 전달
-   *      - in: path
+   *      - in: header
    *        name: user_token
    *        type: string
    *        description:  사용자 토큰 전달
@@ -181,8 +185,8 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/subscribes/:topic/:user/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
+  app.get('/subscribes/:topic/:user', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -203,7 +207,7 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /subscribes/{topic}/{user}/{user_token}:
+   *  /subscribes/{topic}/{user}:
    *    delete:
    *      tags:
    *      - subscribe
@@ -216,7 +220,7 @@ const initializeEndpoints = (app) => {
    *        name: user
    *        type: integer
    *        description:  user의 id 값 전달
-   *      - in: path
+   *      - in: header
    *        name: user_token
    *        type: string
    *        description:  사용자 토큰 전달
@@ -224,8 +228,8 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.delete('/subscribes/:topic/:user/:user_token', function(req, res) {
-    jwt.verify(req.params.user_token, secretObj.secret, function(err, decoded) {
+  app.delete('/subscribes/:topic/:user/', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
