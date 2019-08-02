@@ -7,6 +7,8 @@ const hashtag = require('./model/hashtag');
 const subscribe = require('./model/subscribe');
 const tag = require('./model/tag');
 const ward = require('./model/ward');
+const article = require('./model/article');
+const comment = require('./model/comment');
 const swaggerDoc = require('./swaggerDoc');
 const bodyParser = require('body-parser');
 const app = express(express);
@@ -21,6 +23,7 @@ content(app);
 article(app);
 tag(app);
 subscribe(app);
+comment(app);
 swaggerDoc(app);
 
 app.all('/*', function(req, res, next) {

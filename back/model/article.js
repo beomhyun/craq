@@ -255,6 +255,7 @@ const initializeEndpoints = (app) => {
             sql =
             `
               SELECT    B.ROWNUM
+                      , B.PK
                       , B.TOPIC
                       , B.TITLE
                       , B.USERNAME
@@ -264,6 +265,7 @@ const initializeEndpoints = (app) => {
               FROM 	  (
                         SELECT	  ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
                                   ROWNUM
+                                , A.PK
                                 , A.TOPIC
                                 , C.TITLE
                                 ,
@@ -701,7 +703,7 @@ const initializeEndpoints = (app) => {
                         FROM
                           ARTICLE AS B
                         WHERE
-                          B.ARTICLE = A.PK	
+                          B.ARTICLE = A.PK
                       ) AS ANSWERS
                       ,(SELECT
                               IFNULL(SUM(V.GOOD),0)
@@ -714,7 +716,7 @@ const initializeEndpoints = (app) => {
                         WHERE
                           1=1
                           AND W.ARTICLE = A.PK
-                          AND W.IS_REMOVED = 0 
+                          AND W.IS_REMOVED = 0
                       ) AS WARDS
                     FROM
                       ARTICLE AS A
@@ -816,6 +818,69 @@ const initializeEndpoints = (app) => {
           } else {
             console.log('article insert err ', err);
             res.send({status: "fail",data: err});
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
+   *  /articles/{id}:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 자유게시판 목록에서 글 하나(제목,내용,작성자,작성일,조회수,투표수)를 가져온다.
+   *      parameters:
+   *      - name: id
+   *        in: query
+   *        type: integer
+   *        description: 가져올 article의 id 값
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/articles/:id', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql =
+                  `
+                     SELECT	  C.TITLE
+                      		  , C.BODY
+                      		  , A.CREATEDUSER
+                            , (
+                      		  		SELECT 	USERNAME
+                      		  		FROM 		USER
+                      		  		WHERE 	PK = A.CREATEDUSER
+                      		  ) USERNAME
+                      	 	  , A.CREATED_AT
+                      	 	  , C.IMAGE
+                      		  , (
+                          		 	SELECT	COUNT(ARTICLE)
+                          		 	FROM 		VIEW
+                          		 	WHERE 	ARTICLE = ${req.params.id}
+                      		  ) VIEW
+                      		  , (
+                        		 	  SELECT 	SUM(GOOD)
+                      		 	    FROM 		VOTE
+                      		 	    WHERE 	ARTICLE = ${req.params.id}
+                      		  ) VOTE
+                     FROM 		ARTICLE  A
+                     JOIN 		CONTENT  C
+                     ON 		A.CONTENT = C.PK
+                     WHERE 	A.PK = ${req.params.id}
+                  `;
+        connection.query(sql, function(err, rows, fields) {
+          if(!err){
+            res.send({status: "success"});
+          }else{
+            res.send({status: "fail"});
           }
         });
       }

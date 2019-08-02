@@ -14,7 +14,6 @@ const initializeEndpoints = (app) => {
    *      - tag
    *      description: 하나의 태그를 작성, 이름이 정확히 일치할 경우 생성하지 않음
    *      parameters:
-<<<<<<< HEAD
    *      - in: query
    *        name: title
    *        type: string
@@ -31,35 +30,11 @@ const initializeEndpoints = (app) => {
    *        name: user_token
    *        type: string
    *        description: 사용자의 token 값
-=======
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token값을 전달.
-   *      - name: tagInfo
-   *        in: body
-   *        schema:
-   *          type: object
-   *          properties:
-   *            title:
-   *              type: string
-   *              description: 태그명
-   *            body:
-   *              type: string
-   *              description: 태그의 내용 및 설명
-   *            user_id:
-   *              type: integer
-   *              description: 작성자의 user id값
->>>>>>> fc6771904bb142ec1c392ea35d2934c048b1bc83
    *      responses:
    *        200:
    */
   app.post('/tags', function(req, res) {
-<<<<<<< HEAD
     var i = req.query;
-=======
-    var i = req.body;
->>>>>>> fc6771904bb142ec1c392ea35d2934c048b1bc83
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
@@ -188,17 +163,8 @@ const initializeEndpoints = (app) => {
    *      - tag
    *      description: 특정 태그의 정보를 받아옴(1). 없으면 생성함.
    *      parameters:
-<<<<<<< HEAD
    *      - name: title
    *        in: query
-=======
-   *      - name: id
-   *        in: path
-   *        type: integer
-   *        description: 특정 태그의 id 값을 전달
-   *      - name: user_token
-   *        in: header
->>>>>>> fc6771904bb142ec1c392ea35d2934c048b1bc83
    *        type: string
    *        description: 검색할 tag의 이름(title)을 전달.
    *      - name: user_token
@@ -208,11 +174,7 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-<<<<<<< HEAD
   app.get('/tags/:title', function(req, res) {
-=======
-  app.get('/tags/:id', function(req, res) {
->>>>>>> fc6771904bb142ec1c392ea35d2934c048b1bc83
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
