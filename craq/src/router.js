@@ -93,9 +93,10 @@ export default new Router({
       component: FreeBoard
     },
     {
-      path: '/code/:question_id',
+      path: '/code/:pk',
       name: 'Questions',
       component: CodeDetail,
+      props: true
     }
   ]
 })

@@ -51,7 +51,33 @@ Vue.use({
   }
 })
 
-//
+// end axios
+
+// filters
+import moment from 'moment';
+
+
+//let filters = {
+//  formatDate: function(value) {
+//    if (value) {
+//      return moment(String(value)).format('MM/DD/YYYY hh:mm')
+//    }
+//  },
+//  commaSep: function(val) {
+//    return val.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+//  }
+//}
+Vue.filter('formatDate', function(val) {
+  return moment(String(val)).format('YYYY/MM/DD hh:mm');
+})
+// {{date | formatDate}}
+
+Vue.filter('commaSep', function(val) {
+  return val.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+
+})
+// {{num | commaSep}}
+// end date format
 
 Vue.config.productionTip = false
 

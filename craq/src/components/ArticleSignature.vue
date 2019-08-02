@@ -6,9 +6,17 @@
                     <a href="">share</a>
                     <span style="visibility: hidden;">|</span>
                     <a href="">improve this question</a>
+                    <span style="visibility: hidden;">|</span>
+                    <span style="visibility: hidden;">|</span>
+                    <a href=""><</a>
+                    <span style="visibility: hidden;">|</span>
+                    <a href="">1</a>
+                    <span style="visibility: hidden;">|</span>
+                    <a href="">></a>
 
                 </div>
             </div>
+            <ArticleSignatureCard></ArticleSignatureCard>
             <ArticleSignatureCard></ArticleSignatureCard>
         </div>
     </div>

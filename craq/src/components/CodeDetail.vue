@@ -2,12 +2,18 @@
     <div class="container padding-sm">
         <div>
             <div class="inner-content clearfix">
-                <CodeDetailQuestionHeader></CodeDetailQuestionHeader>
-                <CodeDetailQuestionHeaderBottom></CodeDetailQuestionHeaderBottom>
+                <CodeDetailQuestionHeader :title="question.VERSIONS.slice(-1)[0].TITLE"></CodeDetailQuestionHeader>
+                <CodeDetailQuestionHeaderBottom 
+                 :created_at="'2019-07-24T06:10:42.000Z'"
+                 :updated_at="'2019-07-24T06:10:42.000Z'"
+                 :views="1234"
+                 ></CodeDetailQuestionHeaderBottom>
                 <div id="mainbar">
 
                     <div id="question" class="question">
-                        <Article></Article>
+                        <Article 
+                                       :article="question"
+                                       ></Article>
                     </div>
                     <div id="answers">
                         <CodeDetailAnswerHeader></CodeDetailAnswerHeader>
@@ -36,6 +42,52 @@ export default {
         CodeDetailQuestionHeader,
         CodeDetailQuestionHeaderBottom,
         Article,
+    },
+    data() {
+        return {
+            question: {
+                USER_PK: 0,
+                USER_NAME: "test",
+                ANSWERS: 0,
+                HELPFUL: 0,
+                PK: 0,
+                WARDS: 0,
+                VIEWS: 0,
+                VERSIONS: [
+                    {
+                        PK: 0,
+                        TITLE: "",
+                        BODY: "",
+                        HASHTAG: "",
+                        USER_PK: 0,
+                        USER_NAME: "",
+                    },
+                    {
+                        PK: 0,
+                        TITLE: "",
+                        BODY: "",
+                        HASHTAG: "",
+                        USER_PK: 0,
+                        USER_NAME: "",
+                    },
+                ],
+            },
+            answers: [
+
+            ]
+
+        }
+    },
+    props: [
+        "pk"
+    ],
+    mounted() {
+        this.$axios.get(`questions/detail/${this.pk}`, {headers: {'user_token': this.$session.get('jwt')
+        }}).then((res) => {
+            const data = res.data.data;
+            let question = data.QUESTION[0];
+        }
+        )
     }
 }
 

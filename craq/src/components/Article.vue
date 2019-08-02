@@ -1,7 +1,7 @@
 <template>
     <div class="post-layout">
         <div class="votecell post-layout--left">
-            <ArticleVote></ArticleVote>
+            <ArticleVote :vote="1"></ArticleVote>
         </div>
         <div class="postcell post-layout--right">
             <ArticleContent></ArticleContent>
@@ -9,7 +9,7 @@
             <ArticleSignature></ArticleSignature>
             <div style="grid-column: 1 / 3;"></div>
             <div class="post-layout--right">
-                <ArticleComments></ArticleComments>
+                <ArticleComments :pk="1"></ArticleComments>
             </div>
         </div>
     </div>
@@ -25,6 +25,9 @@ import ArticleComments from '@/components/ArticleComments.vue';
 
 export default {
     name: "Article",
+    props:[
+        "article"
+    ],
     components: {
         ArticleContent,
         ArticleComments,

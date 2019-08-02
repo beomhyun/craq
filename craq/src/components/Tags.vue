@@ -65,10 +65,11 @@ export default {
         },
     },
     mounted () {
+        console.log(this.$session.get('jwt'));
         this.$axios.get('tags').then(res=> {
             console.log(res);
             this.tags = res.data;
-        })
+        }).catch(err=>console.log(err));
     }
 }
 
