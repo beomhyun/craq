@@ -310,7 +310,81 @@ const initializeEndpoints = (app) => {
         });
       }
     });
+    else {
+      sql =
+      `
+        SELECT  COUNT(PK) AS TOTAL_ARTICLE
+        FROM    ARTICLE WHERE IS_REMOVED = ${FALSE}
+        AND     TOPIC = ${req.params.topic}
+      `;
+      connection.query(sql, function(err, rows, fields) {
+        if (!err) {
+          var totalArticle = rows[0].TOTAL_ARTICLE;
+          //나올 수 있는 총 페이지의 수를 구한다.
+          var totalPage = totalArticle / ARTICLE_PER_PAGE;
+          if (totalArticle > totalPage * ARTICLE_PER_PAGE) {
+            totalPage++;
+          }
+          sql =
+          `
+            SELECT    B.ROWNUM
+                    , B.PK
+                    , B.TOPIC
+                    , B.TITLE
+                    , B.USERNAME
+                    , B.CREATED_AT
+                    , B.VOTE
+                    , B.VIEW
+            FROM       (
+                      SELECT      ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
+                                ROWNUM
+                              , A.PK
+                              , A.TOPIC
+                              , C.TITLE
+                              ,
+                              (
+                                SELECT  USERNAME
+                                FROM    USER
+                                WHERE   PK = A.CREATEDUSER
+                              ) AS USERNAME
+                              , C.CREATED_AT
+                              ,
+                              (
+                                SELECT     COUNT(ARTICLE)
+                                FROM         VIEW
+                                WHERE     ARTICLE = A.PK
+                              ) AS VIEW
+                              ,
+                              (
+                                SELECT    SUM(GOOD)
+                                FROM         VOTE
+                                WHERE     ARTICLE = A.PK
+                              ) AS VOTE
+                      FROM        ARTICLE AS A
+                      JOIN         CONTENT AS C
+                      ON           A.CONTENT = C.PK
+                      WHERE     A.TOPIC = ${req.params.topic}
+                      AND         A.IS_REMOVED = ${FALSE}
+                    ) AS B
+            LIMIT     ${(req.params.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}
+          `;
+          connection.query(sql, function(err, rows, fields) {
+            if (!err) {
+              res.json(rows);
+            } else {
+              console.log('article insert err ', err);
+              res.send(err);
+            }
+          });
+        } else {
+          console.log('article insert err ', err);
+          res.send(err);
+        }
+      });
+    }
   });
+});
+
 
 
   /**
@@ -1043,6 +1117,52 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+/**
+  * @swagger
+  *  /articles/news:
+  *    get:
+  *      tags:
+  *      - article
+  *      description: 모든 게시글 중에서 최신 글 10개를 받아온다.
+  *      parameters:
+  *      - name: user_token
+  *        in: header
+  *        type: string
+  *        description: 사용자의 token 값을 전달.
+  *      responses:
+  *        200:
+  */
+ app.get('/articles/news', function(req, res) {
+  jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    if (err) res.status(401).send({
+      error: 'invalid token'
+    });
+    else {
+      var sql =
+      // topic = 1 은 "질문&답변" 주제
+      `
+        SELECT    *
+        FROM      ARTICLE
+        WHERE     IS_REMOVED = ${FALSE}
+        AND       TOPIC      != 1
+        ORDER By  PK DESC
+        LIMIT     10
+      `;
+      connection.query(sql, function(err, rows, fields) {
+        if (!err) {
+          res.json({
+            status: "success", data: rows
+          });
+        } else {
+          res.send({
+            status: "fail",
+            data: err
+          });
+        }
+      });
+    }
+  });
+});
 
 };
 module.exports = initializeEndpoints;

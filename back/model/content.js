@@ -2,61 +2,42 @@ var mysql_dbc = require('../db/db_con.js')();
 var connection = mysql_dbc.init();
 const jwt = require("jsonwebtoken");
 const secretObj = require("../config/jwt");
-const multer = require('multer');
-const path = require("path");
 const TRUE = 1;
-
-let storage = multer.diskStorage({
-  destination: function(req, file, callback) {
-    callback(null, "image/contents/")
-  },
-  filename: function(req, file, callback) {
-    callback(null, new Date().valueOf() + path.extname(file.originalname));
-  }
-});
-const upload = multer({
-  storage
-});
 
 const initializeEndpoints = (app) => {
   /**
    * @swagger
-   *  /contents:
+   *  /comments:
    *    post:
    *      tags:
-   *      - content
-   *      description: content를 작성
+   *      - comment
+   *      description: content에 댓글을 작성함.
    *      parameters:
-   *      - in: body
-   *        name: contentsbody
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
+   *      - name: commentInfo
+   *        in: body
    *        schema:
    *          type: object
    *          properties:
-   *            topic_id:
-   *              type: integer
-   *            article_id:
-   *              type: integer
-   *            beforeContent:
-   *              type: integer
-   *            title:
-   *              type: string
-   *            body:
-   *              type: string
    *            user_id:
    *              type: integer
-   *      - in: formData
-   *        name: image
-   *        type: file
-   *        description: content에 넣을 image
-   *      - in: header
-   *        name: user_token
-   *        type: string
-   *        description: 작성자의 token값
+   *              description: 댓글 작성자의 id 값.
+   *            content_id:
+   *              type: integer
+   *              description: 댓글이 작성될 content의 id 값.
+   *            parent_id:
+   *              type: integer
+   *              description: 대댓글이 작성될 parent comment의 id 값. 없으면 0
+   *            body:
+   *              type: string
+   *              description: 댓글의 내용.
    *      responses:
    *        200:
    */
-  app.post('/contents', upload.single('image'), function(req, res) {
-    console.log("request post contents1");
+  app.post('/comments', function(req, res) {
     var i = req.body;
     var sql = "";
     var filename = "default_profile.png";
@@ -255,12 +236,10 @@ const initializeEndpoints = (app) => {
         var params = [req.params.pk];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
-            var img = '<img src="/' + rows[0].image + '">';
-            res.send(img);
+            res.json(rows);
           } else {
-            res.send({
-              status: "fail"
-            });
+            console.log('Error while performing Query.', err);
+            res.send(err);
           }
         });
       }
@@ -269,24 +248,24 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /contents/articles/{id}:
+   *  /comments/users/{id}:
    *    get:
    *      tags:
-   *      - content
-   *      description: 특정 article의 모든 content를 받아옴.
+   *      - comment
+   *      description: 특정 user의 댓글들을 전부 받아옴.
    *      parameters:
    *      - name: id
    *        in: path
    *        type: integer
-   *        description: article의 id 값을 전달.
+   *        description: user의 id값을 전달
    *      - name: user_token
    *        in: header
    *        type: string
-   *        description: 사용자의 token 값을 전달.
+   *        description: 사용자의 토큰 전달
    *      responses:
    *        200:
    */
-  app.get('/contents/articles/:id', function(req, res) {
+  app.get('/comments/users/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
@@ -336,151 +315,51 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /contents/last/articles/{id}:
+   *  /comments/articles/{id}:
    *    get:
    *      tags:
-   *      - content
-   *      description: 특정 article의 마지막(최신) content를 받아옴(1)
+   *      - comment
+   *      description: 특정 atricle의 댓글들을 전부 받아옴.
    *      parameters:
    *      - name: id
    *        in: path
    *        type: integer
-   *        description: article의 id 값을 전달.
+   *        description: article의 id
    *      - name: user_token
    *        in: header
    *        type: string
-   *        description: 사용자의 token 값을 전달.
+   *        description: 사용자의 토큰 전달
    *      responses:
    *        200:
    */
-  app.get('/contents/last/articles/:id', function(req, res) {
+  app.get('/comments/articles/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "SELECT * FROM content WHERE article = ? ORDER BY pk DESC limit 1";
-        var params = [req.params.id];
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('article insert err ', err);
-            res.send(err);
-          }
-        });
-      }
-    });
-  });
-
-  /**
-   * @swagger
-   *  /contents/{id}:
-   *    get:
-   *      tags:
-   *      - content
-   *      description: 특정 content를 받아옴.(1)
-   *      parameters:
-   *      - name: id
-   *        in: path
-   *        type: integer
-   *        description: content id 값을 전달.
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token 값을 전달.
-   *      responses:
-   *        200:
-   */
-  app.get('/contents/:id', function(req, res) {
-    const ARTICLE_PER_PAGE = 20;
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
-      else {
-        /*
-            content의 정보를 받아오기 전에
-            해당 content를 포함하는 article이
-            목록으로 나열했을 때 위치하는 페이지 값과(page)
-            페이지 최대 값(maxPage)을 계산하여
-            두번째 쿼리 실행후 res에 data에 추가하여 같이 보낸다.
-        */
-        var sql = `
-                    SELECT 	B.ROWNUM
-                    FROM	(
-                    				SELECT 	ROW_NUMBER() OVER(ORDER BY A.PK DESC)
-                    			  				AS ROWNUM
-                    			 			  ,	A.PK
-                    				FROM		ARTICLE AS A
-                    				JOIN		CONTENT AS C
-                    				ON			A.CONTENT = C.PK
-                    				WHERE 	A.IS_REMOVED = 0
-                    			) AS B
-                    WHERE 	B.PK =
-                    			(
-                    				SELECT 	ARTICLE
-                    				FROM		CONTENT
-                    				WHERE		PK = ${req.params.id}
-                    			)
-                  `;
+        var sql =
+        `
+          SELECT	CM.PARENTCOMMENT
+          		  , USER
+          	    , (
+          	 	    SELECT 	USERNAME
+            		 	FROM 		USER
+            		 	WHERE 	PK = CM.USER
+            		 ) USERNAME
+                , CM.BODY
+                , CM.CREATED_AT
+          FROM 		COMMENT CM
+          JOIN 		CONTENT CT
+          ON 		  CM.CONTENT = CT.PK
+          WHERE		CT.ARTICLE = ${req.params.id}
+          AND 		CM.IS_REMOVED = 0
+        `;
         connection.query(sql, function(err, rows, fields) {
-          if (!err) {
-            var rowNum = rows[0].ROWNUM;
-            var nowPage = rowNum / ARTICLE_PER_PAGE;
-            if (rowNum % ARTICLE_PER_PAGE != 0) {
-              nowPage++;
-            }
-            nowPage = parseInt(nowPage);
-
-            // rowNum을 카운트하여 게시판의 글 개수를 구한 후
-            // 계산하여 maxPage값도 구한다.
-            sql = `
-                    SELECT 	  COUNT(B.ROWNUM) AS COUNT
-                    FROM		(
-                              SELECT 	ROW_NUMBER() OVER(ORDER BY A.PK DESC)
-                                      AS ROWNUM
-                                  ,	A.PK
-                              FROM		ARTICLE AS A
-                              JOIN		CONTENT AS C
-                              ON			A.CONTENT = C.PK
-                              WHERE 	A.IS_REMOVED = 0
-                            ) AS B
-                  `;
-            connection.query(sql, function(err, rows, fields) {
-              if (!err) {
-                var count = rows[0].COUNT;
-                var maxPage = count / ARTICLE_PER_PAGE;
-                if (count % ARTICLE_PER_PAGE != 0) {
-                  maxPage++;
-                }
-                maxPage = parseInt(maxPage);
-
-                sql = `SELECT * FROM CONTENT WHERE PK = ${req.params.id}`;
-                connection.query(sql, function(err, rows, fields) {
-                  if (!err) {
-                    res.send({
-                      status: "success",
-                      data: rows[0],
-                      nowPage: nowPage,
-                      maxPage: maxPage
-                    });
-                  } else {
-                    res.send({
-                      status: "fail"
-                    });
-                  }
-                });
-              } else {
-                res.send({
-                  status: "fail"
-                });
-              }
-            });
-
-          } else {
-            console.log('SELECT ROWNUM err ', err);
-            res.send(err);
+          if (!err){
+            res.send({status: "success",data:rows});
+          }else{
+            res.send({status: "fail"});
           }
         });
       }
@@ -489,93 +368,124 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /contents/{id}:
-   *    put:
+   *  /comments/{id}:
+   *    get:
    *      tags:
-   *      - content
-   *      description: 특정 content의 내용을 수정.
+   *      - comment
+   *      description: 특정 댓글을 받아옴(1)
    *      parameters:
    *      - name: id
    *        in: path
    *        type: integer
-   *        description: content id 값을 전달.
-   *      - name: title
-   *        in: query
-   *        type: string
-   *        description: title의 내용 전달.
-   *      - name: body
-   *        in: query
-   *        type: string
-   *        description: body의 내용 전달.
-   *      - name: image
-   *        in: query
-   *        type: string
-   *        description: image의 링크 전달.
+   *        description: 댓글의 id값을 전달
    *      - name: user_token
    *        in: header
    *        type: string
-   *        description: 사용자의 token값을 전달.
+   *        description: 사용자의 토큰 전달
    *      responses:
    *        200:
    */
-  app.put('/contents/:id', function(req, res) {
-
+  app.get('/comments/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "UPDATE content SET title = ?,body = ?, image = ? WHERE pk = ?";
-        var params = [req.query.title, req.query.body, req.query.image, req.params.id];
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('article insert err ', err);
-            res.send(err);
-          }
-        });
-      }
-    });
-  });
-
-  /**
-   * @swagger
-   *  /contents/{id}:
-   *    delete:
-   *      tags:
-   *      - content
-   *      description: 특정 content를 삭제(플래그 처리후 삭제데이터 앞뒤로 이어줌)
-   *      parameters:
-   *      - name: id
-   *        in: path
-   *        type: integer
-   *        description: content id 값을 전달.
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token값을 전달.
-   *      responses:
-   *        200:
-   */
-  app.delete('/contents/:id', function(req, res) {
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
-      else {
-        var sql = `UPDATE content SET is_removed = ${TRUE} WHERE pk = ?`;
+        var sql = "SELECT * FROM comment WHERE pk = ?";
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
             res.json(rows);
           } else {
-            console.log('article insert err ', err);
+            console.log('Error while performing Query.', err);
             res.send(err);
           }
         });
       }
     });
   });
+
+  /**
+   * @swagger
+   *  /comments/{id}:
+   *    put:
+   *      tags:
+   *      - comment
+   *      description: 특정 댓글의 내용을 수정.
+   *      parameters:
+   *      - name: id
+   *        in: path
+   *        type: integer
+   *        description: 댓글의 id값을 전달
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 토큰 전달
+   *      - name: body
+   *        in: query
+   *        type: string
+   *        description: 수정할 댓글 내용
+   *      responses:
+   *        200:
+   */
+  app.put('/comments/:id', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = "UPDATE comment SET body = ? WHERE pk = ?";
+        var params = [req.query.body, req.params.id];
+        connection.query(sql, params, function(err, rows, fields) {
+          if (!err) {
+            res.json(rows);
+          } else {
+            console.log('Error while performing Query.', err);
+            res.send(err);
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
+   *  /comments/{id}:
+   *    delete:
+   *      tags:
+   *      - comment
+   *      description: 특정 댓글을 삭제(is_removed flag 처리 0->1)
+   *      parameters:
+   *      - name: id
+   *        in: path
+   *        type: integer
+   *        description: 댓글의 id값을 전달
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 토큰 전달
+   *      responses:
+   *        200:
+   */
+  app.delete('/comments/:id', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = `UPDATE comment SET is_removed = ${TRUE} WHERE pk = ?`;
+        var params = [req.params.id];
+        connection.query(sql, params, function(err, rows, fields) {
+          if (!err) {
+            res.json(rows);
+          } else {
+            console.log('Error while performing Query.', err);
+            res.send(err);
+          }
+        });
+      }
+    });
+  });
+
 };
 module.exports = initializeEndpoints;

@@ -149,7 +149,34 @@ const initializeEndpoints = (app) => {
         });
       }
     });
+    else {
+      var sql =
+      `
+        SELECT    CM.PARENTCOMMENT
+                  , USER
+                , (
+                     SELECT     USERNAME
+                       FROM         USER
+                       WHERE     PK = CM.USER
+                   ) USERNAME
+              , CM.BODY
+              , CM.CREATED_AT
+        FROM         COMMENT CM
+        JOIN         CONTENT CT
+        ON           CM.CONTENT = CT.PK
+        WHERE        CT.ARTICLE = ${req.params.id}
+        AND         CM.IS_REMOVED = 0
+      `;
+      connection.query(sql, function(err, rows, fields) {
+        if (!err){
+          res.send({status: "success",data:rows});
+        }else{
+          res.send({status: "fail"});
+        }
+      });
+    }
   });
+});
 
   /**
    * @swagger
