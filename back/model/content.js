@@ -27,6 +27,10 @@ const initializeEndpoints = (app) => {
    *      - content
    *      description: content를 작성
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *      - in: query
    *        name: topic_id
    *        type: integer
@@ -55,10 +59,6 @@ const initializeEndpoints = (app) => {
    *        name: user_id
    *        type: integer
    *        description: 작성자의 user id값
-   *      - in: header
-   *        name: user_token
-   *        type: string
-   *        description: 작성자의 token값
    *      responses:
    *        200:
    */
@@ -187,6 +187,7 @@ const initializeEndpoints = (app) => {
               res.send({status: "fail1"});
             }
           });
+
         }
       }
     });
@@ -201,7 +202,7 @@ const initializeEndpoints = (app) => {
    *      description: 해당 content의 이미지를 가져옴.
    *      responses:
    *       200:
-   *      parameters: 
+   *      parameters:
    *      - name: user_token
    *        in: header
    *        type: string
@@ -229,8 +230,6 @@ const initializeEndpoints = (app) => {
         });
       }
     });
-
-
   });
 
   /**

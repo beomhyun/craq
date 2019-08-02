@@ -31,14 +31,14 @@ const initializeEndpoints = (app) => {
    *      description: 모든 글을 받아옴.
    *      parameters:
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/articles', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -65,7 +65,7 @@ const initializeEndpoints = (app) => {
    *      description: 질문 형식의 글을 모두 받아옴.
    *      parameters:
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
@@ -73,7 +73,7 @@ const initializeEndpoints = (app) => {
    */
   app.get('/articles/questions', function(req, res) {
     const QA = 1;
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -100,7 +100,7 @@ const initializeEndpoints = (app) => {
    *      description: 답변 형식의 글을 모두 받아옴.
    *      parameters:
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
@@ -108,7 +108,7 @@ const initializeEndpoints = (app) => {
    */
   app.get('/articles/answers', function(req, res) {
     const QA = 1;
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -139,14 +139,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 질문할 article의 id값 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/articles/answers/questions/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -178,19 +178,19 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 질문할 article의 id값 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/articles/selections/questions/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "SELECT * FROM article WHERE pk = ( SELECT content FROM article WHERE pk = ?)"
+        var sql = "SELECT * FROM article WHERE pk = ( SELECT content FROM article WHERE pk = ? )"
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -221,7 +221,7 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article들을 가져올 page위치의 값
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
@@ -233,7 +233,7 @@ const initializeEndpoints = (app) => {
       그리고 totalArticle 값을 이용하여 총 페이지 수(maxPage)값도 구하도록 한다.
     */
     var sql = '';
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -328,7 +328,7 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article들을 가져올 page위치의 값
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
@@ -336,7 +336,7 @@ const initializeEndpoints = (app) => {
    */
   app.get('/articles/goods/:topic/:page', function(req, res) {
     var sql = '';
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -426,14 +426,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 최신 article들을 받아올 갯수
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/articles/news/:topic/:limit', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -468,14 +468,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 채택할 또는 채택을 변경할 content의 id값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.put('/articles/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -507,14 +507,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 삭제할 article의 id값 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.delete('/articles/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -656,6 +656,166 @@ const initializeEndpoints = (app) => {
               status: "fail",
               data: err
             });
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
+   *  /questions/detail/{pk}:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 모든 글을 받아옴.
+   *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      - name: pk
+   *        in: path
+   *        type: integer
+   *        description: 게시글의 pk 전달
+   *      responses:
+   *        200:
+   */
+  app.get('/questions/detail/:pk', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = `SELECT
+                      A.PK
+                      ,(SELECT
+                            U.USERNAME
+                          FROM
+                            USER AS U
+                          WHERE
+                            U.PK = A.CREATEDUSER
+                        ) AS USER_NAME
+                      ,(SELECT
+                          COUNT(*)
+                        FROM
+                          ARTICLE AS B
+                        WHERE
+                          B.ARTICLE = A.PK	
+                      ) AS ANSWERS
+                      ,(SELECT
+                              IFNULL(SUM(V.GOOD),0)
+                            FROM VOTE AS V
+                            WHERE A.PK = V.ARTICLE) AS HELPFUL
+                      ,(SELECT
+                          COUNT(*)
+                        FROM
+                          WARD AS W
+                        WHERE
+                          1=1
+                          AND W.ARTICLE = A.PK
+                          AND W.IS_REMOVED = 0 
+                      ) AS WARDS
+                    FROM
+                      ARTICLE AS A
+                    WHERE
+                      1=1
+                      AND A.PK = ${req.params.pk} `;
+        connection.query(sql, function(err, rows_question, fields) {
+          if (!err) {
+            sql = `SELECT
+                      C.PK
+                      ,C.VERSION
+                      ,C.TITLE
+                      ,C.BODY
+                      ,C.CREATEDUSER AS USER_PK
+                      ,(SELECT
+                          U.USERNAME
+                        FROM
+                          USER AS U
+                        WHERE
+                          U.PK = C.CREATEDUSER
+                      ) AS USER_NAME
+                      ,CREATED_AT
+                  FROM
+                      CONTENT AS C
+                  WHERE
+                      1=1
+                      AND C.ARTICLE = ${req.params.pk}
+                      AND C.IS_REMOVED = 0
+                  `;
+             connection.query(sql, function(err, rows_versions, fields) {
+              if(!err){
+                sql = `SELECT
+                          A.PK
+                          ,C.TITLE
+                          ,C.BODY
+                          ,C.CREATEDUSER AS USER_PK
+                          ,(SELECT
+                                U.USERNAME
+                              FROM
+                                USER AS U
+                              WHERE
+                                U.PK = C.CREATEDUSER
+                            ) AS USER_NAME
+                          ,(SELECT
+                                  IFNULL(SUM(V.GOOD),0)
+                                FROM VOTE AS V
+                                WHERE A.PK = V.ARTICLE) AS HELPFUL
+                        FROM
+                          ARTICLE AS A
+                            LEFT OUTER JOIN CONTENT AS C ON C.ARTICLE = A.PK
+                        WHERE
+                          1=1
+                          AND A.ARTICLE = ${req.params.pk}
+                `;
+                connection.query(sql, function(err, rows_answers, fields) {
+                  if(!err){
+                    sql = `SELECT
+                              SUM(0) AS TMP
+                              ,PK AS PRE_ARTICLE
+                            FROM
+                              ARTICLE
+                            WHERE
+                              PK =
+                                (SELECT PK FROM ARTICLE WHERE PK < ${req.params.pk} ORDER BY PK DESC LIMIT 1) `;
+                      connection.query(sql, function(err, pre_article, fields) {
+                        if(!err){
+                          sql =`SELECT
+                                  SUM(0) AS TMP
+                                  ,PK AS NEXT_ARTICLE
+                                FROM
+                                  ARTICLE
+                                WHERE
+                                  PK =
+                                    (SELECT PK FROM ARTICLE WHERE PK > ${req.params.pk} ORDER BY PK LIMIT 1)
+                          `;
+                          connection.query(sql, function(err, next_article, fields) {
+                            if(!err){
+                              res.send({question:rows_question,pre_article: pre_article[0].PRE_ARTICLE, next_article: next_article[0].NEXT_ARTICLE, versions: rows_versions, answers: rows_answers});
+                            }else{
+                              console.log('article insert err ', err);
+                              res.send({status: "fail",data: err});
+                            }
+                          });
+                        }else{
+                          console.log('article insert err ', err);
+                          res.send({status: "fail",data: err});
+                        }
+                      })
+                  }else{
+                    console.log('article insert err ', err);
+                    res.send({status: "fail",data: err});
+                  }
+                });
+              }else{
+                console.log('article insert err ', err);
+                res.send({status: "fail",data: err});
+              }
+            });
+          } else {
+            console.log('article insert err ', err);
+            res.send({status: "fail",data: err});
           }
         });
       }

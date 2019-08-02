@@ -3,7 +3,8 @@ const user = require('./model/user');
 const topic = require('./model/topic');
 const notice = require('./model/notice');
 const content = require('./model/content');
-const article = require('./model/article');
+const hashtag = require('./model/hashtag');
+const subscribe = require('./model/subscribe');
 const tag = require('./model/tag');
 const ward = require('./model/ward');
 const swaggerDoc = require('./swaggerDoc');
@@ -19,7 +20,7 @@ notice(app);
 content(app);
 article(app);
 tag(app);
-ward(app);
+subscribe(app);
 swaggerDoc(app);
 
 app.all('/*', function(req, res, next) {
