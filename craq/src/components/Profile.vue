@@ -9,7 +9,6 @@
             <div class="userInfo">
                 <div class="userInfo__name">
                     {{username}}
-                    {{userData.User}}
                 </div>
                 <div class="userInfo__list">
                     <div class="userInfo__list__btn" @click="toggleInformation"><span>Information</span></div>
@@ -31,10 +30,10 @@
                             <strong>SSAFY Years</strong> 
                             <div>
                                 <select class="editInput" v-show="toggleProfile" v-model="userData.ssafy_years">
-                                    <option value="1st" selected="selected">1</option>
-                                    <option value="2nd">2</option>
+                                    <option value="1" selected="selected">1</option>
+                                    <option value="2">2</option>
                                </select>
-                                <span v-show="!toggleProfile">{{ userData.ssafy_years }}</span> &nbsp;
+                                <span v-show="!toggleProfile">{{ userData.ssafy_years }} 기</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">

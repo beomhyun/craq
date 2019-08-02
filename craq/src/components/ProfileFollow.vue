@@ -78,7 +78,7 @@ export default {
             justify-content: center;
             align-items: center;
             font-size: var(--text-md);
-            color: var(--color-contrast-low);            
+            color: var(--color-contrast-high);            
 
             border-radius: var(--radius-sm);
 
