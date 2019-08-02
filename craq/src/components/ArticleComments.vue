@@ -21,9 +21,12 @@
 import ArticleCommentsCard from '@/components/ArticleCommentsCard.vue';
 export default {
     name: "ArticleComments",
+    props: [
+        "pk"
+    ],
     components: {
         ArticleCommentsCard
-    }
+    },
 }
 </script>
 

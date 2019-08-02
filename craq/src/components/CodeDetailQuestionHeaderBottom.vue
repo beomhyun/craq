@@ -3,18 +3,18 @@
         <div class="margin-right-md margin-bottom-sm" title="hover-text">
             <span>asked</span>
             &nbsp;
-            <time itemprop="created_at" datetime="2008-09-04T16:19:49">10years, 11months ago</time>
+            <time itemprop="created_at" datetime="created_at">{{created_at|formatDate}}</time>
         </div>
         <div class="margin-right-md margin-bottom-sm" title="hover-text">
             <span>Active</span>
             &nbsp;
             <a href="">
-                1month ago
+                {{updated_at | formatDate}}
             </a>
         </div>
         <div class="margin-bottom-sm" title="viewed xxxtimes">
             <span>Viewed</span>
-            &nbsp; 192k times
+            &nbsp; {{views | commaSep}} times
         </div>
     </div>
 </template>
@@ -22,7 +22,14 @@
 
 <script>
 export default {
-    name: "CodeDetailQuestionHeaderBottom"
+    name: "CodeDetailQuestionHeaderBottom",
+    data() {
+        return {
+        }
+    },
+    props:[
+        "created_at", "updated_at", "views"
+    ],
 }
 
 
