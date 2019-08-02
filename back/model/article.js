@@ -259,6 +259,8 @@ const initializeEndpoints = (app) => {
                       , B.TITLE
                       , B.USERNAME
                       , B.CREATED_AT
+                      , B.VOTE
+                      , B.VIEW
               FROM 	  (
                         SELECT	  ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
                                   ROWNUM
