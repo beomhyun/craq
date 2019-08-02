@@ -385,8 +385,6 @@ app.get('/users/email/:email', function(req,res){
                   {
                     expiresIn: '10000m'
                   })
-
-                  console.log("ok");
                   res.cookie("jwt",token);
                   res.send({status:"success", jwt: token,pk: rows[0].pk, username: rows[0].username });
                 }else{
@@ -651,27 +649,6 @@ app.get('/follows/:touser', function(req,res){
  *      responses:
  *       200:
  *      parameters:
- *       - in: query
- *         name: User
- *         type: integer
- *       - in: query
- *         name: ssafy_years
- *         type: integer
- *       - in: query
- *         name: is_major
- *         type: integer
- *       - in: query
- *         name: region
- *         type: string
- *       - in: query
- *         name: grade
- *         type: string
- *       - in: query
- *         name: intro
- *         type: string
- *       - in: query
- *         name: gitUrl
- *         type: string
  *       - in: formData
  *         name: profile_image
  *         type: file
@@ -679,8 +656,28 @@ app.get('/follows/:touser', function(req,res){
  *         in: header
  *         type: string
  *         description: 사용자의 token값을 전달.
- */
+ *       - in: body
+ *         name: contentsbody
+ *         schema:
+ *           type: object
+ *           properties:
+ *             User:
+ *               type: integer
+ *             ssafy_years:
+ *               type: integer
+ *             is_major:
+ *               type: integer
+ *             region:
+ *               type: integer
+ *             grade:
+ *               type: integer
+ *             intro:
+ *               type: string
+ *             gitUrl:
+ *               type: string
+ */ 
 app.put('/profile', upload.single('profile_image'), function(req, res){
+  console.log("request put profile");
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err) res.status(401).send({error:'invalid token'});
     else{
@@ -689,19 +686,21 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
       if(req.file){
   //      console.log("파일있음 !");
         sql = " update profile set ssafy_years = ?, is_major = ?, region = ?, grade = ?, intro= ?, gitUrl = ?, profile_image = ?, updated_at = now() where User = ? ";
-        params = [req.query.ssafy_years, req.query.is_major, req.query.region, req.query.grade, req.query.intro, req.query.gitUrl, req.file.filename, req.query.User];
+        params = [req.body.ssafy_years, req.body.is_major, req.body.region, req.body.grade, req.body.intro, req.body.gitUrl, req.file.filename, req.body.User];
       }else{
   //      console.log("파일없음 !");
         sql = " update profile set ssafy_years = ?, is_major = ?, region = ?, grade = ?, intro= ?, gitUrl = ?, updated_at = now() where User = ? ";
-        params = [req.query.ssafy_years, req.query.is_major, req.query.region, req.query.grade, req.query.intro, req.query.gitUrl, req.query.User];
+        params = [req.body.ssafy_years, req.body.is_major, req.body.region, req.body.grade, req.body.intro, req.body.gitUrl, req.body.User];
   
       }
       connection.query(sql, params, function(err, rows, fields) {
+            console.log(this.sql);
               if (err){
                 console.log(err);
-                res.send({status: "fail"});
+                res.send({status: "fail",data: err});
               }else{
                 res.send({status: "success"});
+                console.log(rows);
               }
             });
     }
