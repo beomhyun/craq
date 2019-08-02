@@ -11,8 +11,8 @@ const tag = require('./model/tag');
 const swaggerDoc = require('./swaggerDoc');
 const bodyParser = require('body-parser');
 const app = express(express);
-
-
+var cors = require('cors');
+app.use(cors());
 app.use(express.static('./image/profile'));
 app.use(express.static('./image/contents'));
 app.use(bodyParser.json());
