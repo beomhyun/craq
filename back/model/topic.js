@@ -125,7 +125,7 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /topics/{user}:
+   *  /topics/users/{user}:
    *    get:
    *      tags:
    *      - topic
@@ -137,13 +137,13 @@ const initializeEndpoints = (app) => {
    *          사용자 토큰 전달
    *       - in: path
    *         name: user
-   *         type: string
+   *         type: integer
    *         description: 유저 아이디를 전달
    *      description: 해당 유저가 만든 게시판을 보여줌
    *      responses:
    *        200:
    */
-  app.get('/topics/:user', function(req, res) {
+  app.get('/topics/users/:user', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
@@ -390,6 +390,57 @@ const initializeEndpoints = (app) => {
     });
   });
 
+    /**
+   * @swagger
+   *  /topics/pk/{pk}:
+   *    get:
+   *      tags:
+   *      - topic
+   *      parameters:
+   *       - in: header
+   *         name: user_token
+   *         type: string
+   *         description: |
+   *          사용자 토큰 전달
+   *       - in: path
+   *         name: pk
+   *         type: integer
+   *         description: |
+   *          사용자 토큰 전달   
+   *      responses:
+   *        200:
+   */
+  app.get('/topics/pk/:pk', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = ` SELECT
+                      T.PK
+                      ,T.TOPIC
+                      ,(SELECT
+                          COUNT(*)
+                        FROM
+                          SUBSCRIBE AS S
+                        WHERE
+                          S.TOPIC = T.PK
+                          AND S.USER = ${decoded.pk}
+                      ) AS IS_SUBSCRIBE
+                    FROM 
+                      TOPIC AS T
+                    WHERE
+                      T.PK = ${req.params.pk} `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err) {
+            res.json({status:"success", data: rows});
+          } else {
+            res.send({status: "fail", datA:err});
+          }
+        });
+      }
+    });
+  });
 
 };
  
