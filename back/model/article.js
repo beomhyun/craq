@@ -255,6 +255,7 @@ const initializeEndpoints = (app) => {
             sql =
             `
               SELECT    B.ROWNUM
+                      , B.PK
                       , B.TOPIC
                       , B.TITLE
                       , B.USERNAME
@@ -264,6 +265,7 @@ const initializeEndpoints = (app) => {
               FROM 	  (
                         SELECT	  ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
                                   ROWNUM
+                                , A.PK
                                 , A.TOPIC
                                 , C.TITLE
                                 ,
@@ -701,7 +703,7 @@ const initializeEndpoints = (app) => {
                         FROM
                           ARTICLE AS B
                         WHERE
-                          B.ARTICLE = A.PK	
+                          B.ARTICLE = A.PK
                       ) AS ANSWERS
                       ,(SELECT
                               IFNULL(SUM(V.GOOD),0)
@@ -714,7 +716,7 @@ const initializeEndpoints = (app) => {
                         WHERE
                           1=1
                           AND W.ARTICLE = A.PK
-                          AND W.IS_REMOVED = 0 
+                          AND W.IS_REMOVED = 0
                       ) AS WARDS
                     FROM
                       ARTICLE AS A

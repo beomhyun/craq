@@ -123,14 +123,28 @@ const initializeEndpoints = (app) => {
         error: 'invalid token'
       });
       else {
-        var sql = "SELECT * FROM comment AS cm JOIN content AS ct ON cm.content = ct.pk AND ct.article = ?";
-        var params = req.params.id;
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('Error while performing Query.', err);
-            res.send(err);
+        var sql =
+        `
+          SELECT	CM.PARENTCOMMENT
+          		  , USER
+          	    , (
+          	 	    SELECT 	USERNAME
+            		 	FROM 		USER
+            		 	WHERE 	PK = CM.USER
+            		 ) USERNAME
+                , CM.BODY
+                , CM.CREATED_AT
+          FROM 		COMMENT CM
+          JOIN 		CONTENT CT
+          ON 		  CM.CONTENT = CT.PK
+          WHERE		CT.ARTICLE = ${req.params.id}
+          AND 		CM.IS_REMOVED = 0
+        `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err){
+            res.send({status: "success",data:rows});
+          }else{
+            res.send({status: "fail"});
           }
         });
       }

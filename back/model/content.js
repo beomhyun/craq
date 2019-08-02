@@ -59,43 +59,12 @@ const initializeEndpoints = (app) => {
     console.log("request post contents1");
     var i = req.body;
     var sql = "";
-
-    function post_notice(req,i){
-      // 작성한 글이 어느 질문에 대한 답변일 때
-      if( i.topic_id == 1 && i.article_id != 0){ // 질문 글이면서
-        // 질문 글의 작성자를 얻어온다
-        sql =
-              `
-                SELECT    A.CREATEDUSER
-                        , C.TITLE
-                FROM      ARTICLE AS A
-                JOIN      CONTENT AS C
-                ON        A.CONTENT = C.PK
-                WHERE     PK = ${i.article_id}
-              `;
-        connection.query(sql, function(err, rows, fields) {
-          console.log(rows);
-          var created_user = rows[0].CREATEDUSER;
-          var title = row[0].TITLE;
-          // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
-          var msg = `${title} 글에 답변이 달렸습니다`;
-          sql =
-                `
-                  INSERT  INTO
-                  NOTICE  ( USER, TYPE, BODY )
-                  VALUES  ( ${created_user}, 1, ${msg} )
-                `;
-          connection.query(sql, function(err, rows, fields) {
-            if (!err){
-              res.send({status: "success2"});
-            }else{
-              res.send({status: "fail4"});
-            }
-          });
-        });
-      }
+    var filename = "default_profile.png";
+    if(req.file){
+      // 이미지 파일 첨부가 있을 경우 새 파일명으로 바꿔준다.
+      filename = req.file.filename;
+      console.log(filename);
     }
-
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
@@ -107,7 +76,7 @@ const initializeEndpoints = (app) => {
           console.log("request post contents3");
 
           sql = "INSERT INTO content(title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?)";
-          params = [i.title, i.body, i.image, i.user_id, i.user_id];
+          params = [i.title, i.body, filename, i.user_id, i.user_id];
           connection.query(sql, params, function(err, rows, fields) {
             if (!err) {
               var contentId = rows.insertId;
@@ -121,10 +90,45 @@ const initializeEndpoints = (app) => {
                 if (!err) {
                   console.log("rows.insertId = " + rows.insertId);
                   sql = `UPDATE CONTENT SET ARTICLE = ${rows.insertId} WHERE pk = ${contentId}`;
-                  connection.query(sql, params, function(err, rows, fields) {
+                  connection.query(sql, function(err, rows, fields) {
                     if (!err) {
                       console.log(rows);
-                      res.json({status:"success"});
+
+                      // 작성한 글이 어느 질문에 대한 답변일 때
+                      if( i.topic_id == 1 && i.article_id != 0){ // 질문 글이면서
+                        // 질문 글의 작성자를 얻어온다
+                        console.log("TRUE");
+                        sql =
+                              `
+                                SELECT    A.CREATEDUSER
+                                        , C.TITLE
+                                FROM      ARTICLE AS A
+                                JOIN      CONTENT AS C
+                                ON        A.CONTENT = C.PK
+                                WHERE     A.PK = ${i.article_id}
+                              `;
+                        connection.query(sql, function(err, rows, fields) {
+                          console.log(rows[0].CREATEDUSER);
+                          console.log(rows[0].TITLE);
+                          var created_user = rows[0].CREATEDUSER;
+                          var title = rows[0].TITLE;
+                          // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+                          var msg = `${title} 글에 답변이 달렸습니다`;
+                          sql =
+                                `
+                                  INSERT  INTO
+                                  NOTICE  ( USER, TYPE, BODY )
+                                  VALUES  ( ${created_user}, 1, "${msg}" )
+                                `;
+                          connection.query(sql, function(err, rows, fields) {
+                            if (!err){
+                              res.send({status: "success2"});
+                            }else{
+                              res.send({status: "fail4"});
+                            }
+                          });
+                        });
+                      }
                     } else {
                       console.log('content update err.', err);
                       res.send(err);
@@ -150,11 +154,11 @@ const initializeEndpoints = (app) => {
             if(!err) version = rows[0].C +1;
             else res.send({status: "fail"})
           });
-          sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?,?)";
-          params = [i.article_id, i.beforeContent, i.title, i.body, req.file.filename, i.user_id, i.user_id];
+          sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?)";
+          params = [i.article_id, i.beforeContent, i.title, i.body, filename, i.user_id, i.user_id,version];
           connection.query(sql, params, function(err, rows, fields) {
             if (!err) {
-              // 기존 article의 content 값을 추가한 contetn id값으로 변경, updatedUser 수정
+              // 기존 article의 content 값을 최신 contetn id값으로 변경, updatedUser 수정
               sql =
                     `
                       UPDATE    ARTICLE
@@ -165,6 +169,50 @@ const initializeEndpoints = (app) => {
 
               connection.query(sql, function(err, rows, fields) {
                 if (!err){
+
+
+
+                  // 작성한 글이 어느 질문에 대한 답변일 때
+                  if( i.topic_id == 1 && i.article_id != 0){ // 질문 글이면서
+                    // 질문 글의 작성자를 얻어온다
+                    console.log("TRUE");
+                    sql =
+                          `
+                            SELECT    A.CREATEDUSER
+                                    , C.TITLE
+                            FROM      ARTICLE AS A
+                            JOIN      CONTENT AS C
+                            ON        A.CONTENT = C.PK
+                            WHERE     A.PK = ${i.article_id}
+                          `;
+                    connection.query(sql, function(err, rows, fields) {
+                      console.log(rows[0].CREATEDUSER);
+                      console.log(rows[0].TITLE);
+                      var created_user = rows[0].CREATEDUSER;
+                      var title = rows[0].TITLE;
+                      // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+                      var msg = `${title} 글에 답변이 달렸습니다`;
+                      sql =
+                            `
+                              INSERT  INTO
+                              NOTICE  ( USER, TYPE, BODY )
+                              VALUES  ( ${created_user}, 1, "${msg}" )
+                            `;
+                      connection.query(sql, function(err, rows, fields) {
+                        if (!err){
+                          res.send({status: "success2"});
+                        }else{
+                          res.send({status: "fail4"});
+                        }
+                      });
+                    });
+                  }
+
+
+
+
+
+
                   res.send({status: "success"});
                 }else{
                   res.send({status: "fail1"});
@@ -194,10 +242,10 @@ const initializeEndpoints = (app) => {
    *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달.
-   *       - in: path
-   *         name: pk
-   *         type: integer
-   *         description: 사용자 pk 전달
+   *      - in: path
+   *        name: pk
+   *        type: integer
+   *        description: 사용자 pk 전달
    */
   app.get('/contents/content-image/:pk', function(req, res) {
     jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
@@ -244,14 +292,42 @@ const initializeEndpoints = (app) => {
         error: 'invalid token'
       });
       else {
-        var sql = "SELECT * FROM content WHERE article = ?";
-        var params = [req.params.id];
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('article insert err ', err);
-            res.send(err);
+        var sql =
+                  `
+                    SELECT	TITLE
+                    		  , BODY
+                    	    , IMAGE
+                    	    , (
+                      		 	SELECT	USERNAME
+                      		 	FROM 		USER
+                      		 	WHERE 	PK = C.CREATEDUSER
+                      		 ) USERNAME
+                      		 , (
+                      		 	SELECT 	SUM(GOOD)
+                      		 	FROM 		VOTE
+                      		 	WHERE 	ARTICLE = ${req.params.id}
+                      		 ) VOTE
+                      		 , (
+                      		 	SELECT 	COUNT(ARTICLE)
+                      		 	FROM 		VIEW
+                      		 	WHERE 	ARTICLE = ${req.params.id}
+                      		 ) VIEW
+                           , (
+                             SELECT   CREATED_AT
+                             FROM     ARTICLE
+                             WHERE    PK = ${req.params.id}
+                           ) CREATED_AT
+                    FROM 		CONTENT C
+                    WHERE 	ARTICLE = ${req.params.id}
+                    AND 		IS_REMOVED = 0
+                  `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err){
+            res.send({status: "success",data:rows});
+            //res.json(rows);
+          }else{
+            res.send({status: "fail1"});
+            //res.send(err);
           }
         });
       }
