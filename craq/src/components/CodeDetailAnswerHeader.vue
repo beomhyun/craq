@@ -45,11 +45,13 @@ export default {
 #tabs {
     float: right;
     & a {
+        display: block;
         margin-right: 0;
         padding-left: 8px;
         padding-right: 9px;
         position: relative;
-        padding: 13px 10px;
+        padding: 12px 10px;
+        padding-bottom: 11px;
         border: 1px solid transparent;
         font-size: 12px;
         float: left;
@@ -60,10 +62,11 @@ export default {
 }
 
 .youarehere {
-    font-weight: 400;
-    border-color: var(--color-surface-light);
-    border-bottom-color: var(--color-surface);
-    cursor: default;
+    border-color: var(--color-contrast-low) !important;
+    border-top-width: 2px !important;
+    border-top-color: var(--color-secondary) !important;
+    border-bottom-color: var(--color-surface) !important;
+    cursor: default !important;
 }
 
 </style>

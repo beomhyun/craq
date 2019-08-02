@@ -11,6 +11,9 @@
                     </div>
                     <div id="answers">
                         <CodeDetailAnswerHeader></CodeDetailAnswerHeader>
+                        <Article></Article>
+                        <div class="separator"></div>
+                        <Article></Article>
                     </div>
 
                 </div>
@@ -62,5 +65,12 @@ export default {
 }
 .d-block {
     display: block !important;
+}
+
+.separator {
+    margin: 30px 1px;
+    height: 0px;
+    border-bottom: 1px solid var(--color-contrast-low);
+
 }
 </style>
