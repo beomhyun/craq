@@ -9,7 +9,7 @@
 
                 </div>
             </div>
-            <CodeDetailQuestionSignatureCard></CodeDetailQuestionSignatureCard>
+            <ArticleSignatureCard></ArticleSignatureCard>
         </div>
     </div>
 
