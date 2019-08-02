@@ -1,14 +1,15 @@
 <template>
     <div class="profiles">
         <div class="backimg">
-            <img src="http://lorempixel.com/1100/250/technics/" alt="" class="userBack">
+            <img src="@/assets/header.jpg" alt="" class="userBack">
             <div class="circle"></div>
             <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="" class="userImg">
             <div class="rectangular"></div>
 
             <div class="userInfo">
                 <div class="userInfo__name">
-                    User Name
+                    {{username}}
+                    {{userData.User}}
                 </div>
                 <div class="userInfo__list">
                     <div class="userInfo__list__btn" @click="toggleInformation"><span>Information</span></div>
@@ -29,41 +30,36 @@
                         <div class="information__content-details">
                             <strong>SSAFY Grade</strong> 
                             <div>
-                                <input class="editInput" v-show="Toggle.editSsafyGrade" v-model="Profiles.ssafyGrade" @keydown.enter="Toggle.editSsafyGrade = !Toggle.editSsafyGrade">
-                                <span v-show="!Toggle.editSsafyGrade">{{ Profiles.ssafyGrade }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editSsafyGrade = !Toggle.editSsafyGrade"></font-awesome-icon>
+                                <input class="editInput" v-show="toggleProfile" v-model="userData.ssafy_years">
+                                <span v-show="!toggleProfile">{{ userData.ssafy_years }}</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
                             <strong>Major</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editMajor" v-model="Profiles.Major" @keydown.enter="Toggle.editMajor = !Toggle.editMajor">
-                                <span v-show="!Toggle.editMajor">{{ Profiles.Major }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editMajor = !Toggle.editMajor"></font-awesome-icon>
+                                <input class="editInput" v-show="toggleProfile" v-model="userData.is_major">
+                                <span v-show="!toggleProfile">{{ userData.is_major }}</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
                             <strong>SW Grade</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editSwGrade" v-model="Profiles.SwGrade" @keydown.enter="Toggle.editSwGrade = !Toggle.editSwGrade">
-                                <span v-show="!Toggle.editSwGrade">{{ Profiles.SwGrade }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editSwGrade = !Toggle.editSwGrade"></font-awesome-icon>
+                                <input class="editInput" v-show="toggleProfile" v-model="userData.grade">
+                                <span v-show="!toggleProfile">{{ userData.grade }}</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
                             <strong>Region</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editRegion" v-model="Profiles.Region" @keydown.enter="Toggle.editRegion = !Toggle.editRegion"> 
-                                <span v-show="!Toggle.editRegion">{{ Profiles.Region }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editRegion = !Toggle.editRegion"></font-awesome-icon>
+                                <input class="editInput" v-show="toggleProfile" v-model="userData.region"> 
+                                <span v-show="!toggleProfile">{{ userData.region }}</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-github">
                             <strong>Git URL</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editGitUrl" v-model="Profiles.GitUrl" @keydown.enter="Toggle.editGitUrl = !Toggle.editGitUrl">
-                                <span v-show="!Toggle.editGitUrl">{{ Profiles.GitUrl }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editGitUrl = !Toggle.editGitUrl"></font-awesome-icon>
+                                <input class="editInput" v-show="toggleProfile" v-model="userData.gitUrl">
+                                <span v-show="!toggleProfile">{{ userData.gitUrl }}</span> &nbsp;
                             </div>
                         </div>
                     </div>
@@ -75,16 +71,15 @@
                     <div class="information__title">
                         Skill    
                     </div>
-                    <div class="information__content">
-                        <div class="skill-icon" :key="skill" v-for="skill in skillIcon" v-show="Toggle.editSkill">
+                    <!-- <div class="information__content">
+                        <div class="skill-icon" :key="skill" v-for="skill in skillIcon" v-show="toggleProfile">
                             <input type="checkbox" :id="skill.title" :value="skill" v-model="checkedSkill">
                             <label :for="skill.title"><img :src="skill.url" alt="" class="skill-icon-img"></label>
                         </div>
-                        <div class="skill-icon" :key="check" v-for="check in checkedSkill" v-show="!Toggle.editSkill">
+                        <div class="skill-icon" :key="check" v-for="check in checkedSkill" v-show="!toggleProfile">
                             <img :src="check.url" alt="" class="skill-icon-img">
                         </div>
-                        <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editSkill = !Toggle.editSkill"></font-awesome-icon>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="separator"></div>
@@ -94,12 +89,13 @@
                         Self-Introduction
                     </div>
                     <div class="information__content">
-                        <div v-show="!Toggle.editIntroduce" class="selfintroduce">{{selfIntroduce}} </div>
-                        <textarea class="selfintroduce__form" v-model="selfIntroduce" v-show="Toggle.editIntroduce" autofocus></textarea>
-                        <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editIntroduce = !Toggle.editIntroduce"></font-awesome-icon>
+                        <div v-show="!toggleProfile" class="selfintroduce">{{userData.intro}} </div>
+                        <textarea class="selfintroduce__form" v-model="userData.intro" v-show="toggleProfile" autofocus></textarea>
                     </div>
                 </div>
-                
+                <button v-show="!toggleProfile" @click="toggleProfile = true">Edit</button>
+            <button v-show="toggleProfile" @click="editProfile">Save</button>
+            <button v-show="toggleProfile" @click="toggleProfile = false">Cancle</button>
             </div>
             
             <ProfileActivity v-show="setActivity"/>
@@ -130,6 +126,17 @@ export default {
     },
     data() {
         return {
+            username: '',
+            userData: {
+                User : '',
+                ssafy_years: '',
+                is_major: '',
+                region: '',
+                grade: '',
+                intro: '',
+                gitUrl: '',
+                profile_image: '',
+            },
             skillIcon: [
                 { title: 'Java', url : require('@/assets/Java.png') },
                 { title: 'Python', url : require('@/assets/Python.png') },
@@ -190,28 +197,28 @@ export default {
                     Region : '',
                     GitUrl : '',
             },
-            Toggle: {
-                editSsafyGrade: false,
-                editMajor: false,
-                editSwGrade: false,
-                editRegion: false,
-                editGitUrl: false,
-                editSkill: false,
-                editIntroduce: false
-            }
+            toggleProfile: false
             
             
         }
     },
     mounted() {
-        const headers = {
-                "Content-Type": "application/json"
-            };
-        this.$axios.get("articles/questions", {headers: headers}).then(res=>{
-                    console.log(res.data);
+        this.userData.User = this.$session.get('userPK'),
+        this.username = this.$session.get('username'),
+        
+        this.$axios.get("users/profile/39").then(res=>{
+                    console.log(res)
+                    this.userData = res.data[0]
                 })
     },
     methods: {
+        editProfile() {
+            this.$axios.put('profile', this.userData).catch(err => console.log(err))
+            this.$axios.get("users/profile/39").then(res=>{
+                    console.log(res.data[0])
+                })
+            this.toggleProfile = false
+        },
         notyClose(id) {
           this.noties = this.noties.filter(noty=>noty.id != id);
         },
@@ -265,6 +272,7 @@ $--menu-width: 22rem;
 }
 
 .userBack {
+    width: 100%;
     height: 280px;
 }
 
@@ -284,7 +292,7 @@ $--menu-width: 22rem;
     border: 10px solid alpha(var(--color-tertiary), 0.8);
     width: 250px;
     height: 250px;
-    z-index: 100;
+    z-index: 10;
 }
 
 .rectangular {
@@ -295,7 +303,7 @@ $--menu-width: 22rem;
     background-color: var(--color-white);
     width: 100%;
     height: 50px;
-    z-index: 150;
+    z-index: 15;
 }
 
 .userImg {
@@ -306,7 +314,7 @@ $--menu-width: 22rem;
     height: 230px;
     border: 10px solid var(--color-white);
     border-radius: 50%;
-    z-index: 200;
+    z-index: 20;
     display: flex;
     flex-direction: column;
 }
@@ -322,14 +330,14 @@ $--menu-width: 22rem;
     left: 300px;
     height: 100px;
     background-color: var(--color-surface-light);
-    z-index: 250;
+    z-index: 25;
     padding: var(--space-xxs);
 
     &__name {
         font-size: var(--text-xl);
         font-weight: bold;
         margin: var(--space-xxs);
-        cursor: none;
+        cursor: default;
     }
 
     &__list {
@@ -447,10 +455,6 @@ $--menu-width: 22rem;
     height: 1px;
     background-color: var(--color-contrast-low);
 
-}
-
-.editBtn:hover {
-    cursor: pointer;
 }
 
 .editInput {

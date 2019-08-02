@@ -5,7 +5,7 @@
         <menu id="menu-example" class="menu js-menu" :class="{'menu--is-visible': show}">
             <li class="menu__item js-menu__item" role="menuitem">
                 <svg class="icon menu__icon" aria-hidden="true" viewBox="0 0 12 12"><path d="M10.121.293a1,1,0,0,0-1.414,0L1,8,0,12l4-1,7.707-7.707a1,1,0,0,0,0-1.414Z"></path></svg>
-                <span>Edit Profile</span>
+                <span><router-link to="/profile">Edit Profile</router-link></span>
             </li>
             <li class="menu__separator" role="separator"></li>
 
