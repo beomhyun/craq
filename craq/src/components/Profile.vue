@@ -3,13 +3,12 @@
         <div class="backimg">
             <img src="@/assets/header.jpg" alt="" class="userBack">
             <div class="circle"></div>
-            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="" class="userImg">
+            <img src="@/assets/Admin-1.png" alt="" class="userImg">
             <div class="rectangular"></div>
 
             <div class="userInfo">
                 <div class="userInfo__name">
                     {{username}}
-                    {{userData.User}}
                 </div>
                 <div class="userInfo__list">
                     <div class="userInfo__list__btn" @click="toggleInformation"><span>Information</span></div>
@@ -28,10 +27,13 @@
                     </div>
                     <div class="information__content">
                         <div class="information__content-details">
-                            <strong>SSAFY Grade</strong> 
+                            <strong>SSAFY Years</strong> 
                             <div>
-                                <input class="editInput" v-show="toggleProfile" v-model="userData.ssafy_years">
-                                <span v-show="!toggleProfile">{{ userData.ssafy_years }}</span> &nbsp;
+                                <select class="editInput" v-show="toggleProfile" v-model="userData.ssafy_years">
+                                    <option value="1" selected="selected">1</option>
+                                    <option value="2">2</option>
+                               </select>
+                                <span v-show="!toggleProfile">{{ userData.ssafy_years }} 기</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
@@ -44,22 +46,29 @@
                         <div class="information__content-details">
                             <strong>SW Grade</strong>
                             <div>
-                                <input class="editInput" v-show="toggleProfile" v-model="userData.grade">
-                                <span v-show="!toggleProfile">{{ userData.grade }}</span> &nbsp;
+                                <select class="editInput" v-show="toggleProfile" v-model="userData.grade">
+                                    <option class="editOption" v-for="i in 10" :value="i" selected="selected">{{i}}</option>
+                               </select>
+                                <span v-show="!toggleProfile">{{ userData.grade }} 반</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
                             <strong>Region</strong>
                             <div>
-                                <input class="editInput" v-show="toggleProfile" v-model="userData.region"> 
+                                <select class="editInput" v-show="toggleProfile" v-model="userData.region">
+                                    <option class="editOption" value="대전" selected="selected">대전</option>
+                                    <option class="editOption" value="서울" >서울</option>
+                                    <option class="editOption" value="구미" >구미</option>
+                                    <option class="editOption" value="광주" >광주</option>
+                               </select> 
                                 <span v-show="!toggleProfile">{{ userData.region }}</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-github">
                             <strong>Git URL</strong>
                             <div>
-                                <input class="editInput" v-show="toggleProfile" v-model="userData.gitUrl">
-                                <span v-show="!toggleProfile">{{ userData.gitUrl }}</span> &nbsp;
+                                <input class="editGithub" v-show="toggleProfile" v-model="userData.gitUrl">
+                                <a :href="userData.gitUrl" target="_blank"><span v-show="!toggleProfile">{{ userData.gitUrl }}</span> &nbsp;</a>
                             </div>
                         </div>
                     </div>
@@ -126,6 +135,18 @@ export default {
     },
     data() {
         return {
+            grades: [
+                { Class: 1 },
+                { Class: 2 },
+                { Class: 3 },
+                { Class: 4 },
+                { Class: 5 },
+                { Class: 6 },
+                { Class: 7 },
+                { Class: 8 },
+                { Class: 9 },
+                { Class: 10 },
+                ],
             username: '',
             userData: {
                 User : '',
@@ -203,18 +224,31 @@ export default {
         }
     },
     mounted() {
-        this.userData.User = this.$session.get('userPK'),
-        this.username = this.$session.get('username'),
+        this.username = this.$session.get('username');
         
-        this.$axios.get("users/profile/39").then(res=>{
+        this.$axios.get("users/profile/"+ this.$session.get('userPk')).then(res=>{
                     console.log(res)
                     this.userData = res.data[0]
+                    console.log(this.userData)
+                    console.log('asdasfsrya')
                 })
     },
     methods: {
         editProfile() {
-            this.$axios.put('profile', this.userData).catch(err => console.log(err))
-            this.$axios.get("users/profile/39").then(res=>{
+            const data = {
+                'User' : this.userData.User,
+                'ssafy_years': this.userData.ssafy_years,
+                'is_major': this.userData.is_major,
+                'region': this.userData.region,
+                'grade': this.userData.grade,
+                'intro': this.userData.intro,
+                'gitUrl': this.userData.gitUrl,
+                'profile_image': this.userData.profile_image,
+            }
+            this.$axios.put('profile', data).then(res =>
+                console.log(res)
+                ).catch(err => console.log(err))
+            this.$axios.get("users/profile/" + this.$session.get('userPk')).then(res=>{
                     console.log(res.data[0])
                 })
             this.toggleProfile = false
@@ -458,9 +492,17 @@ $--menu-width: 22rem;
 }
 
 .editInput {
+    width: 200px;
     text-align: end;
     border: 1px dashed var(--color-contrast-low);
     border-radius: var(--radius-sm);
+}
+
+.editGithub {
+    text-align: end;
+    border: 1px dashed var(--color-contrast-low);
+    border-radius: var(--radius-sm);
+    width: 300px;
 }
 
 .skill-icon {
@@ -487,6 +529,8 @@ $--menu-width: 22rem;
     width: 100%;
     height: 200px;
     border: 1px solid var(--color-contrast-low); 
+    padding: var(--space-sm);
+    font-size: var(--text-lg);
 
     &__form {
         width: 100%;

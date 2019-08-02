@@ -9,28 +9,28 @@
         </div>
 
         <div class="follow__list following" v-show="setAsk">
-            <div :key="idx" v-for="(list, idx) in cardLists" class="cardlist">
+            <div :key="list" v-for="list in cardLists" class="cardlist">
                 <CardforAsk :list="list"/>
             </div>
         </div>
 
-        <!-- <div class="follow__list follower"  v-show="setAnswer">
+        <div class="follow__list follower"  v-show="setAnswer">
             <div :key="list" v-for="list in cardLists" class="cardlist">
                 <CardforAsk :list="list"/>
             </div>
-        </div> -->
+        </div>
 
-        <!-- <div class="follow__list follower"  v-show="setPost">
+        <div class="follow__list follower"  v-show="setPost">
             <div :key="a" v-for="a in 10" class="cardlist">
                 <UserCard/>
             </div>
-        </div> -->
+        </div>
 
-        <!-- <div class="follow__list follower"  v-show="setComments">
+        <div class="follow__list follower"  v-show="setComments">
             <div :key="a" v-for="a in 10" class="cardlist">
                 <UserCard/>
             </div>
-        </div> -->
+        </div>
 
     </div>
 </template>
@@ -135,7 +135,7 @@ export default {
             justify-content: center;
             align-items: center;
             font-size: var(--text-md);
-            color: var(--color-contrast-low);            
+            color: var(--color-contrast-high);            
 
             border-radius: var(--radius-sm);
 

@@ -78,7 +78,6 @@ export default {
 <style scoped lang="scss">
 // Test End
 .filler {
-    height: 1000px;
     width: auto;
     background-color: var(--color-background);
 }
