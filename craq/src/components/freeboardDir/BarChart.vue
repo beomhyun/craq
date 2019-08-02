@@ -5,6 +5,9 @@ const { reactiveProp } = mixins
 export default {
   extends: Bar,
   mixins: [ reactiveProp ],
+  props : [
+    'allpks'
+  ],
   data () {
     return {
       options: {
@@ -33,12 +36,19 @@ export default {
     }
   },
   mounted () {
+    console.log(this.allpks);
     this.renderChart(this.chartData, this.options)
   },
   methods : {
     handle (point, event) {
       const item = event[0]
-      this.$router.push(`/freeboard/${item.topic}`)
+      // console.log(point);
+      // console.log(event[0]);
+      var label = item['_model'].label
+      // console.log()
+      // console.log('_model')
+      var nowPK = this.allpks[item['_index']];
+      this.$router.push(`/freeboard/${nowPK}`)
     }
   }
 }

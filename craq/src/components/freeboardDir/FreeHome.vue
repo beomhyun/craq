@@ -3,12 +3,19 @@
         <!-- <div v-if="freeState === 'freeboard'"> -->
           <div class="container max-width-lg" style="display: flex">
             <h3 style="display: inline; width:100%">{{topic}} 게시판</h3>
-            <button class="btn btn--subtle btn--md">Subscribe</button>
+
+            <button v-if="!isSubscribe" class="btn--subtle" @click="subscribe">Subscribe</button>
+            <button v-else class="btn--primary" @click="subscribe">Subscribe</button>
           </div>
           <div class="container">
             <div style="column-count: 2; column-rule: dotted 1px #222;">
               <ul v-for="allpost in all_tmp_data">
-                <li><strong @click="showDetail(allpost)">{{allpost.title}}</strong>&emsp;<i>{{allpost.user_name}}</i></li>
+                <li>
+                  ({{allpost.TOPIC}})
+                  <strong class="strong" @click="showDetail(allpost)">{{allpost.TITLE}}</strong>
+                  [{{allpost.COMMENTS}}]&emsp;
+                  <span>{{allpost.writer}}</span>
+                </li>
               </ul>
             </div>
             <div>
@@ -16,7 +23,7 @@
               <button class="btn btn--primary btn--md">조회순</button>
             </div>
           </div>
-          <FreeList :topic="this.$route.params.topic" />
+          <FreeList :topic="this.$route.params.topic" :page='1' />
         <!-- </div> -->
     </div>
 
@@ -33,56 +40,9 @@ export default {
 
   data() {
     return {
-      topic : this.$route.params.topic,
-      all_tmp_data : [
-        {
-          id : '1',
-          title : 'lorem ipsum1',
-          body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-          user_name : '정준희',
-          createAt : '19.07.25',
-          views : '1000',
-          recommend : '31'
-        },
-        {
-          id : '2',
-          title : 'lorem ipsum2',
-          body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-
-          user_name : '정준희',
-          createAt : '19.07.25',
-          views : '8000',
-          recommend : '31'
-        },
-        {
-          id : '3',
-          title : 'lorem ipsum3',
-          body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-
-          user_name : '정준희',
-          createAt : '19.07.25',
-          views : '1700',
-          recommend : '31'
-        },
-        {
-          id : '4',
-          title : 'lorem ipsum4',
-          body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-          user_name : '정준희',
-          createAt : '19.07.25',
-          views : '9000',
-          recommend : '31',
-        },
-        {
-          id : '5',
-          title : 'lorem ipsum5',
-          body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-          user_name : '정준희',
-          createAt : '19.07.25',
-          views : '1800',
-          recommend : '31'
-        },
-      ],
+      topic : "",
+      isSubscribe : true,
+      all_tmp_data : [],
     }
   },
   created() {
@@ -91,10 +51,44 @@ export default {
     // axios.get('http://192.168.31.58:10123/api-docs/', {
     //
     // })
+    this.$axios
+    .get(`topics/pk/${this.$route.params.topic}`)
+    .then((res) => {
+      var title = res.data;
+      // console.log(title.data[0]);
+      this.topic = title.data[0].TOPIC;
+      if(title.data[0].IS_SUBSCRIBE == 0) {
+        this.isSubscribe = false;
+      }else {
+        this.isSubscribe = true;
+      }
+    });
+
+    this.$axios
+    .get('articles/new')
+    .then((res) => {
+      this.all_tmp_data = res.data
+    })
   },
   methods : {
+    subscribe() {
+      if(!this.isSubscribe) {
+        this.$axios.post('subscribes', {
+          topic : this.$route.params.topic,
+          user_id : this.$store.state.loginPK,
+        })
+        .then((res) => {
+          this.isSubscribe = true;
+        });
+      }else {
+        this.$axios.delete(`subscribes/${this.$route.params.topic}/${this.$store.state.loginPK}`)
+        .then((res) => {
+          this.isSubscribe = false;
+        });
+      }
+    },
     showDetail(data) {
-       this.$router.push({path: `${this.topic}/detail/${data.id}`, params: { info : data}});
+       this.$router.push({path: `${this.$route.params.topic}/detail/${data.id}`, params: { info : data}});
       // this.$router.push({name: 'freedetail' , params: { id: data.id, info : data}});
     },
     newest: function(arr) {

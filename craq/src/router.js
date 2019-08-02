@@ -1,17 +1,20 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 //test
-import Code from '@/components/Code.vue';
 import Notice from '@/components/Notice.vue';
 import Tags from '@/components/Tags.vue';
 
 //tree
 import Tree from '@/components/Tree.vue';
-import AddTree from '@/components/CreateTree.vue';
-import Community from '@/components/Community.vue'
+import AddTree from '@/components/freeboardDir/CreateTree.vue';
+import Community from '@/components/freeboardDir/Community.vue'
 //
 import Profile from '@/components/Profile.vue';
 import Main from '@/components/Main.vue'
+
+// Code
+import Code from '@/components/Code.vue';
+import AskQuestion from '@/components/AskQuestion.vue';
 
 //Community
 import FreeBoard from '@/components/freeboardDir/FreeBoard.vue';
@@ -79,8 +82,19 @@ export default new Router({
     {
       path: '/code',
       name: 'code',
-      meta: {},
-      component: Code
+      meta: {
+
+      },
+      component: Code,
+
+      children: [
+        {
+          path: 'askquestion',
+          meta: {},
+          name: 'askquestion',
+          component: AskQuestion
+        },
+      ]
     },
 
 

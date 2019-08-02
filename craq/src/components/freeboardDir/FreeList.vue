@@ -23,16 +23,21 @@
         <td v-html="notice.recommend"></td>
       </tr>
       <tr v-for="board in sortedData">
-        <td v-html="board.id"></td>
-        <td v-html="board.title" @click="showDetail(board)"></td>
+        <td v-html="board.ROWNUM"></td>
+        <td v-html="board.TITLE" @click="showDetail(board)"></td>
         <!-- <td v-html="board.title"><router-link :to="{ name: 'freedetail', params: {id : board.id} }"></router-link></td> -->
-        <td v-html="board.user_name"></td>
-        <td v-html="board.createAt"></td>
-        <td v-html="board.views"></td>
-        <td v-html="board.recommend"></td>
+        <td v-html="board.USERNAME"></td>
+        <td v-html="board.CREATED_AT"></td>
+        <td v-html="board.VIEW"></td>
+        <td v-html="board.VOTE"></td>
       </tr>
       </tbody>
     </table>
+    <div class="pagenation">
+        <ul v-for="index in totalpage">
+            <li v-html='index' @click='showpage(index)'></li> |
+        </ul>
+    </div>
     <div class="container max-width-lg">
       <button class="btn btn--subtle btn--md" style="margin:5px;" @click="notice">공지사항</button>
       <button class="btn btn--subtle btn--md" style="margin:5px;" @click="newest">최신순</button>
@@ -49,7 +54,8 @@ export default {
 
   },
   props :[
-    'topic'
+    'topic',
+    'page'
   ],
   data() {
     return {
@@ -57,79 +63,18 @@ export default {
       viewtoggle : true,
       isNew : false,
       noticeToggle : false,
-      topic_articles : [
-          {
-            id : '1',
-            title : 'lorem ipsum1',
-            body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-            user_name : '정준희',
-            createAt : '19.07.25',
-            views : '1000',
-            recommend : '31'
-          },
-          {
-            id : '2',
-            title : 'lorem ipsum2',
-            body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-
-            user_name : '정준희',
-            createAt : '19.07.25',
-            views : '8000',
-            recommend : '31'
-          },
-          {
-            id : '3',
-            title : 'lorem ipsum3',
-            body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-
-            user_name : '정준희',
-            createAt : '19.07.25',
-            views : '1700',
-            recommend : '31'
-          },
-          {
-            id : '4',
-            title : 'lorem ipsum4',
-            body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-            user_name : '정준희',
-            createAt : '19.07.25',
-            views : '9000',
-            recommend : '31',
-          },
-          {
-            id : '5',
-            title : 'lorem ipsum5',
-            body : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-            user_name : '정준희',
-            createAt : '19.07.25',
-            views : '1800',
-            recommend : '31'
-          },
-        ],
-        topic_notices : [
-          {
-            id : '5',
-            title : 'First Notice',
-            body : '규정을 잘 지킵시다',
-            user_name : '관리자',
-            createAt : '19.07.29',
-            views : '10000',
-            recommend : '331'
-          },
-          {
-            id : '5',
-            title : 'Second Notice',
-            body : '규정 좀 잘 지킵시다.',
-            user_name : '관리자',
-            createAt : '19.07.29',
-            views : '11000',
-            recommend : '431'
-          }
-        ]
+      topic_articles : [],
+      topic_notices : []
       }
     },
     created() {
       // alert(this.topic);
+      this.$axios
+      .get(`articles/${this.topic}/${this.page}`)
+      .then((res) => {
+        this.topic_articles = res.data;
+        console.log(this.topic_articles)
+      })
     },
     methods : {
       boardwrite() {

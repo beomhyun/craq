@@ -3,9 +3,10 @@
 <!--    <h5> 인기글 </h5>-->
 
     <div class="container" style="column-count: 2; column-rule: dotted 1px #222;">
-      <ul class="text-component width-100%" v-for="mycomm in tmpData">
-        <!-- <li class="text-component width-50%"><router-link :to="{ name: 'freeboard', params: {topic : mycomm.topic} }">{{mycomm.body}}</router-link></li> -->
-        <li class="text-component width-50%"><router-link :to="`/freeboard/${mycomm.topic}`">{{mycomm.body}}</router-link></li>
+      <ul class="my-ul text-component width-100%" v-for="mycomm in mytopics">
+        <!-- <li class="text-component width-50%"><router-link :to="{ path: `/freeboard/${mycomm.topic}`, params: {topic : mycomm.topic} }">{{mycomm.topic}}</router-link></li> -->
+        <!-- <span>{{mycomm}}</span> -->
+        <li class="text-component width-50%"><router-link :to="`/freeboard/${mycomm.PK}`">{{mycomm.TOPIC}}</router-link></li>
       </ul>
     </div>
   </div>
@@ -17,46 +18,37 @@ export default {
   name : "MyCommunities",
   data() {
     return {
-      tmpData : [
-        {
-          topic : '1',
-          body : 'Lorem ipsum dolor1'
-        },
-        {
-          topic : '2',
-          body : 'Lorem ipsum dolor2'
-        },
-        {
-          topic : '3',
-          body : 'Lorem ipsum dolor3'
-        },
-        {
-          topic : '4',
-          body : 'Lorem ipsum dolor4'
-        },
-        {
-          topic : '5',
-          body : 'Lorem ipsum dolor5'
-        },
-        {
-          topic : '6',
-          body : 'Lorem ipsum dolor6'
-        },
-        {
-          topic : '7',
-          body : 'Lorem ipsum dolor7'
-        },
-        {
-          topic : '8',
-          body : 'Lorem ipsum dolor8'
-        }
-
-      ]
+      mytopics : [],
     }
   },
+  created() {
+    this.$axios
+    .get(`topics/users/${this.$store.state.loginPK}`)
+    .then(res=> {
+        // console.log(res.data);
+        this.mytopics = this.mytopics.concat(res.data);
+        // console.log(this.mytopics);
+    });
+
+    this.$axios
+    .get(`subscribes/${this.$store.state.loginPK}`)
+    .then(res=> {
+        // console.log(res.data);
+        this.mytopics = this.mytopics.concat(res.data);
+        // console.log(this.mytopics);
+    });
+  }
 }
 
 </script>
 
 <style lang="scss">
+.my-ul {
+  // list-style: none;
+  margin: 5px;
+  padding: 5px;
+
+  max-width: 250px;
+  width: 100%;
+}
 </style>

@@ -23,16 +23,13 @@ export default {
   },
   methods: {
     createTree : function() {
-      // axios.post('http://192.168.31.58:10123/api-docs/', {
-      //   user_id : this.$store.state.user_id,
-      //   topic : this.topic,
-      //   body : this.body
-      // })
-      // .then((response) => {
-      //
-      // })
-
-      this.$router.push({name:'community'});
+      this.$axios.post('topics', {
+        topic : this.topic,
+      })
+      .then((response) => {
+        console.log(response);
+        this.$router.push({name:'community'});
+      })
     }
   }
 }

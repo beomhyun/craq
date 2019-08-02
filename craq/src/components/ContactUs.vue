@@ -1,29 +1,30 @@
 <template>
     <div class="modal" :class="{'modal__none': !show}">
+        
         <div class="modal__box">
             <div class="adminInfo">
-                <img :src="this.config.adminInfo.img" alt="" class="adminInfo__img">
+                <img :src="this.config.selcetedAdmin.img" alt="" class="adminInfo__img">
                 <div class="adminInfo-text">
-                    <div class="adimnInfo__name"><h1>{{this.config.adminInfo.name }}</h1></div>
-                    <div class="adimnInfo__mail"><h3>{{this.config.adminInfo.email}}</h3></div>
-                    <a :href="this.config.adminInfo.github" target="_blank"><div class="adimnInfo__mail"><h6>{{this.config.adminInfo.github}}</h6></div></a>
+                    <div class="adminInfo__name">{{this.config.selcetedAdmin.name }}</div>
+                    <div class="adminInfo__mail">{{this.config.selcetedAdmin.email}}</div>
+                    <a :href="this.config.selcetedAdmin.github" target="_blank"><div class="adminInfo__mail">{{this.config.selcetedAdmin.github}}</div></a>
                 </div>
             </div>
-
+            <li class="menu__separator" role="separator"></li>
             <div @click="toggle" class="dropdowns" :class="{'open' : config.openDrop == true}">
-                {{this.config.adminInfo.name }}
+                {{this.config.selcetedAdmin.name}}<p class="arrow">^</p>
                 <ul class="dropdowns-menu" v-for="option in config.admins">
-                    <li @mouseover="config.adminInfo = option">{{option.name}}</li>
+                    <li @mouseover="config.selcetedAdmin = option">{{option.name}}</li>
                 </ul>
             </div>
-            <p>To : {{this.config.adminInfo.email}}</p>
-            <form :action="this.config.adminInfo.script" class='formbox' method="POST">
-                <input type="text" name="" id="" placeholder="Title">
-                <textarea type="textarea" name="" id="" placeholder="Content"></textarea>
+            <p class="to">To : {{this.config.selcetedAdmin.email}}</p>
+            <li class="menu__separator" role="separator"></li>
+            <form class='formbox'>
+                <input type="text" name="Title" class="formbox__title" placeholder="Title">
+                <textarea type="textarea" name="Content" class="formbox__content" placeholder="Content"></textarea>
                 
-                <input type="submit" value="submit">
+                <input type="submit" class="submit btn btn--sm btn--primary" value="Submit" @click="clickEvent">
             </form>
-            <button class="modal__btn btn btn--primary margin-bottom-sm" @click="clickEvent">close</button>
         </div>
         
         <!-- BackGround -->
@@ -31,17 +32,20 @@
     </div>
 </template>
 <script>
+
 export default {
     name: "Modal",
     data() {
         return {
             config: {
                 openDrop: false,
-                adminInfo: [
-                    {
-                        name: "Admin Name",
-                    }
-                ],
+                selcetedAdmin: {
+                        name: '김구현',
+                        email : 'rngus3050@gmail.com',
+                        img: 'http://edu.ssafy.com/edu/comm/imgDownload.do?userId=8x2UmXNJ4WkJQfF8VVAEHw%3D%3D',
+                        github: 'https://github.com/rngus3050',
+                        script: 'https://script.google.com/macros/s/AKfycbzZE7JnY10SkjQK_nwpoaGHTn9iBotPcSx7EydX/exec'
+                },
                 admins: [
                     {
                         name: '김구현',
@@ -89,40 +93,90 @@ export default {
         toggle() {
             this.config.openDrop = !this.config.openDrop
         },
+    },
+    mounted() {
+    },
+    computed: {
+        
     }
 }
 
 </script>
 
 <style lang="scss" scoped>
+
+$--menu-item-padding: var(--space-xxxs) var(--space-xxs);
+
 // dropdown test
 .dropdowns {
   position: relative;
   width: 100%;
-  height: 20px;
-  background-color: var(--color-primary);
+  height: 40px;
+  background-color: var(--color-background);
 }
 
+.dropdowns:hover {
+    cursor: pointer;
+    background-color: var(--color-primary);
+}
+
+.arrow{
+    display: inline;
+}
+
+.open .arrow {
+    transform: rotate( 180deg );
+}
 .open .dropdowns-menu {
-  display: block;
+  visibility: visible;
+    border-left: 1px solid var(--color-contrast-low);
+    border-right: 1px solid var(--color-contrast-low);
+  opacity: 1;
 }
 .dropdowns-menu {
   position: relative;
   text-align: center;
   width: 100%;  
-  display: none;
-  background-color: var(--color-secondary);
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity .2s linear;
+  background-color: var(--color-background);
 }
 
 .dropdowns-menu li:hover {
-  background-color: var(--color-surface);
+    cursor: pointer;
+    background-color: alpha(var(--color-surface-dark), 0.8);
 }
+
 
 // FormBox
 .formbox {
     display: flex;
     flex-direction: column;
+    align-items: center;
 
+    &__title {
+        width: 100%;
+        border: none;
+    }
+
+    &__content {
+        width: 100%;
+        margin-top: var(--space-xxs);
+        border:none;
+    }
+
+}
+
+.submit {
+    display: inline;
+    width: 50%;
+}
+
+.menu__separator {
+    height: 1px;
+    background-color: var(--color-contrast-low);
+    margin: $--menu-item-padding;
 }
 
 .adminInfo {
@@ -131,15 +185,35 @@ export default {
     width: 400px;
     height: 120px;
     padding: var(--space-xxs);
-    background-color: var(--color-surface);
+    background-color: var(--color-background);
+    user-select: none;
 
     &__img {
         width: 100px;
         height: 100px;
         border-radius: 50%;
-        background-color: var(--color-primary);
+        border: 1px solid var(--color-contrast-high);
+        background-color: var(--color-surface-dark);
     }
+
+    &__name {
+        font-size: var(--text-md);
+        font-weight: 500;
+    }
+
+    &__mail {
+        font-size: var(--text-xs);
+    }
+
 }
+
+.to {
+    background-color: var(--color-background);
+}
+.to:hover {
+    user-select: none;
+}
+
 .adminInfo-text {
     display: flex;
     flex-direction: column;
@@ -155,15 +229,17 @@ export default {
     width: 100%;
     height: 100%;
     transition: all 5s ease;
+
     &__none {
         display: none;
     }
-    &__background {
-        position: fixed;
+
+     &__background {
+        position: absolute;
         width: 100%;
         height: 100%;
         background-color: alpha(var(--color-black), 0.5);
-        z-index: 2;
+        z-index: 50;
     }
 
     &__box {
@@ -172,9 +248,9 @@ export default {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background-color: alpha(var(--color-surface), 0.8);
+        background-color: var(--color-background);
         border-radius: var(--radius-md);
-        padding: var(--space-xxs);
+        padding: var(--space-xxxs);
         text-align: center;
         z-index: 51;
     }
