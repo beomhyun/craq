@@ -59,7 +59,43 @@ const initializeEndpoints = (app) => {
     console.log("request post contents1");
     var i = req.body;
     var sql = "";
-    var params = [];
+
+    function post_notice(req,i){
+      // 작성한 글이 어느 질문에 대한 답변일 때
+      if( i.topic_id == 1 && i.article_id != 0){ // 질문 글이면서
+        // 질문 글의 작성자를 얻어온다
+        sql =
+              `
+                SELECT    A.CREATEDUSER
+                        , C.TITLE
+                FROM      ARTICLE AS A
+                JOIN      CONTENT AS C
+                ON        A.CONTENT = C.PK
+                WHERE     PK = ${i.article_id}
+              `;
+        connection.query(sql, function(err, rows, fields) {
+          console.log(rows);
+          var created_user = rows[0].CREATEDUSER;
+          var title = row[0].TITLE;
+          // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+          var msg = `${title} 글에 답변이 달렸습니다`;
+          sql =
+                `
+                  INSERT  INTO
+                  NOTICE  ( USER, TYPE, BODY )
+                  VALUES  ( ${created_user}, 1, ${msg} )
+                `;
+          connection.query(sql, function(err, rows, fields) {
+            if (!err){
+              res.send({status: "success2"});
+            }else{
+              res.send({status: "fail4"});
+            }
+          });
+        });
+      }
+    }
+
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
@@ -75,9 +111,13 @@ const initializeEndpoints = (app) => {
           connection.query(sql, params, function(err, rows, fields) {
             if (!err) {
               var contentId = rows.insertId;
-              sql = "INSERT INTO article(topic,article,content,createdUser,updatedUser) VALUES(?,?,?,?,?)"
-              params = [i.topic_id, i.article_id, contentId, i.user_id, i.user_id];
-              connection.query(sql, params, function(err, rows, fields) {
+              sql =
+                    `
+                      INSERT    INTO
+                      ARTICLE   ( TOPIC, ARTICLE, CONTENT, CREATEDUSER, UPDATEDUSER )
+                      VALUES    ( ${i.topic_id}, ${i.article_id}, ${contentId}, ${i.user_id}, ${i.user_id} )
+                    `;
+              connection.query(sql, function(err, rows, fields) {
                 if (!err) {
                   console.log("rows.insertId = " + rows.insertId);
                   sql = `UPDATE CONTENT SET ARTICLE = ${rows.insertId} WHERE pk = ${contentId}`;
@@ -91,16 +131,14 @@ const initializeEndpoints = (app) => {
                     }
                   });
                 } else {
-                  console.log('Error while performing Query.', err);
-                  res.send(err);
+                  res.send({status: "fail2"});
                 }
               });
             } else {
-              console.log('Error while performing Query.', err);
-              res.send(err);
+              res.send({status: "fail3"});
             }
           });
-        } else { // 이전에 작성한 content가 있고 기존의 article이 존재할 때
+        }  else { // 이전에 작성한 content가 있고 기존의 article이 존재할 때
           var version = 1;
           var getversion = `SELECT
                               COUNT(*) AS C
@@ -108,30 +146,33 @@ const initializeEndpoints = (app) => {
                               CONTENT
                             WHERE 1=1
                               AND ARTICLE = ${i.article_id}`;
-          connection.query(getversion, function(err, rows, fields) {
-            if(!err) {
-              version = rows[0].C +1;
-              sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?)";
-              params = [i.article_id, i.beforeContent, i.title, i.body, req.file.filename, i.user_id, i.user_id,version];
-              connection.query(sql, params, function(err, rows, fields) {
-                if (!err) {
-                  // 기존 article의 content 값을 추가한 contetn id값으로 변경, updatedUser 수정
-                  sql = "UPDATE article SET content = ?, updatedUser = ? WHERE pk = ?";
-                  params = [rows.insertId, i.user_id, i.article_id];
-                  connection.query(sql, params, function(err, rows, fields) {
-                    if (!err) {
-                      res.json(rows);
-                    } else {
-                      console.log('Error while performing Query.', err);
-                      res.send(err);
-                    }
-                  });
-                } else {
-                  console.log('Error while performing Query.', err);
-                  res.send(err);
+          connection.query(sql, params, function(err, rows, fields) {
+            if(!err) version = rows[0].C +1;
+            else res.send({status: "fail"})
+          });
+          sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?,?)";
+          params = [i.article_id, i.beforeContent, i.title, i.body, req.file.filename, i.user_id, i.user_id];
+          connection.query(sql, params, function(err, rows, fields) {
+            if (!err) {
+              // 기존 article의 content 값을 추가한 contetn id값으로 변경, updatedUser 수정
+              sql =
+                    `
+                      UPDATE    ARTICLE
+                      SET       CONTENT       = ${rows.insertId}
+                              , UPDATEDUSER   = ${i.user_id}
+                      WHERE     PK            = ${i.article_id}
+                    `;
+
+              connection.query(sql, function(err, rows, fields) {
+                if (!err){
+                  res.send({status: "success"});
+                }else{
+                  res.send({status: "fail1"});
                 }
               });
-            }else res.send({status: "fail"})
+            }else{
+              res.send({status: "fail1"});
+            }
           });
 
         }
@@ -149,21 +190,30 @@ const initializeEndpoints = (app) => {
    *      responses:
    *       200:
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *       - in: path
    *         name: pk
    *         type: integer
    *         description: 사용자 pk 전달
    */
   app.get('/contents/content-image/:pk', function(req, res) {
-    var sql = " select count(*) as cheking, image from content where pk = ? ";
-    var params = [req.params.pk];
-    connection.query(sql, params, function(err, rows, fields) {
-      if (!err) {
-        var img = '<img src="/' + rows[0].image + '">';
-        res.send(img);
-      } else {
-        res.send({
-          status: "fail"
+    jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+      if(err) res.status(401).send({error:'invalid token'});
+      else{
+        var sql = " select count(*) as cheking, image from content where pk = ? ";
+        var params = [req.params.pk];
+        connection.query(sql, params, function(err, rows, fields) {
+          if (!err) {
+            var img = '<img src="/' + rows[0].image + '">';
+            res.send(img);
+          } else {
+            res.send({
+              status: "fail"
+            });
+          }
         });
       }
     });
@@ -182,14 +232,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article의 id 값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/contents/articles/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -221,14 +271,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article의 id 값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
    *        200:
    */
   app.get('/contents/last/articles/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -260,7 +310,7 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: content id 값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token 값을 전달.
    *      responses:
@@ -268,7 +318,7 @@ const initializeEndpoints = (app) => {
    */
   app.get('/contents/:id', function(req, res) {
     const ARTICLE_PER_PAGE = 20;
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -386,7 +436,7 @@ const initializeEndpoints = (app) => {
    *        type: string
    *        description: image의 링크 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달.
    *      responses:
@@ -394,7 +444,7 @@ const initializeEndpoints = (app) => {
    */
   app.put('/contents/:id', function(req, res) {
 
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -426,14 +476,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: content id 값을 전달.
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 token값을 전달.
    *      responses:
    *        200:
    */
   app.delete('/contents/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
