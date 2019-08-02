@@ -9,7 +9,7 @@ const crypto = require('crypto');
 
 let storage = multer.diskStorage({
     destination: function(req, file ,callback){
-        callback(null, "upload/")
+        callback(null, "image/profile/")
     },
     filename: function(req, file, callback){
         callback(null, new Date().valueOf() + path.extname(file.originalname));
@@ -332,7 +332,7 @@ app.get('/users/email/:email', function(req,res){
                           res.send(err);
                         }
                       });
-                
+
               }
             });
     }
@@ -377,7 +377,7 @@ app.get('/users/email/:email', function(req,res){
                             res.send(err);
                           }
                         });
-              
+
                   let token = jwt.sign({
                     pk : rows[0].pk
                   },
@@ -385,8 +385,6 @@ app.get('/users/email/:email', function(req,res){
                   {
                     expiresIn: '10000m'
                   })
-
-                  console.log("ok");
                   res.cookie("jwt",token);
                   res.send({status:"success", jwt: token,pk: rows[0].pk, username: rows[0].username });
                 }else{
@@ -501,6 +499,10 @@ app.put('/users/last-login/:pk', function(req,res){
  *      responses:
  *       200:
  *      parameters:
+ *       - name: user_token
+ *         in: header
+ *         type: string
+ *         description: 사용자의 token값을 전달.
  *       - in: body
  *         name: follow
  *         description: follow
@@ -511,11 +513,10 @@ app.put('/users/last-login/:pk', function(req,res){
  *               type: integer
  *             toUser:
  *               type: integer
- *             user_token:
- *               type: string
+
  */
 app.post('/follows', function(req,res){
-  jwt.verify(req.body.user_token,  secretObj.secret, function(err, decoded) {
+  jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err) res.status(401).send({error:'invalid token'});
     else{
       var usercheck = " select count(*) as checkUser from user where pk in (?,?) ";
@@ -569,21 +570,23 @@ app.post('/follows', function(req,res){
  *      responses:
  *       200:
  *      parameters:
- *       - in: body
- *         name: follow
- *         description: follow
- *         schema:
+ *      - name: user_token
+ *        in: header
+ *        type: string
+ *        description: 사용자의 token값을 전달.
+ *      - in: body
+ *        name: follow
+ *        description: follow
+ *        schema:
  *           type: object
  *           properties:
  *             fromUser:
  *               type: integer
  *             toUser:
  *               type: integer
- *             user_token:
- *               type: string
  */
 app.delete('/follows', function(req,res){
-  jwt.verify(req.body.user_token,  secretObj.secret, function(err, decoded) {
+  jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err) res.status(401).send({error:'invalid token'});
     else{
       var sql = "delete from follow where fromUser = ? and toUser = ? ";
@@ -613,12 +616,12 @@ app.delete('/follows', function(req,res){
  *       - in: path
  *         name: toUser
  *         type: integer
- *       - in: query
+ *       - in: header
  *         name: user_token
  *         type: string
  */
 app.get('/follows/:touser', function(req,res){
-  jwt.verify(req.query.user_token,  secretObj.secret, function(err, decoded) {
+  jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     console.log(decoded);
     if(err) res.status(401).send({error:'invalid token'});
     else{
@@ -646,54 +649,62 @@ app.get('/follows/:touser', function(req,res){
  *      responses:
  *       200:
  *      parameters:
- *       - in: query
- *         name: User
- *         type: integer
- *       - in: query
- *         name: ssafy_years
- *         type: integer
- *       - in: query
- *         name: is_major
- *         type: integer
- *       - in: query
- *         name: region
- *         type: string
- *       - in: query
- *         name: grade
- *         type: string
- *       - in: query
- *         name: intro
- *         type: string
- *       - in: query
- *         name: gitUrl
- *         type: string
  *       - in: formData
  *         name: profile_image
  *         type: file
- */
+ *       - name: user_token
+ *         in: header
+ *         type: string
+ *         description: 사용자의 token값을 전달.
+ *       - in: body
+ *         name: contentsbody
+ *         schema:
+ *           type: object
+ *           properties:
+ *             User:
+ *               type: integer
+ *             ssafy_years:
+ *               type: integer
+ *             is_major:
+ *               type: integer
+ *             region:
+ *               type: integer
+ *             grade:
+ *               type: integer
+ *             intro:
+ *               type: string
+ *             gitUrl:
+ *               type: string
+ */ 
 app.put('/profile', upload.single('profile_image'), function(req, res){
-    console.log(req.query);
-    console.log(req.file);
-    var sql = "";
-    var params = [];
-    if(req.file){
-//      console.log("파일있음 !");
-      sql = " update profile set ssafy_years = ?, is_major = ?, region = ?, grade = ?, intro= ?, gitUrl = ?, profile_image = ?, updated_at = now() where User = ? ";
-      params = [req.query.ssafy_years, req.query.is_major, req.query.region, req.query.grade, req.query.intro, req.query.gitUrl, req.file.filename, req.query.User];      
-    }else{
-//      console.log("파일없음 !");
-      sql = " update profile set ssafy_years = ?, is_major = ?, region = ?, grade = ?, intro= ?, gitUrl = ?, updated_at = now() where User = ? ";
-      params = [req.query.ssafy_years, req.query.is_major, req.query.region, req.query.grade, req.query.intro, req.query.gitUrl, req.query.User];
-
+  console.log("request put profile");
+  jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+    if(err) res.status(401).send({error:'invalid token'});
+    else{
+      var sql = "";
+      var params = [];
+      if(req.file){
+  //      console.log("파일있음 !");
+        sql = " update profile set ssafy_years = ?, is_major = ?, region = ?, grade = ?, intro= ?, gitUrl = ?, profile_image = ?, updated_at = now() where User = ? ";
+        params = [req.body.ssafy_years, req.body.is_major, req.body.region, req.body.grade, req.body.intro, req.body.gitUrl, req.file.filename, req.body.User];
+      }else{
+  //      console.log("파일없음 !");
+        sql = " update profile set ssafy_years = ?, is_major = ?, region = ?, grade = ?, intro= ?, gitUrl = ?, updated_at = now() where User = ? ";
+        params = [req.body.ssafy_years, req.body.is_major, req.body.region, req.body.grade, req.body.intro, req.body.gitUrl, req.body.User];
+  
+      }
+      connection.query(sql, params, function(err, rows, fields) {
+            console.log(this.sql);
+              if (err){
+                console.log(err);
+                res.send({status: "fail",data: err});
+              }else{
+                res.send({status: "success"});
+                console.log(rows);
+              }
+            });
     }
-    connection.query(sql, params, function(err, rows, fields) {
-            if (err){
-              console.log(err);
-              res.send({status: "fail"});
-            }else{
-              res.send({status: "success"});
-            }
-          });
+  });
   }
 );
 
@@ -707,6 +718,10 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
  *      responses:
  *       200:
  *      parameters:
+ *       - name: user_token
+ *         in: header
+ *         type: string
+ *         description: 사용자의 token값을 전달.
  *       - in: path
  *         name: pk
  *         type: integer
@@ -714,6 +729,9 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
  *          사용자 pk 전달
  */
 app.get('/users/profile-image/:pk', function(req,res){
+  jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+    if(err) res.status(401).send({error:'invalid token'});
+    else{
       var sql = " select count(*) as cheking, profile_image from profile where user = ? ";
       var params = [req.params.pk];
       connection.query(sql,params, function(err, rows, fields) {
@@ -723,7 +741,10 @@ app.get('/users/profile-image/:pk', function(req,res){
         }else{
           res.send({status: "fail"});
         }
-      });    
+      });
+    }
+  });
+
 }
 );
 /**
@@ -736,6 +757,10 @@ app.get('/users/profile-image/:pk', function(req,res){
  *      responses:
  *       200:
  *      parameters:
+ *       - name: user_token
+ *         in: header
+ *         type: string
+ *         description: 사용자의 token값을 전달.
  *       - in: path
  *         name: pk
  *         type: integer
@@ -743,37 +768,23 @@ app.get('/users/profile-image/:pk', function(req,res){
  *          사용자 pk 전달
  */
 app.get('/users/profile/:pk', function(req,res){
-  var sql = " select * from profile where user = ? ";
-  var params = [req.params.pk];
-  connection.query(sql,params, function(err, rows, fields) {
-    if (!err){
-      res.send(rows);
-    }else{
-      res.send({status: "fail"});
+  jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+    if(err) res.status(401).send({error:'invalid token'});
+    else{
+      var sql = " select * from profile where user = ? ";
+      var params = [req.params.pk];
+      connection.query(sql,params, function(err, rows, fields) {
+        if (!err){
+          res.send(rows);
+        }else{
+          res.send({status: "fail"});
+        }
+      });
     }
-  });    
+  });
+
 }
 );
-
-/**
- * @swagger
- *  /uploadtest:
- *    post:
- *      tags:
- *      - users
- *      description: 회원 가입. <br><br>  중복체크 <br> - This email is already in use.
- *      responses:
- *       200:
- *      parameters:
- *       - in: formData
- *         name: upfile1
- *         type: file
- */
-app.post('/uploadtest', upload.single('upfile1'), function(req, res){
-  res.send('Uploaded! : '+req.file.originalname); // object를 리턴함
-  console.log(req.file.originalname); // 콘솔(터미널)을 통해서 req.file Object 내용 확인 가능.
-
-});
 
 /**
  * @swagger
@@ -788,25 +799,30 @@ app.post('/uploadtest', upload.single('upfile1'), function(req, res){
  *       - in: path
  *         name: pk
  *         type: integer
+ *       - name: user_token
+ *         in: header
+ *         type: string
+ *         description: 사용자의 token값을 전달.
  */
 app.put('/users/password/:pk', function(req, res){
+  
   var hash = crypto.createHash('sha512');
   var data = hash.update('1234','utf-8');
   var gen_hash= data.digest('hex');
   console.log(gen_hash);
-  // var sql = " UPDATE user SET last_login = now() WHERE pk = ?";
-  // var params = [req.params.pk];
-  // connection.query(sql,params, function(err, rows, fields) {
-  //         if (!err){
-  //           // console.log('The solution is: ', rows);
-  //           // return callback(null,rows);
-  //           res.json(rows);
-  //         }
-  //         else{
-  //           console.log('Error while performing Query.', err);
-  //           res.send(err);
-  //         }
-  //       });
+  var sql = " UPDATE user SET last_login = now() WHERE pk = ? ";
+  var params = [req.params.pk];
+  connection.query(sql,params, function(err, rows, fields) {
+          if (!err){
+            // console.log('The solution is: ', rows);
+            // return callback(null,rows);
+            res.json(rows);
+          }
+          else{
+            console.log('Error while performing Query.', err);
+            res.send(err);
+          }
+        });
 });
 
 
