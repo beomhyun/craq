@@ -537,7 +537,7 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /questions/{now_page}:
+   *  /questions/all/{now_page}:
    *    get:
    *      tags:
    *      - article
@@ -550,7 +550,7 @@ const initializeEndpoints = (app) => {
    *      - name: order_by
    *        in: query
    *        type: string
-   *        description: 정렬할 기준을 전달.<br> VIEWS, HELPFUL, ANSWER, RELIABLE
+   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, ANSWER, RELIABLE
    *      - name: user_token
    *        in: header
    *        type: string
@@ -558,7 +558,7 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/questions/:now_page', function(req, res) {
+  app.get('/questions/all/:now_page', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
@@ -826,16 +826,12 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /articles/{id}:
+   *  /articles/new:
    *    get:
    *      tags:
    *      - article
-   *      description: 자유게시판 목록에서 글 하나(제목,내용,작성자,작성일,조회수,투표수)를 가져온다.
+   *      description: 모든 글을 받아옴.
    *      parameters:
-   *      - name: id
-   *        in: query
-   *        type: integer
-   *        description: 가져올 article의 id 값
    *      - name: user_token
    *        in: header
    *        type: string
@@ -843,44 +839,205 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/articles/:id', function(req, res) {
+  app.get('/articles/new', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql =
-                  `
-                     SELECT	  C.TITLE
-                      		  , C.BODY
-                      		  , A.CREATEDUSER
-                            , (
-                      		  		SELECT 	USERNAME
-                      		  		FROM 		USER
-                      		  		WHERE 	PK = A.CREATEDUSER
-                      		  ) USERNAME
-                      	 	  , A.CREATED_AT
-                      	 	  , C.IMAGE
-                      		  , (
-                          		 	SELECT	COUNT(ARTICLE)
-                          		 	FROM 		VIEW
-                          		 	WHERE 	ARTICLE = ${req.params.id}
-                      		  ) VIEW
-                      		  , (
-                        		 	  SELECT 	SUM(GOOD)
-                      		 	    FROM 		VOTE
-                      		 	    WHERE 	ARTICLE = ${req.params.id}
-                      		  ) VOTE
-                     FROM 		ARTICLE  A
-                     JOIN 		CONTENT  C
-                     ON 		A.CONTENT = C.PK
-                     WHERE 	A.PK = ${req.params.id}
-                  `;
+        var sql = `SELECT
+                      A.PK
+                      ,C.TITLE
+                      ,(SELECT
+                          U.USERNAME
+                        FROM 
+                          USER AS U
+                        WHERE
+                          U.PK = A.CREATEDUSER 
+                      ) AS WRITER
+                      ,(SELECT
+                          T.TOPIC
+                        FROM
+                          TOPIC AS T
+                        WHERE
+                          T.PK = A.TOPIC
+                      ) AS TOPIC
+                      ,(SELECT
+                          COUNT(*)
+                        FROM
+                          COMMENT AS CM
+                            LEFT OUTER JOIN CONTENT AS CC ON CM.CONTENT = CC.PK
+                        WHERE 
+                          A.PK = CC.ARTICLE
+                      ) AS COMMENTS
+                    FROM
+                      ARTICLE AS A
+                        LEFT OUTER JOIN CONTENT AS C ON A.CONTENT = C.PK
+                    WHERE 
+                      1=1
+                      AND A.TOPIC NOT IN (1,2)
+                    ORDER BY PK DESC
+                    LIMIT 0,10`;
         connection.query(sql, function(err, rows, fields) {
-          if(!err){
-            res.send({status: "success"});
+          if (!err) {
+            res.json(rows);
+          } else {
+            console.log('article insert err ', err);
+            res.send(err);
+          }
+        });
+      }
+    });
+  });
+  
+  /**
+   * @swagger
+   *  /questions/search:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 질문 게시판의 검색 결과를 보여준다.
+   *      parameters:
+   *      - name: search_text
+   *        in: query
+   *        type: string
+   *        description: 검색 문장을 전달
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/questions/search', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) res.status(401).send({
+        error: 'invalid token'
+      });
+      else {
+        var sql = ` SELECT
+                          *
+                    FROM
+                        (SELECT
+                            ASK.PK
+                            ,CON.TITLE
+                            ,CON.BODY
+                            ,ASK.CREATED_AT AS ASKED_TIME
+                            ,ANSWER.CREATED_AT AS ANSERD_TIME
+                            ,(SELECT
+                                GROUP_CONCAT(T.TITLE SEPARATOR ", ")
+                              FROM
+                                HASHTAG AS H
+                                  LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+                              WHERE
+                                CON.PK = H.CONTENT) AS HASHTAG
+                            ,(SELECT
+                                COUNT(*)
+                              FROM
+                                VIEW AS V
+                              WHERE
+                                ASK.PK = V.ARTICLE) AS VIEWS
+                            ,(SELECT
+                                SUM(V.GOOD)
+                              FROM VOTE AS V
+                              WHERE ASK.PK = V.ARTICLE) AS HELPFUL
+                            ,U.PK AS ANSWER_USERPK
+                            ,U.USERNAME AS ANSWER_USERNAME
+                            ,(SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK
+                                AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+                            , (SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK) AS ANSWER
+                            , ((SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK
+                                AND A.IS_ACTIVE = 1)/(SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK)) AS RELIABLE
+                        FROM
+                          ARTICLE AS ASK
+                              LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
+                                LEFT OUTER JOIN ARTICLE AS ANSWER ON ASK.ANSWER = ANSWER.PK
+                                  LEFT OUTER JOIN USER AS U ON ANSWER.CREATEDUSER = U.PK
+                        WHERE 1=1
+                          AND CON.IS_REMOVED = 0
+                          AND ASK.ARTICLE = 0
+                            AND ASK.TOPIC = 1
+                        ORDER BY HELPFUL DESC) AS TAB
+                    WHERE
+                      1=1
+                      `;
+        function replaceAll(str, searchStr, replaceStr) {
+          return str.split(searchStr).join(replaceStr);
+        }
+        function replaceAll(str, searchStr, replaceStr) {
+          return str.split(searchStr).join(replaceStr);
+        }
+        var str = req.query.search_text;
+        str = replaceAll(str,'[',' [');
+        str = replaceAll(str,']','] ');
+        var arr = str.split(' ');
+        var tag = [];
+        var nottag = [];
+        for(var i in arr) {
+          arr[i] = replaceAll(arr[i],' ','');
+          if(arr[i].charAt(0) =='') continue;
+          if(arr[i].charAt(0)=='['){
+            tag.push(arr[i].replace('[','').replace(']',''));
           }else{
-            res.send({status: "fail"});
+            nottag.push(arr[i].replace(' ',''));
+          }
+        }
+        // console.log(tag);
+        // console.log(nottag);
+        for(var i in tag) {
+          sql += ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `
+        }
+        for(var i in nottag) {
+          sql += ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `
+        }
+        // console.log(sql);
+        connection.query(sql, function(err, rows, fields) {
+          // console.log(this.sql);
+          if (!err) {
+            sql = `select count(*) as total from article where topic = 1`
+            connection.query(sql, function(err, rows2, fields) {
+              if (!err) {
+                res.json({
+                  status: "success",
+                  data: rows
+                });
+              } else {
+                res.send({
+                  status: "fail",
+                  data: err
+                });
+              }
+            });
+          } else {
+            console.log('article insert err ', err);
+            res.send({
+              status: "fail",
+              data: err
+            });
           }
         });
       }
