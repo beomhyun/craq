@@ -1,8 +1,6 @@
 <template>
     <div>
       <div class="filler">
-        
-        <div class="container">
 
           <!-- Headline -->
           <div class="headline">
@@ -19,42 +17,177 @@
               <div class="btn btn--sm">View</div>
             </div>
             <div class="filter__ask">
-              <div class="btn btn--md btn--primary">Ask Question</div>
+              <router-link to="/askquestion"><div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div></router-link>
             </div>
           </div> <!-- Filter /div -->
-          
-          <div v-for="a in 5">
-            <router-link to="/">
-             <Card class="shadow"/>
-            </router-link>
-          </div>  <!-- v-for -->
 
+          
+            <div :key="idx" v-for="(list, idx) in cardLists" >
+              <router-link to="/code/1" class="content">
+                <card class="shadow" :list="list"/>
+              </router-link>
+            </div>
+          
+          
+           
           <!-- Pagenation -->
           <div class="pagenation">
-            <pre>1 2 3 4 5 6 7 8 9 10</pre>
+            <ul v-for="(i, index) in (1,11)">
+              <li>{{index}}</li>
+            </ul>
           </div>  <!-- pagenation -->
         
         </div> <!-- Container /div -->
       </div>  <!-- Filler -->
-    </div>
 </template>
 
 <script>
 import Card from '@/components/Card.vue';
+import Ask from '@/components/AskQuestion.vue';
 
 export default {
     name: "User",
     components: {
       Card,
+      Ask,
     },
     data() {
       return {
+        carddata : '',
+        messages: '',
         latested: true,
+        cardLists: [],
       }
     },
-    props: [
-        'id'
-    ],
+  
+    mounted() {
+      this.$axios.get('tags').then(res=> {
+            console.log(res);
+          
+        })
+        this.cardLists = [{
+                    id: '1',
+                    cardInfo:
+                        {
+                            Answer : '100',
+                            View : '1000',
+                            Helpful : '10000',
+                        },
+
+                    cardMain:
+                        {
+                            Title : 'Title Test - 1',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Kim',
+                            Mail: 'aaa@test.test',
+                            Score: '2300',
+                            Answers: '23',
+                        }
+                },
+                {
+                    id: '2',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '10',
+                            Helpful : '200',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 2',
+                            HashTags : 'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: '',
+                            Mail: '',
+                            Score: '',
+                            Answers: '',
+                        }
+
+                },
+                {
+                    id: '3',
+                    cardInfo: 
+                        {
+                            Answer : '23',
+                            View : '230',
+                            Helpful : '-100',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 3',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Lee',
+                            Mail: 'bbbb@test.test',
+                            Score: '135135',
+                            Answers: '123123',
+                        }
+
+                },
+                {
+                    id: '4',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '230',
+                            Helpful : '-100',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 3',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Lee',
+                            Mail: 'bbbb@test.test',
+                            Score: '135135',
+                            Answers: '123123',
+                        }
+
+                }
+                ]
+    },
+    methods: {
+      askQuestion : function() {
+      this.$router.push({name:'askquestion'});
+      this.askquestion = true;
+      },
+      parentsMethod: function(askquestion) {
+      this.askquestion = askquestion // 자식으로 부터받은 메시지를 사용
+      }
+    },
+
     computed: {
       currentRouteName() {
         console.log(this.$route.name);
@@ -66,25 +199,19 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// Test End
 .filler {
   height: 1000px;
   width: auto;
   background-color: var(--color-background);
 }
-.container {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  margin-left: auto;
-  margin-right: auto;
-}
 
 .headline {
   background-color: var(--color-surface);
-  padding: 20px;
-  width: 890px;
+  padding: var(--space-xs);
+  width: 100%;
   height: 75px;
-  font-size: 30px;
+  font-size: var(--text-xxl);
   text-transform: capitalize;
 }
 
@@ -92,10 +219,14 @@ export default {
   display: flex;
   justify-content: center;
   background-color: var(--color-surface);
-  margin-top: var(--space-xxxs);
-  width: 890px;
+  margin-top: var(--space-lg);
+  width: 100%;
   height: 30px;
-  font-size: 20px;
+  font-size: var(--text-lg)
+}
+
+.pagenation ul li{
+  display: inline;
 }
 
 .subnav {
@@ -103,22 +234,42 @@ export default {
   justify-content: space-between;
   align-items: center;
   background-color: var(--color-surface);
-  width: 890px;
+  width: 100%;
   font-size: 20px;
   padding-left: 20px;
   padding-right: 20px;
   
     &__filter {
       background-color: var(--color-surface);
+      color: var(--color-on-surface);
     }
     &__filter-seleted {
       background-color: var(--color-primary);
+      color: var(--color-on-primary)
     }
 }
 
-
-.shadow {
-  box-shadow: var(--shadow-md);
+.btn {
+  color: #ffffff;
+  background-color: var(--color-primary-dark);
+  margin: var(--space-xxs); 
 }
 
+.btn:hover {
+  background-color: var(--color-primary-darker);
+  color: var(--color-on-primary-light);
+}
+
+.shadow {
+  box-shadow: var(--shadow-sm);
+  width: 95%;
+  border: 1px solid var(--color-contrast-low);
+  margin-bottom: var(--space-md);
+}
+
+.content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 </style>
