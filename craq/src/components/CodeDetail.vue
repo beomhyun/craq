@@ -2,15 +2,18 @@
     <div class="container padding-sm">
         <div>
             <div class="inner-content clearfix">
-                <CodeDetailQuestionHeader :title="question.versions.slice(-1)[0].TITLE"></CodeDetailQuestionHeader>
+                <CodeDetailQuestionHeader :title="question.VERSIONS.slice(-1)[0].TITLE"></CodeDetailQuestionHeader>
                 <CodeDetailQuestionHeaderBottom 
-                 :created_at="question.versions[0].CREATED_AT"
-                 :updated_at="question.versions.slice(-1)[0].CREATED_AT"
-                ></CodeDetailQuestionHeaderBottom>
+                 :created_at="'2019-07-24T06:10:42.000Z'"
+                 :updated_at="'2019-07-24T06:10:42.000Z'"
+                 :views="1234"
+                 ></CodeDetailQuestionHeaderBottom>
                 <div id="mainbar">
 
                     <div id="question" class="question">
-                        <Article></Article>
+                        <Article 
+                                       :article="question"
+                                       ></Article>
                     </div>
                     <div id="answers">
                         <CodeDetailAnswerHeader></CodeDetailAnswerHeader>
@@ -43,24 +46,30 @@ export default {
     data() {
         return {
             question: {
-                user_pk: 0,
-                user_name: "test",
-                answers: 0,
-                helpful: 0,
-                pk: 0,
-                wards: 0,
-                answers: 0,
-                versions: [
+                USER_PK: 0,
+                USER_NAME: "test",
+                ANSWERS: 0,
+                HELPFUL: 0,
+                PK: 0,
+                WARDS: 0,
+                VIEWS: 0,
+                VERSIONS: [
                     {
                         PK: 0,
-                        VERSION: 0,
-                        TITLE: '',
-                        BODY: '',
-                        USER_PK:'',
-                        USER_NAME: 0,
-                        CREATED_AT: '',
-                    }
-
+                        TITLE: "",
+                        BODY: "",
+                        HASHTAG: "",
+                        USER_PK: 0,
+                        USER_NAME: "",
+                    },
+                    {
+                        PK: 0,
+                        TITLE: "",
+                        BODY: "",
+                        HASHTAG: "",
+                        USER_PK: 0,
+                        USER_NAME: "",
+                    },
                 ],
             },
             answers: [
@@ -75,18 +84,8 @@ export default {
     mounted() {
         this.$axios.get(`questions/detail/${this.pk}`, {headers: {'user_token': this.$session.get('jwt')
         }}).then((res) => {
-            const data = res.data;
-            let question = data.question[0]
-            //console.log(question);
-            this.question.user_name = question.USER_NAME;
-            //TODO user_pk
-            this.question.pk = question.PK;
-            this.wards = question.WARDS;
-            
-            let qversions = data.versions;
-            //console.log(qversions);
-            //question versions
-            this.question.versions = qversions;
+            const data = res.data.data;
+            let question = data.QUESTION[0];
         }
         )
     }

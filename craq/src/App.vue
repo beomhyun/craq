@@ -19,7 +19,6 @@ import Landing from '@/views/Landing.vue';
 import Footer from '@/components/Footer.vue';
 import Tester from '@/components/tester.vue';
 
-
 export default {
     components: {
         NavBar,
@@ -52,7 +51,7 @@ export default {
     },
     mounted() {
         this.$axios.defaults.headers.common['user_token'] = this.$session.get('jwt'); 
-    }
+    },
 }
 
 

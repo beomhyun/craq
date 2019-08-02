@@ -3,8 +3,8 @@
         <button class="reset btn-vote">
             <font-awesome-icon icon="chevron-up"></font-awesome-icon>
         </button>
-        <div class="vote-count" itemprop="upvoteCount" data-value="408">
-            408
+        <div class="vote-count" itemprop="upvoteCount" data-value="vote">
+            {{vote}}
         </div>
         <button class="reset btn-vote">
             <font-awesome-icon icon="chevron-down"></font-awesome-icon>
@@ -24,6 +24,9 @@
 <script>
 export default {
     name: "ArticleVote",
+    props: [
+        "vote"
+    ]
 }
 
 </script>
