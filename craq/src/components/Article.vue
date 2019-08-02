@@ -9,7 +9,7 @@
             <ArticleSignature></ArticleSignature>
             <div style="grid-column: 1 / 3;"></div>
             <div class="post-layout--right">
-                <ArticleComments :pk="1"></ArticleComments>
+                <ArticleComments :comments="comments"></ArticleComments>
             </div>
         </div>
     </div>
@@ -25,15 +25,25 @@ import ArticleComments from '@/components/ArticleComments.vue';
 
 export default {
     name: "Article",
-    props:[
+    props: [
         "article"
     ],
+    data() {
+        return {
+            comments: []
+        }
+    },
     components: {
         ArticleContent,
         ArticleComments,
         ArticleVote,
         ArticleTagList,
         ArticleSignature,
+    },
+    mounted() {
+        this.$axios.get(`comments/articles/${this.article.PK}`).then((res) => {
+            this.comments = res.data;
+        })
     }
 }
 

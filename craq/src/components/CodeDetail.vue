@@ -11,15 +11,13 @@
                 <div id="mainbar">
 
                     <div id="question" class="question">
-                        <Article 
-                                       :article="question"
-                                       ></Article>
+                        <Article :article="question"></Article>
                     </div>
                     <div id="answers">
                         <CodeDetailAnswerHeader></CodeDetailAnswerHeader>
-                        <Article></Article>
+                        <Article :article="question"></Article>
                         <div class="separator"></div>
-                        <Article></Article>
+                        <Article :article="question"></Article>
                     </div>
 
                 </div>
