@@ -125,18 +125,15 @@ const initializeEndpoints = (app)=>{
    */
   app.get('/users', function(req,res){
       var sql = " SELECT * FROM user ";
-      var ip = req.headers['x-forwarded-for'] ||
-              req.connection.remoteAddress ||
-              req.socket.remoteAddress ||
-              req.connection.socket.remoteAddress;
-      console.log(ip);
+      // console.log(ip);
       connection.query(sql, function(err, rows, fields) {
               if (!err){
                 res.json(rows);
-                serverlog.log(connection,0,this.sql,"success",ip);
+                serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
               }
               else{
                 console.log('Error while performing Query.', err);
+                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                 res.send(err);
               }
             });
@@ -166,13 +163,16 @@ app.get('/email-checking/:email', function(req,res){
             if (!err){
               if(rows[0].checking == 0){
                 res.send({status: "success"});
+                serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
               }else{
                 res.send({status: "fail"});
+                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
               }
             }
             else{
               console.log('Error while performing Query.', err);
-              res.send(err);
+              serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+              res.send({status: "fail"});
             }
           });
   }
@@ -199,14 +199,17 @@ app.get('/username-checking/:username', function(req,res){
     connection.query(sql,params, function(err, rows, fields) {
             if (!err){
               if(rows[0].checking == 0){
+                serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
                 res.send({status: "success"});
               }else{
+                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail"});
               }
             }
             else{
               console.log('Error while performing Query.', err);
-              res.send(err);
+              serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+              res.send({status: "fail"});
             }
           });
   }
@@ -230,16 +233,18 @@ app.get('/username-checking/:username', function(req,res){
  *          사용자 아이디 전달
  */
 app.get('/users/:pk', function(req,res){
-    var sql = " SELECT * FROM user WHERE pk = ? ";
+      var sql = " SELECT * FROM user WHERE pk = ? ";
     var params = [req.params.pk];
     connection.query(sql,params, function(err, rows, fields) {
             if (!err){
               // console.log('The solution is: ', rows);
               // return callback(null,rows);
+              serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
               res.json(rows);
             }
             else{
               console.log('Error while performing Query.', err);
+              serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
               res.send(err);
             }
           });
@@ -263,17 +268,19 @@ app.get('/users/:pk', function(req,res){
  *          사용자 이메일 전달
  */
 app.get('/users/email/:email', function(req,res){
-    var sql = " SELECT * FROM user WHERE email like ? ";
+  var sql = " SELECT * FROM user WHERE email like ? ";
     var params = [req.params.email];
-    console.log(sql);
+    // console.log(sql);
     connection.query(sql,params, function(err, rows, fields) {
             if (!err){
               console.log('The solution is: ', rows);
               // return callback(null,rows);
+              serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
               res.json(rows);
             }
             else{
               console.log('Error while performing Query.', err);
+              serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
               res.send(err);
             }
           });
@@ -304,17 +311,20 @@ app.get('/users/email/:email', function(req,res){
    *               type: string
    */
   app.post('/users', function(req,res){
-      console.log(req.body);
+      // console.log(req.body);
       if(req.body.email == null){
+        serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
         res.status(200).send({status: "fail", error:' already used.'});
       }
       var usedcheck = " select count(*) as usedcheck from user where email like ? or username like ?";
       var checkparams = [req.body.email, req.body.username];
       connection.query(usedcheck,checkparams, function(err, rows, fields) {
               if (err){
+                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                 res.send(err);
               }
               else if(rows[0].usedcheck != 0){
+                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                 res.status(200).send({status: "fail", error:' already used.'});
               }else{
                 var sql = " insert into user(email, username, password) values(?,?,?) ";
@@ -325,10 +335,12 @@ app.get('/users/email/:email', function(req,res){
                           sql = " insert into profile(User) values(?) ";
                           params = [rows.insertId];
                           connection.query(sql,params, function(err, rows, fields){});
+                          serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
                           res.send({status: "success"});
                         }
                         else{
                           console.log('Error while performing Query.', err);
+                          serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                           res.send(err);
                         }
                       });
@@ -359,7 +371,7 @@ app.get('/users/email/:email', function(req,res){
    *               type: string
    */
   app.post('/login', function(req,res){
-      console.log(req.body);
+      // console.log(req.body);
       var sql = " select count(*) as checking, pk, username from user where email = ? and password = ? and is_removed = 0 ";
       var params = [req.body.email,req.body.password];
       connection.query(sql,params, function(err, rows, fields) {
@@ -370,10 +382,12 @@ app.get('/users/email/:email', function(req,res){
                   var loginparams = [rows[0].pk];
                   connection.query(loginsql,loginparams, function(err, rows, fields) {
                           if (!err){
-                            console.log("last-login success");
+                            // console.log("last-login success");
+                            serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
                           }
                           else{
-                            console.log('Error while performing Query.', err);
+                            // console.log('Error while performing Query.', err);
+                            serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                             res.send(err);
                           }
                         });
@@ -386,15 +400,18 @@ app.get('/users/email/:email', function(req,res){
                     expiresIn: '10000m'
                   })
                   res.cookie("jwt",token);
+                  serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
                   res.send({status:"success", jwt: token,pk: rows[0].pk, username: rows[0].username });
                 }else{
-                  console.log("fail");
+                  // console.log("fail");
+                  serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                   res.send({status: "fail"});
                 }
                 // res.json(rows);
               }
               else{
-                console.log('Error while performing Query.', err);
+                // console.log('Error while performing Query.', err);
+                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                 res.send(err);
               }
             });
@@ -416,10 +433,12 @@ app.get('/users/email/:email', function(req,res){
               if (!err){
                 // console.log('The solution is: ', rows);
                 // return callback(null,rows);
+                serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
                 res.json(rows);
               }
               else{
                 console.log('Error while performing Query.', err);
+                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                 res.send(err);
               }
             });
@@ -448,10 +467,12 @@ app.delete('/users/:pk', function(req,res){
             if (!err){
               // console.log('The solution is: ', rows);
               // return callback(null,rows);
+              serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
               res.json(rows);
             }
             else{
-              console.log('Error while performing Query.', err);
+              // console.log('Error while performing Query.', err); 
+              serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
               res.send(err);
             }
           });
@@ -480,10 +501,12 @@ app.put('/users/last-login/:pk', function(req,res){
             if (!err){
               // console.log('The solution is: ', rows);
               // return callback(null,rows);
+              serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
               res.json(rows);
             }
             else{
-              console.log('Error while performing Query.', err);
+              // console.log('Error while performing Query.', err);
+              serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
               res.send(err);
             }
           });
@@ -516,6 +539,7 @@ app.put('/users/last-login/:pk', function(req,res){
 
  */
 app.post('/follows', function(req,res){
+  
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err) res.status(401).send({error:'invalid token'});
     else{
@@ -527,20 +551,24 @@ app.post('/follows', function(req,res){
                   var followcheck = " select count(*) as checkfollow from follow where fromUser = ? and toUser = ? ";
                   connection.query(followcheck,params, function(err, rows, fields) {
                     if(err){
-                      console.log('Error while performing Query.', err);
+                      // console.log('Error while performing Query.', err);
+                      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                       res.send({status: "fail"});
                     }else if(rows[0].checkfollow == 0){
                       var sql = " insert into follow(fromUser,toUser) values(?,?) ";
                       connection.query(sql,params, function(err, rows, fields) {
                         if(!err){
-                          console.log(rows);
+                          // console.log(rows);
+                          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                           res.send({status: "success"});
                         }else{
                           console.log('Error while performing Query.', err);
+                          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                           res.send({status: "fail"});
                         }
                       });
                     }else {
+                      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                       res.send({status: "fail",data: "already following"});
                     }
                   });
@@ -548,11 +576,13 @@ app.post('/follows', function(req,res){
 
 
                 }else{
+                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                   res.send({status: "fail"});
                 }
               }
               else{
                 console.log('Error while performing Query.', err);
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail"});
               }
             });
@@ -587,14 +617,18 @@ app.post('/follows', function(req,res){
  */
 app.delete('/follows', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-    if(err) res.status(401).send({error:'invalid token'});
-    else{
+    if(err) {
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      res.status(401).send({error:'invalid token'});
+     }else{
       var sql = "delete from follow where fromUser = ? and toUser = ? ";
       var params = [req.body.fromUser,req.body.toUser];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send({status: "success"});
         }else{
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
         }
       });
@@ -623,14 +657,18 @@ app.delete('/follows', function(req,res){
 app.get('/follows/:touser', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     console.log(decoded);
-    if(err) res.status(401).send({error:'invalid token'});
-    else{
+    if(err) {
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      res.status(401).send({error:'invalid token'});
+    }else{
       var sql = "select * from follow where toUser = ? ";
       var params = [req.path.toUser];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send({status: "success", data: rows});
         }else{
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
         }
       });
@@ -679,8 +717,10 @@ app.get('/follows/:touser', function(req,res){
 app.put('/profile', upload.single('profile_image'), function(req, res){
   console.log("request put profile");
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-    if(err) res.status(401).send({error:'invalid token'});
-    else{
+    if(err){
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+     res.status(401).send({error:'invalid token'});
+    }else{
       var sql = "";
       var params = [];
       if(req.file){
@@ -696,9 +736,11 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
       connection.query(sql, params, function(err, rows, fields) {
             console.log(this.sql);
               if (err){
-                console.log(err);
+                // console.log(err);
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail",data: err});
               }else{
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                 res.send({status: "success"});
                 console.log(rows);
               }
@@ -730,15 +772,19 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
  */
 app.get('/users/profile-image/:pk', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-    if(err) res.status(401).send({error:'invalid token'});
-    else{
+    if(err){
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      res.status(401).send({error:'invalid token'});
+    }else{
       var sql = " select count(*) as cheking, profile_image from profile where user = ? ";
       var params = [req.params.pk];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
           var img = '<img src="/'+rows[0].profile_image + '">';
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send(img);
         }else{
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
         }
       });
@@ -769,14 +815,18 @@ app.get('/users/profile-image/:pk', function(req,res){
  */
 app.get('/users/profile/:pk', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-    if(err) res.status(401).send({error:'invalid token'});
-    else{
+    if(err){ 
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      res.status(401).send({error:'invalid token'});
+  } else{
       var sql = " select * from profile where user = ? ";
       var params = [req.params.pk];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send(rows);
         }else{
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
         }
       });
@@ -809,17 +859,19 @@ app.put('/users/password/:pk', function(req, res){
   var hash = crypto.createHash('sha512');
   var data = hash.update('1234','utf-8');
   var gen_hash= data.digest('hex');
-  console.log(gen_hash);
+  // console.log(gen_hash);
   var sql = " UPDATE user SET last_login = now() WHERE pk = ? ";
   var params = [req.params.pk];
   connection.query(sql,params, function(err, rows, fields) {
           if (!err){
             // console.log('The solution is: ', rows);
             // return callback(null,rows);
+            serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           }
           else{
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
