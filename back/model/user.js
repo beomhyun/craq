@@ -401,6 +401,7 @@ app.get('/users/email/:email', function(req,res){
                   })
                   res.cookie("jwt",token);
                   serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
+                  res.send({status:"success", jwt: token,pk: rows[0].pk, username: rows[0].username });
                 }else{
                   // console.log("fail");
                   serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
