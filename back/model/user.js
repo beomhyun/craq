@@ -551,23 +551,23 @@ app.post('/follows', function(req,res){
                   connection.query(followcheck,params, function(err, rows, fields) {
                     if(err){
                       // console.log('Error while performing Query.', err);
-                      serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+                      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                       res.send({status: "fail"});
                     }else if(rows[0].checkfollow == 0){
                       var sql = " insert into follow(fromUser,toUser) values(?,?) ";
                       connection.query(sql,params, function(err, rows, fields) {
                         if(!err){
                           // console.log(rows);
-                          serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
+                          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                           res.send({status: "success"});
                         }else{
                           console.log('Error while performing Query.', err);
-                          serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+                          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                           res.send({status: "fail"});
                         }
                       });
                     }else {
-                      serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+                      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                       res.send({status: "fail",data: "already following"});
                     }
                   });
@@ -575,13 +575,13 @@ app.post('/follows', function(req,res){
 
 
                 }else{
-                  serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                   res.send({status: "fail"});
                 }
               }
               else{
                 console.log('Error while performing Query.', err);
-                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail"});
               }
             });
@@ -617,17 +617,17 @@ app.post('/follows', function(req,res){
 app.delete('/follows', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err) {
-      serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
      }else{
       var sql = "delete from follow where fromUser = ? and toUser = ? ";
       var params = [req.body.fromUser,req.body.toUser];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
-          serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send({status: "success"});
         }else{
-          serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
         }
       });
@@ -657,17 +657,17 @@ app.get('/follows/:touser', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     console.log(decoded);
     if(err) {
-      serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
     }else{
       var sql = "select * from follow where toUser = ? ";
       var params = [req.path.toUser];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
-          serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send({status: "success", data: rows});
         }else{
-          serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
         }
       });
@@ -717,7 +717,7 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
   console.log("request put profile");
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err){
-      serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
      res.status(401).send({error:'invalid token'});
     }else{
       var sql = "";
@@ -736,10 +736,10 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
             console.log(this.sql);
               if (err){
                 // console.log(err);
-                serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail",data: err});
               }else{
-                serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                 res.send({status: "success"});
                 console.log(rows);
               }
@@ -772,7 +772,7 @@ app.put('/profile', upload.single('profile_image'), function(req, res){
 app.get('/users/profile-image/:pk', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err){
-      serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
     }else{
       var sql = " select count(*) as cheking, profile_image from profile where user = ? ";
@@ -780,10 +780,10 @@ app.get('/users/profile-image/:pk', function(req,res){
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
           var img = '<img src="/'+rows[0].profile_image + '">';
-          serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send(img);
         }else{
-          serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
         }
       });
@@ -815,17 +815,17 @@ app.get('/users/profile-image/:pk', function(req,res){
 app.get('/users/profile/:pk', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err){ 
-      serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
   } else{
       var sql = " select * from profile where user = ? ";
       var params = [req.params.pk];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
-          serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send(rows);
         }else{
-          serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
         }
       });
