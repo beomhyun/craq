@@ -102,9 +102,11 @@
                         <textarea class="selfintroduce__form" v-model="userData.intro" v-show="toggleProfile" autofocus></textarea>
                     </div>
                 </div>
-                <button v-show="!toggleProfile" @click="toggleProfile = true">Edit</button>
-            <button v-show="toggleProfile" @click="editProfile">Save</button>
-            <button v-show="toggleProfile" @click="toggleProfile = false">Cancle</button>
+                <div class="editAndSubmit">
+                    <div class="btn btn--primary btn--lg" v-show="!toggleProfile" @click="toggleProfile = true">Edit</div>
+                    <div class="btn btn--primary btn--lg" v-show="toggleProfile" @click="editProfile">Save</div>
+                    <div class="btn btn--lg" v-show="toggleProfile" @click="toggleProfile = false">Cancle</div>
+                </div>
             </div>
             
             <ProfileActivity v-show="setActivity"/>
@@ -540,6 +542,12 @@ $--menu-width: 22rem;
     }
 }
 
+.editAndSubmit {
+    text-align: end;
+}
 
+.btn {
+    margin: var(--space-xs);
+}
 </style>
 
