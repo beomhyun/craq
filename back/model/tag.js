@@ -16,27 +16,24 @@ const initializeEndpoints = (app) => {
    *      - tag
    *      description: 하나의 태그를 작성, 이름이 정확히 일치할 경우 생성하지 않음
    *      parameters:
-   *      - in: query
-   *        name: title
-   *        type: string
-   *        description: 태그명
-   *      - in: query
-   *        name: body
-   *        type: string
-   *        description: 태그의 내용 및 설명
-   *      - in: query
-   *        name: user_id
-   *        type: integer
-   *        description: 작성자의 user id값
-   *      - in: header
-   *        name: user_token
-   *        type: string
-   *        description: 사용자의 token 값
+   *       - in: body
+   *         name: contentsbody
+   *         schema:
+   *           type: object
+   *           properties:
+   *             title:
+   *               type: string
+   *             body:
+   *               type: string
+   *       - in: header
+   *         name: user_token
+   *         type: string
+   *         description: 사용자의 token 값
    *      responses:
    *        200:
    */
   app.post('/tags', function(req, res) {
-    var i = req.query;
+    var i = req.body;
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -48,22 +45,24 @@ const initializeEndpoints = (app) => {
         sql =
               `
                 SELECT   COUNT( PK ) AS COUNT
+                        ,PK
                 FROM     TAG
                 WHERE    TITLE LIKE '${i.title}'
               `;
-        connection.query(sql, function(err, rows, fields) {
-          if( rows[0].COUNT == 0 ){ // 작성된 topic이 없다면
+        connection.query(sql, function(err, rows1, fields) {
+          if( rows1[0].COUNT == 0 ){ // 작성된 topic이 없다면
             // console.log(rows[0].COUNT);
             sql =
             `
               INSERT  INTO
               TAG     ( TITLE, BODY, CREATEDUSER, UPDATEDUSER )
-              VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${i.user_id}, ${i.user_id} )
+              VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${decoded.pk}, ${decoded.pk} )
             `;
-            connection.query(sql, function(err, rows, fields) {
+            connection.query(sql, function(err, rows2, fields) {
               if(!err){
+                // console.log(rows2.insertId);
                 serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                res.send({status: "success"});
+                res.send({status: "success",data: rows2.insertId});
               }else{
                 serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail"});
@@ -71,7 +70,7 @@ const initializeEndpoints = (app) => {
             });
           }else{
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            res.send({status: "fail"});
+            res.send({status: "fail", data: rows1[0].PK});
           }
         });
       }

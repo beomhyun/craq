@@ -752,39 +752,52 @@ const initializeEndpoints = (app) => {
       }else {
         var json = {};
         var sql = `SELECT
-                    A.PK
-                    ,(SELECT
-                          U.USERNAME
+                          A.PK
+                          ,(SELECT
+                      C.VERSION
+                    FROM
+                      CONTENT AS C
+                    WHERE
+                      A.CONTENT = C.PK
+                    ) AS VERSION
+                          ,(SELECT
+                                U.USERNAME
+                              FROM
+                                USER AS U
+                              WHERE
+                                U.PK = A.CREATEDUSER
+                            ) AS USER_NAME
+                          ,(SELECT
+                              COUNT(*)
+                            FROM
+                              ARTICLE AS B
+                            WHERE
+                              B.ARTICLE = A.PK
+                          ) AS ANSWERS
+                          ,(SELECT
+                                  IFNULL(SUM(V.GOOD),0)
+                                FROM VOTE AS V
+                                WHERE A.PK = V.ARTICLE) AS HELPFUL
+                          ,(SELECT
+                            COUNT(*)
+                          FROM
+                            VIEW AS V
+                          WHERE
+                            A.PK = V.ARTICLE) AS VIEWS
+                          ,(SELECT
+                              COUNT(*)
+                            FROM
+                              WARD AS W
+                            WHERE
+                              1=1
+                              AND W.ARTICLE = A.PK
+                              AND W.IS_REMOVED = 0
+                          ) AS WARDS
+                          ,A.ARTICLE AS IS_ANSWER
                         FROM
-                          USER AS U
+                          ARTICLE AS A
                         WHERE
-                          U.PK = A.CREATEDUSER
-                      ) AS USER_NAME
-                    ,(SELECT
-                        COUNT(*)
-                      FROM
-                        ARTICLE AS B
-                      WHERE
-                        B.ARTICLE = A.PK
-                    ) AS ANSWERS
-                    ,(SELECT
-                            IFNULL(SUM(V.GOOD),0)
-                          FROM VOTE AS V
-                          WHERE A.PK = V.ARTICLE) AS HELPFUL
-                    ,(SELECT
-                        COUNT(*)
-                      FROM
-                        WARD AS W
-                      WHERE
-                        1=1
-                        AND W.ARTICLE = A.PK
-                        AND W.IS_REMOVED = 0
-                    ) AS WARDS
-                    ,A.ARTICLE AS IS_ANSWER
-                  FROM
-                    ARTICLE AS A
-                  WHERE
-                    1=1
+                          1=1
                     AND A.PK = ${req.params.pk} `;
             connection.query(sql, function(err, question, fields) {
               if(!err){
