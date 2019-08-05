@@ -526,22 +526,20 @@ const initializeEndpoints = (app) => {
    *      - content
    *      description: 특정 content의 내용을 수정.
    *      parameters:
-   *      - name: id
-   *        in: path
-   *        type: integer
-   *        description: content id 값을 전달.
-   *      - name: title
-   *        in: query
-   *        type: string
-   *        description: title의 내용 전달.
-   *      - name: body
-   *        in: query
-   *        type: string
-   *        description: body의 내용 전달.
-   *      - name: image
-   *        in: query
-   *        type: string
-   *        description: image의 링크 전달.
+   *       - in: body
+   *         name: user
+   *         description: user_info
+   *         schema:
+   *           type: object
+   *           properties:
+   *             id:
+   *               type: integer
+   *             title:
+   *               type: string
+   *             body:
+   *               type: string
+   *             image:
+   *               type: string
    *      - name: user_token
    *        in: header
    *        type: string
