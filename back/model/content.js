@@ -129,18 +129,18 @@ const initializeEndpoints = (app) => {
                   sql = `UPDATE CONTENT SET ARTICLE = ${rows.insertId} WHERE pk = ${contentId}`;
                   connection.query(sql, function(err, rows, fields) {
                     if (!err) {
-                      // console.log(rows); 
+                      // console.log(rows);
                       async function replaceAll(str, searchStr, replaceStr) {
                         return await str.split(searchStr).join(replaceStr);
                       }
                       async function toArray(arr,createdUser,contentId){
-                       
+
                         for(var i in arr){
                           var sql = await
                           `
                           INSERT  INTO
                           HASHTAG  ( CONTENT, HASHTAG , CREATEDUSER, UPDATEDUSER )
-                          VALUES  
+                          VALUES
                           `;
                           sql += await `(${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
                           await connection.query(sql, function(err, rows, fields) {
@@ -616,7 +616,7 @@ const initializeEndpoints = (app) => {
    *        200:
    */
   app.put('/contents/:id', function(req, res) {
-
+    var i = req.body;
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err){
         res.status(401).send({
@@ -625,9 +625,15 @@ const initializeEndpoints = (app) => {
         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       }
       else {
-        var sql = "UPDATE content SET title = ?,body = ?, image = ? WHERE pk = ?";
-        var params = [req.query.title, req.query.body, req.query.image, req.params.id];
-        connection.query(sql, params, function(err, rows, fields) {
+        var sql =
+        `
+          UPDATE  CONTENT
+          SET     TITLE   = '${i.title}'
+                , BODY    = '${i.body}'
+                , IMAGE   = '${i.image}'
+          WHERE   PK      = ${i.id}
+        `;
+        connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
