@@ -20,44 +20,6 @@ const upload = multer({
 });
 
 const initializeEndpoints = (app) => {
-
-    /**
-     * @swagger
-     *  /contents/images:
-     *    post:
-     *      tags:
-     *      - content
-     *      description: 해당 content의 이미지를 저장
-     *      parameters:
-     *      - in: formData
-     *        name: image
-     *        type: file
-     *        description: content에 넣을 image
-     *      - name: user_token
-     *        in: header
-     *        type: string
-     *        description: 사용자의 token값을 전달.
-     *      responses:
-     *       200:
-     */
-    app.post('/contents/images', upload.single('image'), function(req, res) {
-      jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-        if(err){
-          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-          res.status(401).send({error:'invalid token'});
-        }
-        else{
-          console.log(req.file);
-          var filename = "default_profile.png";
-          if(req.file){ // 이미지 파일이 첨부되었을 때
-            filename = req.file.filename;
-          }
-          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-          res.send({status: "success",data:req.file.filename});
-        }
-      });
-    });
-
   /**
    * @swagger
    *  /contents:
@@ -83,8 +45,10 @@ const initializeEndpoints = (app) => {
    *              type: string
    *            user_id:
    *              type: integer
-   *            image:
-   *              type: string
+   *      - in: formData
+   *        name: image
+   *        type: file
+   *        description: content에 넣을 image
    *      - in: header
    *        name: user_token
    *        type: string
@@ -92,11 +56,18 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.post('/contents', function(req, res) {
+  app.post('/contents', upload.single('image'), function(req, res) {
+    console.log(req.file);
+    console.log(req.body);
     console.log("request post contents1");
     var i = req.body;
     var sql = "";
-
+    var filename = "default_profile.png";
+    if(req.file){
+      // 이미지 파일 첨부가 있을 경우 새 파일명으로 바꿔준다.
+      filename = req.file.filename;
+      console.log(filename);
+    }
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -111,7 +82,7 @@ const initializeEndpoints = (app) => {
           console.log("request post contents3");
 
           sql = "INSERT INTO content(title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?)";
-          var params = [i.title, i.body, i.image, i.user_id, i.user_id];
+          params = [i.title, i.body, filename, i.user_id, i.user_id];
           connection.query(sql, params, function(err, rows, fields) {
             if (!err) {
               var contentId = rows.insertId;
@@ -130,7 +101,7 @@ const initializeEndpoints = (app) => {
                       console.log(rows);
 
                       // 작성한 글이 어느 질문에 대한 답변일 때
-                      if( i.topic_id == 1 && i.article_id != 0){
+                      if( i.topic_id == 1 && i.article_id != 0){ // 질문 글이면서
                         // 질문 글의 작성자를 얻어온다
                         console.log("TRUE");
                         sql =
@@ -557,24 +528,24 @@ const initializeEndpoints = (app) => {
    *      - content
    *      description: 특정 content의 내용을 수정.
    *      parameters:
-   *      - in: body
-   *        name: user
-   *        description: user_info
-   *        schema:
-   *          type: object
-   *          properties:
-   *            id:
-   *              type: integer
-   *            title:
-   *              type: string
-   *            body:
-   *              type: string
-   *            image:
-   *              type: string
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token값을 전달.
+   *       - in: body
+   *         name: user
+   *         description: user_info
+   *         schema:
+   *           type: object
+   *           properties:
+   *             id:
+   *               type: integer
+   *             title:
+   *               type: string
+   *             body:
+   *               type: string
+   *             image:
+   *               type: string
+   *       - name: user_token
+   *         in: header
+   *         type: string
+   *         description: 사용자의 token값을 전달.
    *      responses:
    *        200:
    */
