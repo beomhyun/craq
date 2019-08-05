@@ -95,7 +95,7 @@ const initializeEndpoints = (app) => {
    *        200:
    */
   app.post('/contents', function(req, res) {
-    console.log("request post contents1");
+    // console.log("request post contents1");
     var i = req.body;
     var sql = "";
 
@@ -107,10 +107,10 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        console.log("request post contents2");
-        console.log("beforeContent : " + i.beforeContent);
+        // console.log("request post contents2");
+        // console.log("beforeContent : " + i.beforeContent);
         if (i.beforeContent == 0) { // 이전에 작성한 content가 없는 최초의 article 작성일 때
-          console.log("request post contents3");
+          // console.log("request post contents3");
 
           sql = "INSERT INTO content(title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?)";
           var params = [i.title, i.body, i.image, i.user_id, i.user_id];
@@ -125,16 +125,67 @@ const initializeEndpoints = (app) => {
                     `;
               connection.query(sql, function(err, rows, fields) {
                 if (!err) {
-                  console.log("rows.insertId = " + rows.insertId);
+                  // console.log("rows.insertId = " + rows.insertId);
                   sql = `UPDATE CONTENT SET ARTICLE = ${rows.insertId} WHERE pk = ${contentId}`;
                   connection.query(sql, function(err, rows, fields) {
                     if (!err) {
-                      console.log(rows);
+                      // console.log(rows); 
+                      function replaceAll(str, searchStr, replaceStr) {
+                        return str.split(searchStr).join(replaceStr);
+                      }
+                      async function toArray(arr,createdUser,contentId){
+                       
+                        for(var i in arr){
+                          var sql = await
+                          `
+                          INSERT  INTO
+                          HASHTAG  ( CONTENT, HASHTAG , CREATEDUSER, UPDATEDUSER )
+                          VALUES  
+                          `;
+                          sql += await `(${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
+                          await connection.query(sql, function(err, rows, fields) {
+                            // console.log(this.sql);
+                            if(!err){
+                              console.log("tag add successs");
+                            }else{
+                              console.log("tag add fail");
+                            }
+                          });
+                        }
+                      }
+                      var tags = i.tags;
+                      // console.log("tags : "+tags);
+                      tags = replaceAll(tags,'[','');
+                      tags = replaceAll(tags,']','');
+                      tags = replaceAll(tags,' ','');
+                      // console.log(tags);
+                      var tagarr = tags.split(',');
+                      toArray(tagarr,decoded.pk,contentId);
+
+                      // for(var i in tagarr){
+                      //   console.log(tagarr[i]);
+                      //   // sql += ` (${contentId}, ${tagarr[i]}), `
+                      // }
+                      // var str = req.query.search_text;
+                      // str = replaceAll(str,'[',' [');
+                      // str = replaceAll(str,']','] ');
+                      // var arr = str.split(' ');
+                      // var tag = [];
+                      // var nottag = [];
+                      // for(var i in arr) {
+                      //   arr[i] = replaceAll(arr[i],' ','');
+                      //   if(arr[i].charAt(0) =='') continue;
+                      //   if(arr[i].charAt(0)=='['){
+                      //     tag.push(arr[i].replace('[','').replace(']',''));
+                      //   }else{
+                      //     nottag.push(arr[i].replace(' ',''));
+                      //   }
+                      // }
 
                       // 작성한 글이 어느 질문에 대한 답변일 때
                       if( i.topic_id == 1 && i.article_id != 0){
                         // 질문 글의 작성자를 얻어온다
-                        console.log("TRUE");
+                        // console.log("TRUE");
                         sql =
                               `
                                 SELECT    A.CREATEDUSER
@@ -145,8 +196,8 @@ const initializeEndpoints = (app) => {
                                 WHERE     A.PK = ${i.article_id}
                               `;
                         connection.query(sql, function(err, rows, fields) {
-                          console.log(rows[0].CREATEDUSER);
-                          console.log(rows[0].TITLE);
+                          // console.log(rows[0].CREATEDUSER);
+                          // console.log(rows[0].TITLE);
                           var created_user = rows[0].CREATEDUSER;
                           var title = rows[0].TITLE;
                           // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
@@ -158,15 +209,7 @@ const initializeEndpoints = (app) => {
                                   VALUES  ( ${created_user}, 1, "${msg}" )
                                 `;
                           connection.query(sql, function(err, rows, fields) {
-                            console.log(i.tags)
                             if (!err){
-                              sql =
-                                  `
-                                    INSERT INTO
-                                    HASHTAG ( CONTENT, HASHTAG, CREATEDUSER, UPDATEDUSER)
-                                    VALUES 
-                                  `;
-
                               serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                               res.send({status: "success2"});
                             }else{
@@ -176,7 +219,7 @@ const initializeEndpoints = (app) => {
                           });
                         });
                       }else{
-                        console.log("sucesssssssssssss\n"+rows);
+                        // console.log("sucesssssssssssss\n"+rows);
                         serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                         res.send({status: "success"});
                       }
@@ -358,7 +401,7 @@ const initializeEndpoints = (app) => {
                     SELECT	PK
                           , TITLE
                     		  , BODY
-                    	    , IMAGE
+                    	    , CONCAT("http://192.168.31.58:10123/",IMAGE) AS IMAGE
                     	    , (
                       		 	SELECT	USERNAME
                       		 	FROM 		USER
