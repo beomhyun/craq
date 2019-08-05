@@ -9,6 +9,7 @@ const tag = require('./model/tag');
 const ward = require('./model/ward');
 const article = require('./model/article');
 const comment = require('./model/comment');
+const vote = require('./model/vote');
 const swaggerDoc = require('./swaggerDoc');
 const bodyParser = require('body-parser');
 const app = express(express);
@@ -26,6 +27,7 @@ tag(app);
 hashtag(app);
 ward(app);
 subscribe(app);
+vote(app);
 comment(app);
 swaggerDoc(app);
 
