@@ -2,22 +2,23 @@
     <div class="container padding-sm">
         <div>
             <div class="inner-content clearfix">
-                <CodeDetailQuestionHeader :title="question.VERSIONS.slice(-1)[0].TITLE"></CodeDetailQuestionHeader>
+                <CodeDetailQuestionHeader v-if="loaded" :title="VERSION[QUESTION[0].VERSION].TITLE"></CodeDetailQuestionHeader>
                 <CodeDetailQuestionHeaderBottom 
-                 :created_at="'2019-07-24T06:10:42.000Z'"
-                 :updated_at="'2019-07-24T06:10:42.000Z'"
-                 :views="1234"
+                  v-if="loaded"
+                 :created_at="VERSION[1].CREATED_AT"
+                 :updated_at="VERSION[VERSION.length-1].CREATED_AT"
+                 :views="QUESTION[0].VIEWS"
                  ></CodeDetailQuestionHeaderBottom>
                 <div id="mainbar">
-
                     <div id="question" class="question">
-                        <Article :article="question"></Article>
+                        <Article v-if="loaded" :article_pk="QUESTION[0].PK"></Article>
                     </div>
                     <div id="answers">
-                        <CodeDetailAnswerHeader></CodeDetailAnswerHeader>
-                        <Article :article="question"></Article>
-                        <div class="separator"></div>
-                        <Article :article="question"></Article>
+                        <CodeDetailAnswerHeader v-if="loaded"></CodeDetailAnswerHeader>
+                        <template v-if="loaded" v-for="answer in ANSWERS" v-key="answer.PK">
+                            <Article :article_pk="answer.PK"></Article>
+                            <div class="separator"></div>
+                        </template>
                     </div>
 
                 </div>
@@ -28,64 +29,57 @@
 </template>
 
 <script>
-import CodeDetailQuestionHeader from '@/components/CodeDetailQuestionHeader.vue';
-import CodeDetailQuestionHeaderBottom from '@/components/CodeDetailQuestionHeaderBottom.vue';
-import Article from '@/components/Article.vue';
-import CodeDetailAnswerHeader from '@/components/CodeDetailAnswerHeader.vue';
+import Spinner from '@/components/Spinner.vue';
+
+const CodeDetailQuestionHeader = () => ({
+    component: import("@/components/CodeDetailQuestionHeader.vue"),
+    loading: Spinner,
+    delay: 500
+});
+const CodeDetailQuestionHeaderBottom = () => ({
+    component: import("@/components/CodeDetailQuestionHeaderBottom.vue"),
+    loading: Spinner,
+    delay: 200
+});
+const Article = () => ({
+    component: import("@/components/Article.vue"),
+    loading: Spinner,
+    delay: 200
+});
+const CodeDetailAnswerHeader = () => ({
+    component: import("@/components/CodeDetailAnswerHeader.vue"),
+    loading: Spinner,
+    delay: 200
+});
 
 export default {
     name: "CodeDetail",
     components: {
-        CodeDetailAnswerHeader,
         CodeDetailQuestionHeader,
+        CodeDetailAnswerHeader,
         CodeDetailQuestionHeaderBottom,
-        Article,
+        Article
     },
     data() {
         return {
-            question: {
-                USER_PK: 0,
-                USER_NAME: "test",
-                ANSWERS: 0,
-                HELPFUL: 0,
-                PK: 0,
-                WARDS: 0,
-                VIEWS: 0,
-                VERSIONS: [
-                    {
-                        PK: 0,
-                        TITLE: "",
-                        BODY: "",
-                        HASHTAG: "",
-                        USER_PK: 0,
-                        USER_NAME: "",
-                    },
-                    {
-                        PK: 0,
-                        TITLE: "",
-                        BODY: "",
-                        HASHTAG: "",
-                        USER_PK: 0,
-                        USER_NAME: "",
-                    },
-                ],
-            },
-            answers: [
-
-            ]
-
+            ANSWERS: [],
+            QUESTION: [],
+            VERSION: [0],
+            loaded: false,
         }
     },
     props: [
-        "pk"
+        "question_pk"
     ],
     mounted() {
-        this.$axios.get(`questions/detail/${this.pk}`, {headers: {'user_token': this.$session.get('jwt')
-        }}).then((res) => {
+        this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
             const data = res.data.data;
-            let question = data.QUESTION[0];
-        }
-        )
+            this.ANSWERS = data.ANSWERS;
+            this.QUESTION = data.QUESTION;
+            this.VERSION = this.VERSION.concat(data.VERSION);
+            this.loaded = true;
+        })
+
     }
 }
 
