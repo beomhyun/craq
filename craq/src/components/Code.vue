@@ -4,37 +4,85 @@
 
           <!-- Headline -->
           <div class="headline">
-            {{currentRouteName}}
+            <div class="headline__title">{{currentRouteName}}</div>
+            <router-link to="/askquestion"><div class="btn btn--primary" @click="askQuestion">Ask Question</div></router-link>
           </div> <!-- headline -->
 
-           <!-- Filter && Card -->
-          <div class="subnav">
-            <div class="subnav__filter">
-              <div class="btn btn--sm" :class="{'subnav__filter-seleted': latested}">Latest</div>
-              <div class="btn btn--sm">Reliable</div>
-              <div class="btn btn--sm">Helpful</div>
-              <div class="btn btn--sm">Answer</div>
-              <div class="btn btn--sm">View</div>
-            </div>
-            <div class="filter__ask">
-              <router-link to="/askquestion"><div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div></router-link>
-            </div>
-          </div> <!-- Filter /div -->
+          <!-- Filter && Card -->
+          <div class="Code">
+            <div class="Code__filter">
+              <div class="Code__filter-btn" @click="toggleLatest" :class="{'selected' : setLatest}">Latest</div>
+              <div class="Code__filter-btn" @click="toggleReliable" :class="{'selected' : setReliable}">Reliable</div>
+              <div class="Code__filter-btn" @click="toggleHelpful" :class="{'selected' : setHelpful}">Helpful</div>
+              <div class="Code__filter-btn" @click="toggleAnswer" :class="{'selected' : setAnswer}">Answer</div>
+              <div class="Code__filter-btn" @click="toggleView" :class="{'selected' : setView}">View</div>
+            </div>  <!-- Filter /div -->
 
-          
-            <div :key="idx" v-for="(list, idx) in cardLists" >
-              <router-link to="/code/1" class="content">
-                <card class="shadow" :list="list"/>
-              </router-link>
+            <div class="Code__list" v-show="setLatest">
+              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
+                <router-link to="/code/1" >
+                  <card class="shadow" :list="list"/>
+                </router-link>
+              </div>
             </div>
+            <div class="Code__list" v-show="setReliable">
+              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
+                <router-link to="/code/1" >
+                  <card class="shadow" :list="list"/>
+                </router-link>
+              </div>
+            </div>
+            <div class="Code__list" v-show="setHelpful">
+              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
+                <router-link to="/code/1" >
+                  <card class="shadow" :list="list"/>
+                </router-link>
+              </div>
+            </div>
+            <div class="Code__list" v-show="setAnswer">
+              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
+                <router-link to="/code/1" >
+                  <card class="shadow" :list="list"/>
+                </router-link>
+              </div>
+            </div>
+            <div class="Code__list" v-show="setView">
+              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
+                <router-link to="/code/1" >
+                  <card class="shadow" :list="list"/>
+                </router-link>
+              </div>
+            </div>
+
+          </div>
           
           
            
           <!-- Pagenation -->
           <div class="pagenation">
-            <ul v-for="(i, index) in (1,11)">
-              <li>{{index}}</li>
+            <router-link to="/code">
+              <font-awesome-icon icon="chevron-left"/>
+              <font-awesome-icon icon="chevron-left"/>
+            </router-link>
+
+            &nbsp; &nbsp;
+
+            <router-link to="/code"><font-awesome-icon icon="chevron-left"/></router-link>
+            &nbsp;
+            
+            <ul :key="idx" v-for="(i, idx) in (1,10)">
+              &nbsp;<li><router-link to="/code">{{i}}</router-link></li>&nbsp;
             </ul>
+            
+            &nbsp;
+            <router-link to="/code"><font-awesome-icon icon="chevron-right"/></router-link>
+
+            &nbsp; &nbsp;
+
+            <router-link to="/code">
+              <font-awesome-icon icon="chevron-right"/>
+              <font-awesome-icon icon="chevron-right"/>
+            </router-link>
           </div>  <!-- pagenation -->
         
         </div> <!-- Container /div -->
@@ -57,6 +105,11 @@ export default {
         messages: '',
         latested: true,
         cardLists: [],
+        setLatest : true,
+        setReliable : false,
+        setHelpful : false,
+        setAnswer : false,
+        setView : false,
       }
     },
   
@@ -124,6 +177,90 @@ export default {
                     id: '3',
                     cardInfo: 
                         {
+                            Answer : '0',
+                            View : '10',
+                            Helpful : '200',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 2',
+                            HashTags : 'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: '',
+                            Mail: '',
+                            Score: '',
+                            Answers: '',
+                        }
+
+                },
+                {
+                    id: '4',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '10',
+                            Helpful : '200',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 2',
+                            HashTags : 'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: '',
+                            Mail: '',
+                            Score: '',
+                            Answers: '',
+                        }
+
+                },
+                {
+                    id: '5',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '10',
+                            Helpful : '200',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 2',
+                            HashTags : 'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: '',
+                            Mail: '',
+                            Score: '',
+                            Answers: '',
+                        }
+
+                },
+                {
+                    id: '6',
+                    cardInfo: 
+                        {
                             Answer : '23',
                             View : '230',
                             Helpful : '-100',
@@ -149,7 +286,91 @@ export default {
 
                 },
                 {
-                    id: '4',
+                    id: '7',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '230',
+                            Helpful : '-100',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 3',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Lee',
+                            Mail: 'bbbb@test.test',
+                            Score: '135135',
+                            Answers: '123123',
+                        }
+
+                },
+                {
+                    id: '8',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '230',
+                            Helpful : '-100',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 3',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Lee',
+                            Mail: 'bbbb@test.test',
+                            Score: '135135',
+                            Answers: '123123',
+                        }
+
+                },
+                {
+                    id: '9',
+                    cardInfo: 
+                        {
+                            Answer : '0',
+                            View : '230',
+                            Helpful : '-100',
+                        },
+
+                    cardMain: 
+                        {
+                            Title : 'Title Test - 3',
+                            HashTags :'asd',
+                            Created_at : '2019.07.26',
+                            Updated_at : '2019.07.26',
+                            Answered_at : '2019.07.26',
+                        },
+
+                    answerUser: 
+                        {
+                            Img : '',
+                            Name: 'Lee',
+                            Mail: 'bbbb@test.test',
+                            Score: '135135',
+                            Answers: '123123',
+                        }
+
+                },
+                {
+                    id: '10',
                     cardInfo: 
                         {
                             Answer : '0',
@@ -185,7 +406,53 @@ export default {
       },
       parentsMethod: function(askquestion) {
       this.askquestion = askquestion // 자식으로 부터받은 메시지를 사용
-      }
+      },
+      toggleLatest() {
+            if ( this.setLatest == false ) {
+                this.setLatest = true;
+                this.setReliable = false;
+                this.setHelpful = false;
+                this.setAnswer = false;
+                this.setView = false;
+            }
+        },
+      toggleReliable() {
+            if ( this.setReliable == false ) {
+                this.setLatest = false;
+                this.setReliable = true;
+                this.setHelpful = false;
+                this.setAnswer = false;
+                this.setView = false;
+            }
+        },
+      toggleHelpful() {
+            if ( this.setHelpful == false ) {
+                this.setLatest = false;
+                this.setReliable = false;
+                this.setHelpful = true;
+                this.setAnswer = false;
+                this.setView = false;
+            }
+        },
+      toggleAnswer() {
+            if ( this.setAnswer == false ) {
+                this.setLatest = false;
+                this.setReliable = false;
+                this.setHelpful = false;
+                this.setAnswer = true;
+                this.setView = false;
+            }
+        },
+      toggleView() {
+            if ( this.setView == false ) {
+                this.setLatest = false;
+                this.setReliable = false;
+                this.setHelpful = false;
+                this.setAnswer = false;
+                this.setView = true;
+            }
+        },
+        
     },
 
     computed: {
@@ -201,25 +468,31 @@ export default {
 <style scoped lang="scss">
 // Test End
 .filler {
-  height: 1000px;
   width: auto;
   background-color: var(--color-background);
 }
 
 .headline {
-  background-color: var(--color-surface);
-  padding: var(--space-xs);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   height: 75px;
-  font-size: var(--text-xxl);
-  text-transform: capitalize;
+
+  padding: var(--space-md);
+    &__title {
+      background-color: var(--color-surface);
+      font-size: var(--text-xxl);
+      text-transform: capitalize;
+    }
 }
 
 .pagenation {
   display: flex;
   justify-content: center;
+  align-items: center;
   background-color: var(--color-surface);
-  margin-top: var(--space-lg);
+  margin-top: var(--space-sm);
   width: 100%;
   height: 30px;
   font-size: var(--text-lg)
@@ -229,30 +502,16 @@ export default {
   display: inline;
 }
 
-.subnav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--color-surface);
-  width: 100%;
-  font-size: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
-  
-    &__filter {
-      background-color: var(--color-surface);
-      color: var(--color-on-surface);
-    }
-    &__filter-seleted {
-      background-color: var(--color-primary);
-      color: var(--color-on-primary)
-    }
-}
 
 .btn {
-  color: #ffffff;
-  background-color: var(--color-primary-dark);
-  margin: var(--space-xxs); 
+   cursor: pointer;
+    width: 130px;
+    height: 45px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
 
 .btn:hover {
@@ -262,14 +521,77 @@ export default {
 
 .shadow {
   box-shadow: var(--shadow-sm);
-  width: 95%;
+  width: 100%;
   border: 1px solid var(--color-contrast-low);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 .content {
   width: 100%;
-  display: flex;
-  justify-content: center;
+}
+
+.Code {
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    
+    width: 100%;
+    height: auto;
+    background-color: var(--color-surface-light);
+    padding: var(--space-md);
+
+    &__filter {
+        display: flex;
+
+        &-btn {
+            cursor: pointer;
+            width: 130px;
+            height: 45px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: var(--text-md);
+            color: var(--color-contrast-high);            
+
+            border-radius: var(--radius-sm);
+
+            background-color: var(--color-surface-dark);
+            margin-right: var(--space-sm);
+        }
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        position: relative;
+        top: -3px;
+
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-surface);
+
+        border-bottom-left-radius:  var(--radius-sm);
+        border-bottom-right-radius:  var(--radius-sm);
+        border-top: 3px solid var(--color-tertiary);
+
+        padding: var(--space-md);
+    }
+}
+
+.Code__filter .selected {
+    
+    cursor: pointer;
+
+    border-top: 3px solid var(--color-tertiary);
+    border-left: 3px solid var(--color-tertiary);
+    border-right: 3px solid var(--color-tertiary);
+    color: var(--color-on-surface);
+    font-weight: bold;
+    background-color: var(--color-surface);
+
+    z-index: 1;
 }
 </style>

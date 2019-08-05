@@ -73,7 +73,7 @@ export default {
 
     &__Middle {
         position: relative;
-        height: 31px;
+        height: 33px;
         top: -40px;
         display: flex;
         justify-content: space-around;

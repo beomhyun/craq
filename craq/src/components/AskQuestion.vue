@@ -43,11 +43,11 @@
                         <div class="searchHashtag__content">
                             
                             <div class="searchHashtag__form">
-                                <template v-for="tag in tags">
-                                    <div @click="createHashtags()">
+                                <div :key="idx" v-for="(tag, idx) in tags">
+                                    <div @click="clickHashtags(tag)">
                                         <TagsCard class="tagsCard" :tag="tag" ></TagsCard>
                                     </div>
-                                </template>
+                                </div>
                             </div>
 
                         </div>
@@ -56,15 +56,14 @@
 
                     <label for="mytag"><strong>Tags</strong> - 선택한 태그 목록입니다.</label>
                     <div id="mytag" class="tagsForm">
-                        <div :key="tag" v-for="tag in myTags">
+                        <div :key="idx" v-for="(tag, idx) in myTags">
                             <div class="btn btn--sm tagsForm__btn">
-                                {{tag}}&nbsp; <font-awesome-icon icon='times' @click="deleteTag(tag.title)"/>
+                                {{tag.title}}&nbsp; <font-awesome-icon icon='times' @click="deleteTag(tag)"/>
                             </div>
                         </div>
                     </div>
-
                     <div class="submit">
-                        <div class="btn btn__submit">Submit</div>
+                        <router-link to="/code"><div class="btn btn__submit btn--md" @click="createQuestions()">Submit</div></router-link>
                     </div>
                 </div>
                 
@@ -119,6 +118,7 @@ export default {
             inputContent: '',
             inputTitle : '',
             inputHashtag: '',
+            inputTags: [],
             Hot: [
                 'DynamicRouter',
                 'Vuetify',
@@ -134,48 +134,64 @@ export default {
         }
     },
     methods: {
-        // createQuestions() {
-        //     const data = {
-        //         "topic_id": 1,
-        //         "article_id": 0,
-        //         "beforeContent": 0,
-        //         "title": this.inputTitle,
-        //         "body": this.inputContent,
-        //         "user_id": ''
-        //         }
-        // },
-        createHashtags() {
+        createQuestions() {
             const data = {
-                'title' : this.inputHashtag, 
-                'user_id' : this.$session.get('userPk'), 
-            }
-            this.$axios.post('tags',data).then(res => {
-                if (!(this.myTags.includes(res.data.data))) {
-                    this.myTags.push(res.data.data)
-                } else {
-                    alert("이미 포함된 태그입니다.")
+                "topic_id": 1,
+                "article_id": 0,
+                "beforeContent": 0,
+                "title": this.inputTitle,
+                "body": this.inputContent,
+                "user_id": this.$session.get('userPk'),
+                "tags": this.inputTags
                 }
+            this.$axios.post('contents', data).then(res=> {
+                console.log(res.data)
             })
-
+        },
+    clickHashtags(clicktag) {
+        const data = {
+            'title' : clicktag.title, 
+            'user_id' : this.$session.get('userPk'), 
+        }
+        this.$axios.post('tags',data).then(res => {
+            this.tagLists.forEach((tag) => {
+                if (tag.pk == res.data.data) {
+                    if (!(this.myTags.includes(tag))) {
+                        this.myTags.push(tag)
+                        this.inputTags.push(tag.pk)
+                    } else {
+                        alert("이미 포함된 태그입니다.")
+                    }
+                }
+            })           
             this.inputHashtag = ''
             this.tags = [] 
-        },
-        
-        // inputTag(title) {
-        //     this.createHashtags()
-        //     if (!(this.myTags.includes(title))) {
-        //         this.myTags.push(title)
-        //     } else {
-        //         alert("이미 포함된 태그입니다.")
-        //     };
-            
-            
-        //     this.inputHashtag = ''
-        //     this.tags = []  
-        //     },
-        deleteTag(title) {
-            this.myTags.pop(title)
-            }
+        })
+
+    },
+    createHashtags() {
+        const data = {
+            'title' : this.inputHashtag, 
+            'user_id' : this.$session.get('userPk'), 
+        }
+        this.$axios.post('tags',data).then(res => {
+            this.myTags.forEach((tag) => {
+                if (!(tag.pk == res.data.data)) {
+                        this.myTags.push(this.inputHashtag)
+                        this.inputTags.push(tag.pk)
+                    } else {
+                        alert("이미 포함된 태그입니다.")
+                    }
+                })
+                this.inputHashtag = ''
+            this.tags = [] 
+            })           
+    },
+    
+    deleteTag(tag) {
+        this.myTags.pop(tag)
+        this.inputTags.pop(tag.pk)
+        }
     },
     computed: {
         checkInputTitle () {
@@ -208,7 +224,6 @@ export default {
      mounted() {
         
         this.$axios.get('tags').then(res=> {
-           console.log(res);
            this.tagLists = res.data;
         })
         this.cardLists = [{
@@ -469,7 +484,7 @@ strong {
     
     &__submit{
         background-color: var(--color-primary-dark);
-
+        color: var(--color-white);
     }
 }
 
