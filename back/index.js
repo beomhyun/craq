@@ -17,6 +17,7 @@ app.use(cors());
 app.use(express.static('./image/profile'));
 app.use(express.static('./image/contents'));
 app.use(bodyParser.json());
+
 user(app);
 topic(app);
 notice(app);

@@ -8,12 +8,12 @@ const serverlog = require('./serverlog.js');
 const crypto = require('crypto');
 
 let storage = multer.diskStorage({
-    destination: function(req, file ,callback){
-        callback(null, "image/profile/")
-    },
-    filename: function(req, file, callback){
-        callback(null, new Date().valueOf() + path.extname(file.originalname));
-    }
+  destination: function(req, file ,callback){
+      callback(null, "image/profile/")
+  },
+  filename: function(req, file, callback){
+      callback(null, new Date().valueOf() + path.extname(file.originalname));
+  }
 });
 const upload = multer({ storage });
 
@@ -716,6 +716,8 @@ app.get('/follows/:touser', function(req,res){
  */ 
 app.put('/profile', upload.single('profile_image'), function(req, res){
   console.log("request put profile");
+  console.log(req.file);
+  console.log(req.body);
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err){
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
