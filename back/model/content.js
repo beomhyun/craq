@@ -164,7 +164,7 @@ const initializeEndpoints = (app) => {
             else{
               serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
               res.send({status: "fail"})
-            } 
+            }
           });
           sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?)";
           params = [i.article_id, i.beforeContent, i.title, i.body, filename, i.user_id, i.user_id,version];
@@ -260,7 +260,7 @@ const initializeEndpoints = (app) => {
       if(err){
         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
         res.status(401).send({error:'invalid token'});
-      } 
+      }
       else{
         var sql = " select count(*) as cheking, image from content where pk = ? ";
         var params = [req.params.pk];
@@ -306,11 +306,12 @@ const initializeEndpoints = (app) => {
           error: 'invalid token'
         });
         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      } 
+      }
       else {
         var sql =
                   `
-                    SELECT	TITLE
+                    SELECT	PK
+                          , TITLE
                     		  , BODY
                     	    , IMAGE
                     	    , (
@@ -378,7 +379,7 @@ const initializeEndpoints = (app) => {
           error: 'invalid token'
         });
         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      } 
+      }
       else {
         var sql = "SELECT * FROM content WHERE article = ? ORDER BY pk DESC limit 1";
         var params = [req.params.id];
@@ -556,7 +557,7 @@ const initializeEndpoints = (app) => {
           error: 'invalid token'
         });
         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      } 
+      }
       else {
         var sql = "UPDATE content SET title = ?,body = ?, image = ? WHERE pk = ?";
         var params = [req.query.title, req.query.body, req.query.image, req.params.id];
@@ -600,7 +601,7 @@ const initializeEndpoints = (app) => {
           error: 'invalid token'
         });
         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      } 
+      }
       else {
         var sql = `UPDATE content SET is_removed = ${TRUE} WHERE pk = ?`;
         var params = req.params.id;
