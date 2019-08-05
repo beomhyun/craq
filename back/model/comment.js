@@ -13,6 +13,10 @@ const initializeEndpoints = (app) => {
    *      - comment
    *      description: content에 댓글을 작성함.
    *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
    *      - name: commentInfo
    *        in: body
    *        schema:
@@ -30,16 +34,13 @@ const initializeEndpoints = (app) => {
    *            body:
    *              type: string
    *              description: 댓글의 내용.
-   *            user_token:
-   *              type: string
-   *              description: 사용자의 token 정보
    *      responses:
    *        200:
    */
   app.post('/comments', function(req, res) {
     var i = req.body;
     console.log(i);
-    jwt.verify(i.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -71,14 +72,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: user의 id값을 전달
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 토큰 전달
    *      responses:
    *        200:
    */
   app.get('/comments/users/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -110,31 +111,72 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: article의 id
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 토큰 전달
    *      responses:
    *        200:
    */
   app.get('/comments/articles/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
       else {
-        var sql = "SELECT * FROM comment AS cm JOIN content AS ct ON cm.content = ct.pk AND ct.article = ?";
-        var params = req.params.id;
-        connection.query(sql, params, function(err, rows, fields) {
-          if (!err) {
-            res.json(rows);
-          } else {
-            console.log('Error while performing Query.', err);
-            res.send(err);
+        var sql =
+        `
+          SELECT	CM.PARENTCOMMENT
+          		  , USER
+          	    , (
+          	 	    SELECT 	USERNAME
+            		 	FROM 		USER
+            		 	WHERE 	PK = CM.USER
+            		 ) USERNAME
+                , CM.BODY
+                , CM.CREATED_AT
+          FROM 		COMMENT CM
+          JOIN 		CONTENT CT
+          ON 		  CM.CONTENT = CT.PK
+          WHERE		CT.ARTICLE = ${req.params.id}
+          AND 		CM.IS_REMOVED = 0
+        `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err){
+            res.send({status: "success",data:rows});
+          }else{
+            res.send({status: "fail"});
           }
         });
       }
     });
+    else {
+      var sql =
+      `
+        SELECT    CM.PARENTCOMMENT
+                  , USER
+                , (
+                     SELECT     USERNAME
+                       FROM         USER
+                       WHERE     PK = CM.USER
+                   ) USERNAME
+              , CM.BODY
+              , CM.CREATED_AT
+        FROM         COMMENT CM
+        JOIN         CONTENT CT
+        ON           CM.CONTENT = CT.PK
+        WHERE        CT.ARTICLE = ${req.params.id}
+        AND         CM.IS_REMOVED = 0
+      `;
+      connection.query(sql, function(err, rows, fields) {
+        if (!err){
+          res.send({status: "success",data:rows});
+        }else{
+          res.send({status: "fail"});
+        }
+      });
+    }
   });
+});
 
   /**
    * @swagger
@@ -149,14 +191,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 댓글의 id값을 전달
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 토큰 전달
    *      responses:
    *        200:
    */
   app.get('/comments/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -188,7 +230,7 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 댓글의 id값을 전달
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 토큰 전달
    *      - name: body
@@ -199,7 +241,7 @@ const initializeEndpoints = (app) => {
    *        200:
    */
   app.put('/comments/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
@@ -231,14 +273,14 @@ const initializeEndpoints = (app) => {
    *        type: integer
    *        description: 댓글의 id값을 전달
    *      - name: user_token
-   *        in: query
+   *        in: header
    *        type: string
    *        description: 사용자의 토큰 전달
    *      responses:
    *        200:
    */
   app.delete('/comments/:id', function(req, res) {
-    jwt.verify(req.query.user_token, secretObj.secret, function(err, decoded) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) res.status(401).send({
         error: 'invalid token'
       });
