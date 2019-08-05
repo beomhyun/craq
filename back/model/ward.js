@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const secretObj = require("../config/jwt");
 const TRUE = 1;
 const FALSE = 0;
+const serverlog = require('./serverlog.js');
 
 const initializeEndpoints = (app) => {
   /**
@@ -33,9 +34,12 @@ const initializeEndpoints = (app) => {
    */
   app.post('/wards', function(req, res) {
     jwt.verify(req.body.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         // 와드 기록이 있는지 없는지 확인 (=COUNT)
         var sql =
@@ -66,12 +70,15 @@ const initializeEndpoints = (app) => {
             }
             connection.query(sql, function(err, rows, fields) {
               if (!err){
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                 res.send({status: "success"});
               }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail"});
               }
             });
           } else {
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status: "fail"});
           }
         });

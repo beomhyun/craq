@@ -23,6 +23,8 @@ notice(app);
 content(app);
 article(app);
 tag(app);
+hashtag(app);
+ward(app);
 subscribe(app);
 comment(app);
 swaggerDoc(app);
