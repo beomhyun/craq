@@ -130,8 +130,8 @@ const initializeEndpoints = (app) => {
                   connection.query(sql, function(err, rows, fields) {
                     if (!err) {
                       // console.log(rows); 
-                      function replaceAll(str, searchStr, replaceStr) {
-                        return str.split(searchStr).join(replaceStr);
+                      async function replaceAll(str, searchStr, replaceStr) {
+                        return await str.split(searchStr).join(replaceStr);
                       }
                       async function toArray(arr,createdUser,contentId){
                        
