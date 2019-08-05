@@ -125,9 +125,17 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "SELECT * FROM hashtag WHERE content = ?";
-        var params = req.params.id;
-        connection.query(sql, params, function(err, rows, fields) {
+        var sql = `
+                    SELECT
+                    T.PK,
+                    T.TITLE
+                  FROM
+                    HASHTAG AS H
+                      LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+                  WHERE
+                    H.CONTENT = ${req.params.id}
+                  `;
+        connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
