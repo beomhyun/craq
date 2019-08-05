@@ -754,12 +754,12 @@ const initializeEndpoints = (app) => {
         var sql = `SELECT
                           A.PK
                           ,(SELECT
-                      C.VERSION
-                    FROM
-                      CONTENT AS C
-                    WHERE
-                      A.CONTENT = C.PK
-                    ) AS VERSION
+                            C.VERSION
+                          FROM
+                            CONTENT AS C
+                          WHERE
+                            A.CONTENT = C.PK
+                          ) AS VERSION
                           ,(SELECT
                                 U.USERNAME
                               FROM
@@ -774,6 +774,7 @@ const initializeEndpoints = (app) => {
                             WHERE
                               B.ARTICLE = A.PK
                           ) AS ANSWERS
+                          ,A.ANSWER AS SELECTED
                           ,(SELECT
                                   IFNULL(SUM(V.GOOD),0)
                                 FROM VOTE AS V
@@ -794,6 +795,7 @@ const initializeEndpoints = (app) => {
                               AND W.IS_REMOVED = 0
                           ) AS WARDS
                           ,A.ARTICLE AS IS_ANSWER
+                          ,A.IS_ACTIVE
                         FROM
                           ARTICLE AS A
                         WHERE
