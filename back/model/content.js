@@ -85,6 +85,8 @@ const initializeEndpoints = (app) => {
    *              type: integer
    *            image:
    *              type: string
+   *            tags:
+   *              type: string
    *      - in: header
    *        name: user_token
    *        type: string
@@ -156,7 +158,15 @@ const initializeEndpoints = (app) => {
                                   VALUES  ( ${created_user}, 1, "${msg}" )
                                 `;
                           connection.query(sql, function(err, rows, fields) {
+                            console.log(i.tags)
                             if (!err){
+                              sql =
+                                  `
+                                    INSERT INTO
+                                    HASHTAG ( CONTENT, HASHTAG, CREATEDUSER, UPDATEDUSER)
+                                    VALUES 
+                                  `;
+
                               serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                               res.send({status: "success2"});
                             }else{
@@ -165,6 +175,10 @@ const initializeEndpoints = (app) => {
                             }
                           });
                         });
+                      }else{
+                        console.log("sucesssssssssssss\n"+rows);
+                        serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                        res.send({status: "success"});
                       }
                     } else {
                       console.log('content update err.', err);
