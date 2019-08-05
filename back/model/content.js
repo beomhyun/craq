@@ -5,6 +5,7 @@ const secretObj = require("../config/jwt");
 const multer = require('multer');
 const path = require("path");
 const TRUE = 1;
+const serverlog = require('./serverlog.js');
 
 let storage = multer.diskStorage({
   destination: function(req, file, callback) {
@@ -66,9 +67,12 @@ const initializeEndpoints = (app) => {
       console.log(filename);
     }
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         console.log("request post contents2");
         console.log("beforeContent : " + i.beforeContent);
@@ -122,8 +126,10 @@ const initializeEndpoints = (app) => {
                                 `;
                           connection.query(sql, function(err, rows, fields) {
                             if (!err){
+                              serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                               res.send({status: "success2"});
                             }else{
+                              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                               res.send({status: "fail4"});
                             }
                           });
@@ -131,14 +137,17 @@ const initializeEndpoints = (app) => {
                       }
                     } else {
                       console.log('content update err.', err);
+                      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                       res.send(err);
                     }
                   });
                 } else {
+                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                   res.send({status: "fail2"});
                 }
               });
             } else {
+              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
               res.send({status: "fail3"});
             }
           });
@@ -152,7 +161,10 @@ const initializeEndpoints = (app) => {
                               AND ARTICLE = ${i.article_id}`;
           connection.query(sql, params, function(err, rows, fields) {
             if(!err) version = rows[0].C +1;
-            else res.send({status: "fail"})
+            else{
+              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+              res.send({status: "fail"})
+            } 
           });
           sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?)";
           params = [i.article_id, i.beforeContent, i.title, i.body, filename, i.user_id, i.user_id,version];
@@ -169,9 +181,6 @@ const initializeEndpoints = (app) => {
 
               connection.query(sql, function(err, rows, fields) {
                 if (!err){
-
-
-
                   // 작성한 글이 어느 질문에 대한 답변일 때
                   if( i.topic_id == 1 && i.article_id != 0){ // 질문 글이면서
                     // 질문 글의 작성자를 얻어온다
@@ -200,25 +209,24 @@ const initializeEndpoints = (app) => {
                             `;
                       connection.query(sql, function(err, rows, fields) {
                         if (!err){
+                          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                           res.send({status: "success2"});
                         }else{
+                          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                           res.send({status: "fail4"});
                         }
                       });
                     });
                   }
-
-
-
-
-
-
+                  serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                   res.send({status: "success"});
                 }else{
+                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                   res.send({status: "fail1"});
                 }
               });
             }else{
+              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
               res.send({status: "fail1"});
             }
           });
@@ -249,7 +257,10 @@ const initializeEndpoints = (app) => {
    */
   app.get('/contents/content-image/:pk', function(req, res) {
     jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-      if(err) res.status(401).send({error:'invalid token'});
+      if(err){
+        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+        res.status(401).send({error:'invalid token'});
+      } 
       else{
         var sql = " select count(*) as cheking, image from content where pk = ? ";
         var params = [req.params.pk];
@@ -257,7 +268,9 @@ const initializeEndpoints = (app) => {
           if (!err) {
             var img = '<img src="/' + rows[0].image + '">';
             res.send(img);
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           } else {
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({
               status: "fail"
             });
@@ -288,9 +301,12 @@ const initializeEndpoints = (app) => {
    */
   app.get('/contents/articles/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
+      if (err){
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      } 
       else {
         var sql =
                   `
@@ -323,9 +339,11 @@ const initializeEndpoints = (app) => {
                   `;
         connection.query(sql, function(err, rows, fields) {
           if (!err){
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.send({status: "success",data:rows});
             //res.json(rows);
           }else{
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status: "fail1"});
             //res.send(err);
           }
@@ -355,17 +373,22 @@ const initializeEndpoints = (app) => {
    */
   app.get('/contents/last/articles/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
+      if (err){
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      } 
       else {
         var sql = "SELECT * FROM content WHERE article = ? ORDER BY pk DESC limit 1";
         var params = [req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
             console.log('article insert err ', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -395,9 +418,12 @@ const initializeEndpoints = (app) => {
   app.get('/contents/:id', function(req, res) {
     const ARTICLE_PER_PAGE = 20;
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
+      if (err){
+        res.status(401).send({
+         error: 'invalid token'
+       });
+       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      }
       else {
         /*
             content의 정보를 받아오기 전에
@@ -459,6 +485,7 @@ const initializeEndpoints = (app) => {
                 sql = `SELECT * FROM CONTENT WHERE PK = ${req.params.id}`;
                 connection.query(sql, function(err, rows, fields) {
                   if (!err) {
+                    serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                     res.send({
                       status: "success",
                       data: rows[0],
@@ -466,12 +493,14 @@ const initializeEndpoints = (app) => {
                       maxPage: maxPage
                     });
                   } else {
+                    serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                     res.send({
                       status: "fail"
                     });
                   }
                 });
               } else {
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({
                   status: "fail"
                 });
@@ -479,6 +508,7 @@ const initializeEndpoints = (app) => {
             });
 
           } else {
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             console.log('SELECT ROWNUM err ', err);
             res.send(err);
           }
@@ -521,17 +551,22 @@ const initializeEndpoints = (app) => {
   app.put('/contents/:id', function(req, res) {
 
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
+      if (err){
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      } 
       else {
         var sql = "UPDATE content SET title = ?,body = ?, image = ? WHERE pk = ?";
         var params = [req.query.title, req.query.body, req.query.image, req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
             console.log('article insert err ', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -560,17 +595,22 @@ const initializeEndpoints = (app) => {
    */
   app.delete('/contents/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
+      if (err){
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      } 
       else {
         var sql = `UPDATE content SET is_removed = ${TRUE} WHERE pk = ?`;
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
             console.log('article insert err ', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
