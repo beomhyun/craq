@@ -48,7 +48,7 @@ const initializeEndpoints = (app) => {
         }
         else{
           console.log(req.file);
-          var filename = "default_profile.png";
+          var filename = "default_image.png";
           if(req.file){ // 이미지 파일이 첨부되었을 때
             filename = req.file.filename;
           }
