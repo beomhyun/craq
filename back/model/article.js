@@ -745,11 +745,13 @@ const initializeEndpoints = (app) => {
    */
   app.get('/questions/detail/:pk', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) {res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
-      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
       }else {
+        // console.log("user pk   : " + decoded.pk);
         var json = {};
         var sql = `SELECT
                           A.PK
@@ -837,8 +839,44 @@ const initializeEndpoints = (app) => {
                connection.query(sql, function(err, answers, fields) {
                   if(!err){
                     json.ANSWERS =answers;
-                    serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                    res.send({status: "success", data: json});
+                    sql = `
+                          SELECT
+                          COUNT(*) AS CHECKk
+                        FROM
+                          VIEW
+                        WHERE
+                          ARTICLE = ${req.params.pk}
+                          AND USER = ${decoded.pk}
+                          `;
+
+                   connection.query(sql, function(err, checking, fields) {
+                    if(!err){
+                      if(checking[0].CHECKk ==0){
+                        sql = `
+                        INSERT INTO
+                        VIEW (ARTICLE, USER)
+                        VALUES (${req.params.pk},${decoded.pk})
+                        `;
+                        connection.query(sql, function(err, answers, fields) {
+                          if(!err){
+                            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                            res.send({status: "success", data: json});
+                          }else{
+                            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                            res.send({status: "fail", data: err});    
+                          }
+                        });
+                      }else{
+                        serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                        res.send({status: "success", data: json});
+                      }
+                    }else{
+                      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                      res.send({status: "fail", data: err});    
+                    }
+                  });
+
+
                   }else{
                     // console.log('article  err ', err);
                     serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
@@ -991,14 +1029,14 @@ const initializeEndpoints = (app) => {
                               WHERE
                                 A.ARTICLE != 0
                                 AND A.CREATEDUSER = U.PK
-                                AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+                                AND A.IS_ACTIVE = 1) AS USER_SELECTED_ANSWER
                             , (SELECT
                                 COUNT(*)
                               FROM
                                 ARTICLE AS A
                               WHERE
                                 A.ARTICLE != 0
-                                AND A.CREATEDUSER = U.PK) AS ANSWER
+                                AND A.CREATEDUSER = U.PK) AS USER_ANSWER
                             , ((SELECT
                                 COUNT(*)
                               FROM
