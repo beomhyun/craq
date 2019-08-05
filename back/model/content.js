@@ -162,26 +162,6 @@ const initializeEndpoints = (app) => {
                       var tagarr = tags.split(',');
                       toArray(tagarr,decoded.pk,contentId);
 
-                      // for(var i in tagarr){
-                      //   console.log(tagarr[i]);
-                      //   // sql += ` (${contentId}, ${tagarr[i]}), `
-                      // }
-                      // var str = req.query.search_text;
-                      // str = replaceAll(str,'[',' [');
-                      // str = replaceAll(str,']','] ');
-                      // var arr = str.split(' ');
-                      // var tag = [];
-                      // var nottag = [];
-                      // for(var i in arr) {
-                      //   arr[i] = replaceAll(arr[i],' ','');
-                      //   if(arr[i].charAt(0) =='') continue;
-                      //   if(arr[i].charAt(0)=='['){
-                      //     tag.push(arr[i].replace('[','').replace(']',''));
-                      //   }else{
-                      //     nottag.push(arr[i].replace(' ',''));
-                      //   }
-                      // }
-
                       // 작성한 글이 어느 질문에 대한 답변일 때
                       if( i.topic_id == 1 && i.article_id != 0){
                         // 질문 글의 작성자를 얻어온다
