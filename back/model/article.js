@@ -1024,9 +1024,7 @@ const initializeEndpoints = (app) => {
                     WHERE
                       1=1
                       `;
-        function replaceAll(str, searchStr, replaceStr) {
-          return str.split(searchStr).join(replaceStr);
-        }
+
         function replaceAll(str, searchStr, replaceStr) {
           return str.split(searchStr).join(replaceStr);
         }
