@@ -65,7 +65,7 @@ export default {
     background-color: var(--color-bg); //TODO
 }
 body { //TODO
-    //    background-color: var(--color-bg); //TODO
+       background-color: var(--color-black); //TODO
 }
 .transparent {
     opacity: 0;
