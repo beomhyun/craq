@@ -133,8 +133,12 @@ const initializeEndpoints = (app) => {
                       async function replaceAll(str, searchStr, replaceStr) {
                         return await str.split(searchStr).join(replaceStr);
                       }
-                      async function toArray(arr,createdUser,contentId){
-
+                      async function toArray(tags,createdUser,contentId){
+                        tags = await replaceAll(tags,'[','');
+                        tags = await replaceAll(tags,']','');
+                        tags = await replaceAll(tags,' ','');
+                        // console.log(tags);
+                        var arr = await tags.split(',');
                         for(var i in arr){
                           var sql = await
                           `
@@ -153,14 +157,7 @@ const initializeEndpoints = (app) => {
                           });
                         }
                       }
-                      var tags = i.tags;
-                      // console.log("tags : "+tags);
-                      tags = replaceAll(tags,'[','');
-                      tags = replaceAll(tags,']','');
-                      tags = replaceAll(tags,' ','');
-                      // console.log(tags);
-                      var tagarr = tags.split(',');
-                      toArray(tagarr,decoded.pk,contentId);
+                      toArray(i.tags,decoded.pk,contentId);
 
                       // 작성한 글이 어느 질문에 대한 답변일 때
                       if( i.topic_id == 1 && i.article_id != 0){
@@ -408,8 +405,22 @@ const initializeEndpoints = (app) => {
                   `;
         connection.query(sql, function(err, rows, fields) {
           if (!err){
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-            res.send({status: "success",data:rows});
+
+            sql = `
+            INSERT INTO
+            VIEW (ARTICLE, USER)
+            VALUES (${req.params.id},${decoded.pk})
+            `;
+            connection.query(sql, function(err, answers, fields) {
+              console.log(this.sql);
+              if(!err){
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                res.send({status: "success",data:rows});
+              }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                res.send({status: "success"});
+              }
+            });
             //res.json(rows);
           }else{
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
