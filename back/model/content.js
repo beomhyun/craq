@@ -57,6 +57,8 @@ const initializeEndpoints = (app) => {
    *        200:
    */
   app.post('/contents', upload.single('image'), function(req, res) {
+    console.log(req.file);
+    console.log(req.body);
     console.log("request post contents1");
     var i = req.body;
     var sql = "";
@@ -540,10 +542,10 @@ const initializeEndpoints = (app) => {
    *               type: string
    *             image:
    *               type: string
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token값을 전달.
+   *       - name: user_token
+   *         in: header
+   *         type: string
+   *         description: 사용자의 token값을 전달.
    *      responses:
    *        200:
    */
