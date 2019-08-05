@@ -9,13 +9,13 @@
         </div>
 
         <div class="follow__list following" v-show="setAsk">
-            <div :key="list" v-for="list in cardLists" class="cardlist">
+            <div :key="idx" v-for="(list, idx) in cardLists" class="cardlist">
                 <CardforAsk :list="list"/>
             </div>
         </div>
 
         <div class="follow__list follower"  v-show="setAnswer">
-            <div :key="list" v-for="list in cardLists" class="cardlist">
+            <div :key="idx" v-for="(list, idx) in cardLists" class="cardlist">
                 <CardforAsk :list="list"/>
             </div>
         </div>

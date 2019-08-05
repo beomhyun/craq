@@ -1,79 +1,145 @@
 <template>
     <div class="main">
-        <div class="headline">
-            <h1>Welcome To CRAQ</h1>
-        </div>
         <div class="content">
-            <div class="content__menu">
-                <div class="notice">
-                    Notice
-                    <div v-for="i in 10">
-                        <span>공지사항이 들어갈 위치</span>
-                    </div>
+            <div class="codeList">
+                <div :key="idx" v-for="(config, idx) in configsTop">
+                    <MainText :config="config"/>
                 </div>
-                <div class="code">
-                    Code Questions
-                    <div v-for="i in 10">
-                        <span>질문들이 들어갈 위치</span>
-                    </div>
+            </div> 
+
+            <div class="textBox">
+                <div class="wellcome">
+                    <p>Welcome</p>
+                    <p class="username">{{welcomeText}}</p>
                 </div>
             </div>
-            <div class="content__menu">
-                <div class="Community">
-                    Tree
-                    <div v-for="i in 10">
-                        <span>자유게시판이 들어갈 위치</span>
-                    </div>
+
+            <div class="codeList">
+                <div :key="idx" v-for="(config, idx) in configsBottom">
+                    <MainText :config="config"/>
                 </div>
             </div>
+            
         </div>
     </div>
 </template>
 
 <script>
+import MainText from '@/components/MainText.vue';
+
 export default {
-    name: "Main"
+    name: "Main",
+    components: {
+        MainText,
+    },
+    data() {
+        return {
+            configsTop: [],
+            configsBottom: [],
+            welcomeText : ''
+        }
+    },
+    mounted() {
+        this.welcomeText = this.$session.get('username').toUpperCase()
+        this.configsTop = [{       
+                    title : 'C',
+                    typing : "#include <studio.h> <br><br> int main(vold) { <br> puts('wellcome, " + this.$session.get('username') + "!'); <br>     return 0; <br> }",   
+                    playTyping: '',
+                    Bool : false,
+                    Idx : 0,
+                    Int : '',
+                },
+                {       
+                    title : 'CPP',
+                    typing : "#include <iostream> <br><br> int main() <br> { <br> std::cout << 'Wellcome," + this.$session.get('username') + "!'); <br>     return 0; <br> }",   
+                    playTyping: '',
+                    Bool : false,
+                    Idx : 0,
+                    Int : '',
+                },
+                {       
+                    title : 'JAVA',
+                    typing : "public class Foo { <br> int public static vold <br> main(String[] args) { <br> System.out.printin <br> (`Wellcome, " + this.$session.get('username') + "!'); <br>} <br> }",
+                    playTyping: '',
+                    Bool : false,
+                    Idx : 0,
+                    Int : '',
+                },
+                {       
+                    title : 'Python',
+                    typing : "print(`Wellcome, " + this.$session.get('username') + "!')",   
+                    playTyping: '',
+                    Bool : false,
+                    Idx : 0,
+                    Int : '',
+                },
+        ],
+        this.configsBottom = [{       
+                    title : 'Pascal',
+                    typing : "Program Wellcome; <br><br> begin <br> writeIn('Wellcome, " + this.$session.get('username') + "!'); <br> end.",   
+                    playTyping: '',
+                    Bool : false,
+                    Idx : 0,
+                    Int : '',
+                },
+                {       
+                    title : 'Arduino',
+                    typing : "void setup() { <br> Serial.begin(9600); <br> Serial.printIn<br>('Wellcome," + this.$session.get('username') + "!'); <br> } <br><br> void loop() { <br> <br> } }",   
+                    playTyping: '',
+                    Bool : false,
+                    Idx : 0,
+                    Int : '',
+                },
+                {       
+                    title : 'C#',
+                    typing : "using System; <br> namespace Csharpv <br> { <br> class Prigram <br> { <br> static void Main(string[] args) <br> { <br> console.WriteLine(`Wellcome) " + this.$session.get('username') + "!'); <br> } } }",
+                    playTyping: '',
+                    Bool : false,
+                    Idx : 0,
+                    Int : '',
+                },
+                {       
+                    title : 'Go',
+                    typing : "package main <br><br> import 'fmt' <br> <br> func main() { <br> fmt.Printf ('Wellcome, " + this.$session.get('username') + "!') <br> }",   
+                    playTyping: '',
+                    Bool : false,
+                    Idx : 0,
+                    Int : '',
+                },
+        ]  
+    }
 }
 
 </script>
 
 <style scoped lang="scss">
-.headline {
-    width: 100%;
-    text-align: center;
-}
 .content {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     padding: var(--space-md);
     background-color: var(--color-surface-light);
-    
-    &__menu {
-        margin-left: var(--space-sm);
-    }
 }
 
-.notice {
-    width: 500px;
-    height: 600px;
-    background-color: var(--color-surface);
-    padding: var(--space-sm);
-    margin-bottom: var(--space-sm);
+.textBox {
+    text-align: center;
 }
 
-.code {
-    width: 500px;
-    height: 400px;
-    background-color: var(--color-surface);
-    padding: var(--space-sm);
-    margin-bottom: var(--space-sm);
+.wellcome {
+    width: 100%;
+    height: 300px;
+    text-align: center;
+
+    font-size: 100px;
+    color: var(--color-primary-dark) 
 }
 
-.Community {
-    width: 500px;
-    height: 1000px;
-    padding: var(--space-sm);
-    background-color: var(--color-surface);
-    margin-bottom: var(--space-sm);
+.codeList {
+    display: flex;
+    justify-content: space-around;
+}
+
+
+.username {
+    color: var(--color-on-surface);
 }
 </style>

@@ -32,7 +32,7 @@
                     <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
 
                     <label for="hashtag"><strong>TagSearch</strong> - 태그를 검색합니다.</label>
-                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : checkInputHashtag}"  @keydown.enter="inputTag(inputHashtag)">
+                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : checkInputHashtag}"  @keydown.enter="createHashtags()">
 
                     <div class="searchHashtag">
                         
@@ -44,7 +44,7 @@
                             
                             <div class="searchHashtag__form">
                                 <template v-for="tag in tags">
-                                    <div @click="inputTag(tag.title)">
+                                    <div @click="createHashtags()">
                                         <TagsCard class="tagsCard" :tag="tag" ></TagsCard>
                                     </div>
                                 </template>
@@ -134,17 +134,45 @@ export default {
         }
     },
     methods: {
-        inputTag(title) {
-            if (!(this.myTags.includes(title))) {
-                this.myTags.push(title)
-            } else {
-                alert("이미 포함된 태그입니다.")
-            };
-            
-            
+        // createQuestions() {
+        //     const data = {
+        //         "topic_id": 1,
+        //         "article_id": 0,
+        //         "beforeContent": 0,
+        //         "title": this.inputTitle,
+        //         "body": this.inputContent,
+        //         "user_id": ''
+        //         }
+        // },
+        createHashtags() {
+            const data = {
+                'title' : this.inputHashtag, 
+                'user_id' : this.$session.get('userPk'), 
+            }
+            this.$axios.post('tags',data).then(res => {
+                if (!(this.myTags.includes(res.data.data))) {
+                    this.myTags.push(res.data.data)
+                } else {
+                    alert("이미 포함된 태그입니다.")
+                }
+            })
+
             this.inputHashtag = ''
-            this.tags = []  
-            },
+            this.tags = [] 
+        },
+        
+        // inputTag(title) {
+        //     this.createHashtags()
+        //     if (!(this.myTags.includes(title))) {
+        //         this.myTags.push(title)
+        //     } else {
+        //         alert("이미 포함된 태그입니다.")
+        //     };
+            
+            
+        //     this.inputHashtag = ''
+        //     this.tags = []  
+        //     },
         deleteTag(title) {
             this.myTags.pop(title)
             }
@@ -178,16 +206,17 @@ export default {
         
     },
      mounted() {
+        
         this.$axios.get('tags').then(res=> {
-            console.log(res);
-            this.tagLists = res.data;
-        }),
+           console.log(res);
+           this.tagLists = res.data;
+        })
         this.cardLists = [{
-                    id: '1',
-                    cardInfo:
-                        {
-                            Answer : '100',
-                            View : '1000',
+                   id: '1',
+                   cardInfo:
+                       {
+                           Answer : '100',
+                           View : '1000',
                             Helpful : '10000',
                         },
 
@@ -198,7 +227,7 @@ export default {
                         },
                 }],
         this.inputContent = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 시도한 코드를 작성하십시오. <br> 4. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명 <br> ```<br>이곳에 코드를 작성하십시오.<br>```"
-    },
+     },
     watch: {
         inputHashtag (a, b) {
             let temp = [];
