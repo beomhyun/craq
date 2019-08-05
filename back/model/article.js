@@ -991,14 +991,14 @@ const initializeEndpoints = (app) => {
                               WHERE
                                 A.ARTICLE != 0
                                 AND A.CREATEDUSER = U.PK
-                                AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+                                AND A.IS_ACTIVE = 1) AS USER_SELECTED_ANSWER
                             , (SELECT
                                 COUNT(*)
                               FROM
                                 ARTICLE AS A
                               WHERE
                                 A.ARTICLE != 0
-                                AND A.CREATEDUSER = U.PK) AS ANSWER
+                                AND A.CREATEDUSER = U.PK) AS USER_ANSWER
                             , ((SELECT
                                 COUNT(*)
                               FROM
