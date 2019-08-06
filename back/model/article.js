@@ -1218,6 +1218,49 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-
+  /**
+   * @swagger
+   *  /questions/{questionId}/answers/{answerId}:
+   *    put:
+   *      tags:
+   *      - article
+   *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      - name: questionId
+   *        in: path
+   *        type: integer
+   *      - name: answerId
+   *        in: path
+   *        type: integer
+   *      responses:
+   *        200:
+   */
+  app.put('/questions/:questionId/answers/:answerId', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        var sql =
+          `
+          
+          `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err) {
+            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+            res.send({status: "success", data: rows});
+          } else {
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status: "fail",data: err});
+          }
+        });
+      }
+    });
+  });
 };
 module.exports = initializeEndpoints;
