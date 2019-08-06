@@ -513,7 +513,9 @@ const initializeEndpoints = (app) => {
             두번째 쿼리 실행후 res에 data에 추가하여 같이 보낸다.
         */
         var sql = `
-                    SELECT 	B.ROWNUM
+                    SELECT 
+                          COUNT(*) AS TMP	
+                          ,B.ROWNUM
                     FROM	(
                     				SELECT 	ROW_NUMBER() OVER(ORDER BY A.PK DESC)
                     			  				AS ROWNUM
