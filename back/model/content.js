@@ -418,7 +418,7 @@ const initializeEndpoints = (app) => {
                 res.send({status: "success",data:rows});
               }else{
                 serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                res.send({status: "success"});
+                res.send({status: "success",data:rows});
               }
             });
             //res.json(rows);
