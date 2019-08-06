@@ -32,7 +32,7 @@
                     <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
 
                     <label for="hashtag"><strong>TagSearch</strong> - 태그를 검색합니다.</label>
-                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : checkInputHashtag}"  @keydown.enter="createHashtags()">
+                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : checkInputHashtag}"  @keydown.enter="createHashtags(inputHashtag)">
 
                     <div class="searchHashtag">
                         
@@ -53,12 +53,11 @@
                         </div>
 
                     </div>
-
                     <label for="mytag"><strong>Tags</strong> - 선택한 태그 목록입니다.</label>
                     <div id="mytag" class="tagsForm">
                         <div :key="idx" v-for="(tag, idx) in myTags">
                             <div class="btn btn--sm tagsForm__btn">
-                                {{tag.title}}&nbsp; <font-awesome-icon icon='times' @click="deleteTag(tag)"/>
+                                {{tag.Title}}&nbsp; <font-awesome-icon icon='times' @click="deleteTag(tag)"/>
                             </div>
                         </div>
                     </div>
@@ -103,6 +102,7 @@ export default {
     },
     data() {
         return{
+            tagpk : '',
             tags: [],
             cardLists: [],
             tagLists: [],
@@ -118,7 +118,7 @@ export default {
             inputContent: '',
             inputTitle : '',
             inputHashtag: '',
-            inputTags: [],
+            inputTags: '',
             Hot: [
                 'DynamicRouter',
                 'Vuetify',
@@ -149,48 +149,37 @@ export default {
             })
         },
     clickHashtags(clicktag) {
-        const data = {
-            'title' : clicktag.title, 
-            'user_id' : this.$session.get('userPk'), 
-        }
-        this.$axios.post('tags',data).then(res => {
-            this.tagLists.forEach((tag) => {
-                if (tag.pk == res.data.data) {
-                    if (!(this.myTags.includes(tag))) {
-                        this.myTags.push(tag)
-                        this.inputTags.push(tag.pk)
-                    } else {
-                        alert("이미 포함된 태그입니다.")
-                    }
+                if (!(this.inputTags.includes(clicktag.pk))) {
+                    this.myTags.push({'pk':clicktag.pk, 'Title':clicktag.title})
+                    this.inputTags = this.inputTags + "," + clicktag.pk
+                } else {
+                    alert("이미 포함된 태그입니다.")
                 }
-            })           
             this.inputHashtag = ''
             this.tags = [] 
-        })
-
     },
-    createHashtags() {
+    createHashtags(item) {
         const data = {
             'title' : this.inputHashtag, 
             'user_id' : this.$session.get('userPk'), 
         }
         this.$axios.post('tags',data).then(res => {
-            this.myTags.forEach((tag) => {
-                if (!(tag.pk == res.data.data)) {
-                        this.myTags.push(this.inputHashtag)
-                        this.inputTags.push(tag.pk)
-                    } else {
-                        alert("이미 포함된 태그입니다.")
-                    }
-                })
+            if (!(this.inputTags.includes(res.data.data))) {
+                    this.myTags.push({'pk':res.data.data, 'Title':item})
+                    this.inputTags = this.inputTags + "," + res.data.data
+                } else {
+                    alert("이미 포함된 태그입니다.")
+                }
                 this.inputHashtag = ''
-            this.tags = [] 
-            })           
+                this.tags = []   
+            })
+                 
     },
     
     deleteTag(tag) {
+        this.tagLists
         this.myTags.pop(tag)
-        this.inputTags.pop(tag.pk)
+        this.inputTags = this.inputTags.replace(tag.pk, '')
         }
     },
     computed: {

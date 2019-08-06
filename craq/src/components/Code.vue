@@ -19,36 +19,36 @@
             </div>  <!-- Filter /div -->
 
             <div class="Code__list" v-show="setLatest">
-              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
-                <router-link to="/code/1" >
+              <div :key="idx" v-for="(list, idx) in askData" class="content">
+                <router-link :to="{ name: 'Questions', params: { pk : list.PK}}">
                   <card class="shadow" :list="list"/>
                 </router-link>
               </div>
             </div>
             <div class="Code__list" v-show="setReliable">
-              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
+              <div :key="idx" v-for="(list, idx) in askData" class="content">
                 <router-link to="/code/1" >
                   <card class="shadow" :list="list"/>
                 </router-link>
               </div>
             </div>
             <div class="Code__list" v-show="setHelpful">
-              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
+              <div :key="idx" v-for="(list, idx) in askData" class="content">
                 <router-link to="/code/1" >
                   <card class="shadow" :list="list"/>
                 </router-link>
               </div>
             </div>
             <div class="Code__list" v-show="setAnswer">
-              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
+              <div :key="idx" v-for="(list, idx) in askData" class="content">
                 <router-link to="/code/1" >
                   <card class="shadow" :list="list"/>
                 </router-link>
               </div>
             </div>
             <div class="Code__list" v-show="setView">
-              <div :key="idx" v-for="(list, idx) in cardLists" class="content">
-                <router-link to="/code/1" >
+              <div :key="idx" v-for="(list, idx) in askData" class="content">
+                <router-link :to="{ name: 'Questions', params: { pk : list.pk}}" >
                   <card class="shadow" :list="list"/>
                 </router-link>
               </div>
@@ -69,8 +69,7 @@
 
             <router-link to="/code"><font-awesome-icon icon="chevron-left"/></router-link>
             &nbsp;
-            
-            <ul :key="idx" v-for="(i, idx) in (1,10)">
+            <ul :key="idx" v-for="(i, idx) in max_page">
               &nbsp;<li><router-link to="/code">{{i}}</router-link></li>&nbsp;
             </ul>
             
@@ -110,294 +109,21 @@ export default {
         setHelpful : false,
         setAnswer : false,
         setView : false,
+
+        askData:  [],
+        max_page : 0,
+        nowpage: 0,
       }
     },
   
     mounted() {
-      this.$axios.get('tags').then(res=> {
-            console.log(res);
-          
+      
+      this.$axios.get('questions/all/1?order_by=PK').then(res=> {
+            this.max_page = res.data.max_page
+            this.nowpage = res.data.nowpage
+            this.askData = res.data.data
+            
         })
-        this.cardLists = [{
-                    id: '1',
-                    cardInfo:
-                        {
-                            Answer : '100',
-                            View : '1000',
-                            Helpful : '10000',
-                        },
-
-                    cardMain:
-                        {
-                            Title : 'Title Test - 1',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: 'Kim',
-                            Mail: 'aaa@test.test',
-                            Score: '2300',
-                            Answers: '23',
-                        }
-                },
-                {
-                    id: '2',
-                    cardInfo: 
-                        {
-                            Answer : '0',
-                            View : '10',
-                            Helpful : '200',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 2',
-                            HashTags : 'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: '',
-                            Mail: '',
-                            Score: '',
-                            Answers: '',
-                        }
-
-                },
-                {
-                    id: '3',
-                    cardInfo: 
-                        {
-                            Answer : '0',
-                            View : '10',
-                            Helpful : '200',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 2',
-                            HashTags : 'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: '',
-                            Mail: '',
-                            Score: '',
-                            Answers: '',
-                        }
-
-                },
-                {
-                    id: '4',
-                    cardInfo: 
-                        {
-                            Answer : '0',
-                            View : '10',
-                            Helpful : '200',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 2',
-                            HashTags : 'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: '',
-                            Mail: '',
-                            Score: '',
-                            Answers: '',
-                        }
-
-                },
-                {
-                    id: '5',
-                    cardInfo: 
-                        {
-                            Answer : '0',
-                            View : '10',
-                            Helpful : '200',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 2',
-                            HashTags : 'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: '',
-                            Mail: '',
-                            Score: '',
-                            Answers: '',
-                        }
-
-                },
-                {
-                    id: '6',
-                    cardInfo: 
-                        {
-                            Answer : '23',
-                            View : '230',
-                            Helpful : '-100',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 3',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: 'Lee',
-                            Mail: 'bbbb@test.test',
-                            Score: '135135',
-                            Answers: '123123',
-                        }
-
-                },
-                {
-                    id: '7',
-                    cardInfo: 
-                        {
-                            Answer : '0',
-                            View : '230',
-                            Helpful : '-100',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 3',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: 'Lee',
-                            Mail: 'bbbb@test.test',
-                            Score: '135135',
-                            Answers: '123123',
-                        }
-
-                },
-                {
-                    id: '8',
-                    cardInfo: 
-                        {
-                            Answer : '0',
-                            View : '230',
-                            Helpful : '-100',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 3',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: 'Lee',
-                            Mail: 'bbbb@test.test',
-                            Score: '135135',
-                            Answers: '123123',
-                        }
-
-                },
-                {
-                    id: '9',
-                    cardInfo: 
-                        {
-                            Answer : '0',
-                            View : '230',
-                            Helpful : '-100',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 3',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: 'Lee',
-                            Mail: 'bbbb@test.test',
-                            Score: '135135',
-                            Answers: '123123',
-                        }
-
-                },
-                {
-                    id: '10',
-                    cardInfo: 
-                        {
-                            Answer : '0',
-                            View : '230',
-                            Helpful : '-100',
-                        },
-
-                    cardMain: 
-                        {
-                            Title : 'Title Test - 3',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser: 
-                        {
-                            Img : '',
-                            Name: 'Lee',
-                            Mail: 'bbbb@test.test',
-                            Score: '135135',
-                            Answers: '123123',
-                        }
-
-                }
-                ]
     },
     methods: {
       askQuestion : function() {
