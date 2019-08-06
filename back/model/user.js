@@ -233,14 +233,47 @@ app.get('/username-checking/:username', function(req,res){
  *          사용자 아이디 전달
  */
 app.get('/users/:pk', function(req,res){
-      var sql = " SELECT * FROM user WHERE pk = ? ";
-    var params = [req.params.pk];
-    connection.query(sql,params, function(err, rows, fields) {
+      var sql = 
+                `
+                SELECT
+                  U.PK
+                  ,U.EMAIL
+                  ,U.USERNAME
+                  ,U.LAST_LOGIN
+                  ,(SELECT
+                        COUNT(*)*13
+                    FROM
+                        ARTICLE AS A
+                    WHERE
+                        A.ARTICLE != 0
+                        AND A.CREATEDUSER = U.PK
+                        AND A.IS_ACTIVE = 1) AS SCORE                     
+                  ,(SELECT
+                        COUNT(*)
+                    FROM
+                        ARTICLE AS A
+                    WHERE
+                        A.ARTICLE != 0
+                        AND A.CREATEDUSER = U.PK
+                        AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+                  ,(SELECT
+                        COUNT(*)
+                    FROM
+                        ARTICLE AS A
+                    WHERE
+                        A.ARTICLE != 0
+                        AND A.CREATEDUSER = U.PK) AS ANSWERS
+                FROM
+                  USER AS U
+                WHERE
+                  U.PK = ${req.params.pk}
+                `;
+    connection.query(sql, function(err, rows, fields) {
             if (!err){
               // console.log('The solution is: ', rows);
               // return callback(null,rows);
               serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
-              res.json(rows);
+              res.json({status: "success", data: rows});
             }
             else{
               console.log('Error while performing Query.', err);
@@ -870,7 +903,6 @@ app.get('/users/profile/:pk', function(req,res){
       });
     }
   });
-
 }
 );
 
@@ -914,6 +946,142 @@ app.put('/users/password/:pk', function(req, res){
           }
         });
 });
+
+/**
+ * @swagger
+ *  /users/writing/{pk}:
+ *    get:
+ *      tags:
+ *      - users
+ *      description: 해당 회원이 쓴 모든 글을 가져온다.
+ *      responses:
+ *       200:
+ *      parameters:
+ *       - name: user_token
+ *         in: header
+ *         type: string
+ *         description: 사용자의 token값을 전달.
+ *       - in: path
+ *         name: pk
+ *         type: integer
+ *         description: |
+ *          사용자 pk 전달
+ */
+app.get('/users/writing/:pk', function(req,res){
+  jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+    if(err){
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      res.status(401).send({error:'invalid token'});
+  } else{
+    var json = {};
+
+      var sql = `SELECT
+                  A.PK
+                  ,(
+                    SELECT
+                      C.TITLE
+                    FROM
+                      CONTENT AS C
+                    WHERE
+                      C.PK = A.CONTENT
+                  ) AS TITLE
+                FROM
+                  ARTICLE AS A
+                WHERE
+                  1=1
+                  AND A.TOPIC = 1
+                  AND A.ARTICLE = 0
+                  AND A.CREATEDUSER = ${req.params.pk}
+                  `;
+      connection.query(sql, function(err, question, fields) {
+        if (!err){
+          json.QUESTION = question;
+          sql = 
+              `
+              SELECT
+                A.PK
+                ,(
+                  SELECT
+                    C.TITLE
+                  FROM
+                    CONTENT AS C
+                  WHERE
+                    C.PK = A.CONTENT
+                ) AS TITLE
+              FROM
+                ARTICLE AS A
+              WHERE
+                1=1
+                AND A.TOPIC = 1
+                AND A.ARTICLE != 0
+                AND A.CREATEDUSER = ${req.params.pk}
+              `;
+          connection.query(sql, function(err, answer, fields) {
+            if(!err){
+              json.ANSWER = answer;
+              sql = 
+                    `
+                    SELECT
+                      A.PK
+                      ,(
+                        SELECT
+                          C.TITLE
+                        FROM
+                          CONTENT AS C
+                        WHERE
+                          C.PK = A.CONTENT
+                      ) AS TITLE
+                    FROM
+                      ARTICLE AS A
+                    WHERE
+                      1=1
+                      AND A.TOPIC NOT IN (1,2)
+                      AND A.ARTICLE = 0
+                      AND A.CREATEDUSER = ${req.params.pk}
+                    `;
+            connection.query(sql, function(err, board, fields) {
+              if(!err){
+                json.BOARD = board;
+
+                sql = 
+                      `
+                      SELECT
+                        C.PK, C.BODY
+                      FROM
+                        COMMENT AS C
+                      WHERE
+                        1=1
+                        AND C.USER = ${req.params.pk}
+                      `;
+                  connection.query(sql, function(err, comment, fields) {
+                    if(!err){
+                      json.COMMENT = comment;
+                      serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                      res.send({status:"success",data: json});
+                    }else{
+                      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                      res.send({status: "fail"});
+                    }
+                  });
+              }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                res.send({status: "fail"});
+              }
+            });  
+            }else{
+              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+              res.send({status: "fail"});
+            }
+          });
+        }else{
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+          res.send({status: "fail"});
+        }
+      });
+    }
+  });
+}
+);
 
 
 };

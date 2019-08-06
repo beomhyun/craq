@@ -662,10 +662,10 @@ const initializeEndpoints = (app) => {
                             VIEW AS V
                           WHERE
                             ASK.PK = V.ARTICLE) AS VIEWS
-                        ,(SELECT
+                        ,IFNULL((SELECT
                             SUM(V.GOOD)
                           FROM VOTE AS V
-                          WHERE ASK.PK = V.ARTICLE) AS HELPFUL
+                          WHERE ASK.PK = V.ARTICLE),0) AS HELPFUL
                         ,U.PK AS ANSWER_USERPK
                         ,U.USERNAME AS ANSWER_USERNAME
                         ,(SELECT
@@ -1248,7 +1248,19 @@ const initializeEndpoints = (app) => {
       } else {
         var sql =
           `
-          
+          UPDATE 
+            ARTICLE
+          SET
+            IS_ACTIVE = 0
+          WHERE
+            PK = (
+                SELECT
+                  ANSWER
+                FROM
+                  ARTICLE
+                WHERE 
+                  PK = ${req.params.questionId}
+                )
           `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {

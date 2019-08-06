@@ -79,63 +79,6 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /tags/mains/{page}:
-   *    get:
-   *      tags:
-   *      - tag
-   *      description: page위치에 해당하는 특정 tag의 article들을 가져옴.
-   *      parameters:
-   *      - name: page
-   *        in: path
-   *        type: integer
-   *        description: tag들을 가져올 page위치의 값
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token값을 전달
-   *      responses:
-   *        200:
-   */
-  app.get('/tags/mains/:page', function(req, res) {
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) {
-        res.status(401).send({
-        error: 'invalid token'
-      });
-      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-    }
-      else {
-        var sql = `SELECT COUNT(PK) AS TOTAL_TAG FROM TAG WHERE IS_REMOVED = ${FALSE}`;
-        connection.query(sql, function(err, rows, fields) {
-          if (!err) {
-            var totalTag = rows[0].TOTAL_TAG;
-            var totalPage = totalTag / TAG_PER_PAGE;
-            if (totalTag > totalPage * TAG_PER_PAGE) {
-              totalPage++;
-            }
-            sql = `SELECT A.ROWNUM, A.TITLE, A.BODY, A.CREATEDUSER FROM ( SELECT ROW_NUMBER() OVER( ORDER BY PK DESC ) AS ROWNUM, TITLE, BODY, CREATEDUSER FROM TAG WHERE IS_REMOVED = ${FALSE} ) AS A WHERE ROWNUM >(${req.params.page}-1)*${TAG_PER_PAGE} LIMIT ${TAG_PER_PAGE}`;
-            connection.query(sql, function(err, rows, fields) {
-              if (!err) {
-                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                res.json(rows);
-              } else {
-                // console.log('select page val err.', err);
-                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                res.send(err);
-              }
-            });
-          } else {
-            // console.log('select count sql err', err);
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            res.send(err);
-          }
-        });
-      }
-    });
-  });
-
-  /**
-   * @swagger
    *  /tags:
    *    get:
    *      tags:
