@@ -103,7 +103,6 @@ export default {
         carddata : '',
         messages: '',
         latested: true,
-        cardLists: [],
         setLatest : true,
         setReliable : false,
         setHelpful : false,

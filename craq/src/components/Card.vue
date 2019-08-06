@@ -14,9 +14,9 @@
         </div>
 
         <div class="main">
-            <div class="main__title"><h4> {{list.TITLE}} </h4></div>
+            <div class="main__title"><h4>{{list.TITLE}}</h4></div>
             <div class="main__hashtag">
-                <div class="btn btn--sm" :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
+                <div class="btn btn--sm btn--tag" :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
                     {{tag}}
                 </div>
             </div>
@@ -26,7 +26,16 @@
             <div v-if="list.ANSWER_USERPK" v-show="list.ANSWER_USERPK">
                 <UserCard :list="list.ANSWER_USERPK" />
             </div>
-            <div v-show="!list.ANSWER_USERPK">없음</div>
+            <div v-show="!list.ANSWER_USERPK">
+                <div class="noneSelected">
+                    <div class="noneSelected__title">
+                        채택된 답변이 없습니다.
+                    </div>
+                    <div class="noneSelected__content">
+                        답변을 작성해 질문자에게 도움이 되어 주세요!
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -122,7 +131,7 @@ $--card-main-height: 120px;
         }
 
         &__title:hover {
-            cursor: pointer;
+
         }
         
     }
@@ -208,6 +217,35 @@ $--card-main-height: 120px;
         margin: var(--space-xxxs);
         color: var(--color-on-tertiary);
     }
+
+.noneSelected {
+    width: 300px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: var(--space-sm);
+    background-color: alpha(var(--color-accent), 0.4);
+    border: 1px solid var(--color-contrast-low);
+
+    &__title {
+        font-size: var(--text-lg);
+        font-weight: bold;
+    }
+
+    &__content {
+        text-align: center;
+        margin-top: var(--space-xxs);
+        padding-left: var(--space-md);
+        padding-right: var(--space-md);
+    }
+}
+
+.btn--tag:hover {
+    background-color: var(--color-tertiary-dark);
+}
 </style>
 
 

@@ -39,6 +39,9 @@ import CardforAsk from '@/components/CardforAsk.vue';
 
 export default {
     name: 'ProfileFollow',
+    props: [
+        'userActivityData'
+    ],
     components: {
         CardforAsk,
     },
