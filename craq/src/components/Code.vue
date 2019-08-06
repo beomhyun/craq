@@ -20,7 +20,7 @@
 
             <div class="Code__list" v-show="setLatest">
               <div :key="idx" v-for="(list, idx) in askData" class="content">
-                <router-link :to="{ name: 'Questions', params: { pk : list.PK}}">
+                <router-link :to="{ name: 'Questions', params: { question_pk : list.PK}}">
                   <card class="shadow" :list="list"/>
                 </router-link>
               </div>
@@ -48,7 +48,7 @@
             </div>
             <div class="Code__list" v-show="setView">
               <div :key="idx" v-for="(list, idx) in askData" class="content">
-                <router-link :to="{ name: 'Questions', params: { pk : list.pk}}" >
+                <router-link :to="{ name: 'Questions', params: { question_pk : list.pk}}" >
                   <card class="shadow" :list="list"/>
                 </router-link>
               </div>

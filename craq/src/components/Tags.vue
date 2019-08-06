@@ -4,6 +4,7 @@
 
             <!-- Headline -->
             <div class="headline">
+                TAGS
             </div> <!-- headline -->
 
             <!-- Filter && Card -->
