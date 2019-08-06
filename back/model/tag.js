@@ -5,6 +5,8 @@ const secretObj = require("../config/jwt");
 const TRUE = 1;
 const FALSE = 0;
 const TAG_PER_PAGE = 12;
+const serverlog = require('./serverlog.js');
+
 const initializeEndpoints = (app) => {
   /**
    * @swagger
@@ -14,107 +16,61 @@ const initializeEndpoints = (app) => {
    *      - tag
    *      description: 하나의 태그를 작성, 이름이 정확히 일치할 경우 생성하지 않음
    *      parameters:
-   *      - in: query
-   *        name: title
-   *        type: string
-   *        description: 태그명
-   *      - in: query
-   *        name: body
-   *        type: string
-   *        description: 태그의 내용 및 설명
-   *      - in: query
-   *        name: user_id
-   *        type: integer
-   *        description: 작성자의 user id값
-   *      - in: header
-   *        name: user_token
-   *        type: string
-   *        description: 사용자의 token 값
+   *       - in: body
+   *         name: contentsbody
+   *         schema:
+   *           type: object
+   *           properties:
+   *             title:
+   *               type: string
+   *             body:
+   *               type: string
+   *       - in: header
+   *         name: user_token
+   *         type: string
+   *         description: 사용자의 token 값
    *      responses:
    *        200:
    */
   app.post('/tags', function(req, res) {
-    var i = req.query;
+    var i = req.body;
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         sql =
               `
                 SELECT   COUNT( PK ) AS COUNT
+                        ,PK
                 FROM     TAG
                 WHERE    TITLE LIKE '${i.title}'
               `;
-        connection.query(sql, function(err, rows, fields) {
-          if( rows[0].COUNT == 0 ){ // 작성된 topic이 없다면
-            console.log(rows[0].COUNT);
+        connection.query(sql, function(err, rows1, fields) {
+          if( rows1[0].COUNT == 0 ){ // 작성된 topic이 없다면
+            // console.log(rows[0].COUNT);
             sql =
             `
               INSERT  INTO
               TAG     ( TITLE, BODY, CREATEDUSER, UPDATEDUSER )
-              VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${i.user_id}, ${i.user_id} )
+              VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${decoded.pk}, ${decoded.pk} )
             `;
-            connection.query(sql, function(err, rows, fields) {
+            connection.query(sql, function(err, rows2, fields) {
               if(!err){
-                res.send({status: "success"});
+                // console.log(rows2.insertId);
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                res.send({status: "success",data: rows2.insertId});
               }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail"});
               }
             });
           }else{
-            res.send({status: "fail"});
-          }
-        });
-      }
-    });
-  });
-
-  /**
-   * @swagger
-   *  /tags/mains/{page}:
-   *    get:
-   *      tags:
-   *      - tag
-   *      description: page위치에 해당하는 특정 tag의 article들을 가져옴.
-   *      parameters:
-   *      - name: page
-   *        in: path
-   *        type: integer
-   *        description: tag들을 가져올 page위치의 값
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token값을 전달
-   *      responses:
-   *        200:
-   */
-  app.get('/tags/mains/:page', function(req, res) {
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
-        error: 'invalid token'
-      });
-      else {
-        var sql = `SELECT COUNT(PK) AS TOTAL_TAG FROM TAG WHERE IS_REMOVED = ${FALSE}`;
-        connection.query(sql, function(err, rows, fields) {
-          if (!err) {
-            var totalTag = rows[0].TOTAL_TAG;
-            var totalPage = totalTag / TAG_PER_PAGE;
-            if (totalTag > totalPage * TAG_PER_PAGE) {
-              totalPage++;
-            }
-            sql = `SELECT A.ROWNUM, A.TITLE, A.BODY, A.CREATEDUSER FROM ( SELECT ROW_NUMBER() OVER( ORDER BY PK DESC ) AS ROWNUM, TITLE, BODY, CREATEDUSER FROM TAG WHERE IS_REMOVED = ${FALSE} ) AS A WHERE ROWNUM >(${req.params.page}-1)*${TAG_PER_PAGE} LIMIT ${TAG_PER_PAGE}`;
-            connection.query(sql, function(err, rows, fields) {
-              if (!err) {
-                res.json(rows);
-              } else {
-                console.log('select page val err.', err);
-                res.send(err);
-              }
-            });
-          } else {
-            console.log('select count sql err', err);
-            res.send(err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            res.send({status: "fail", data: rows1[0].PK});
           }
         });
       }
@@ -138,16 +94,21 @@ const initializeEndpoints = (app) => {
    */
   app.get('/tags', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
-      else {
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
+     else {
         var sql = "SELECT * FROM tag";
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -176,9 +137,12 @@ const initializeEndpoints = (app) => {
    */
   app.get('/tags/:title', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         var sql =
                   `
@@ -198,6 +162,7 @@ const initializeEndpoints = (app) => {
               `;
               connection.query(sql, function(err, rows, fields) {
                 if (err){
+                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                   res.send({status: "fail"});
                 }
               });
@@ -211,8 +176,10 @@ const initializeEndpoints = (app) => {
                   `;
             connection.query(sql, function(err, rows, fields) {
               if (!err){
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                 res.send({status: "success",data:rows[0]});
               }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                 res.send({status: "fail"});
               }
             });
@@ -253,17 +220,22 @@ const initializeEndpoints = (app) => {
    */
   app.put('/tags/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         var sql = "UPDATE tag SET body = ?, updatedUser = ? WHERE pk = ?";
         var params = [req.query.body, req.query.user_id, req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -292,17 +264,22 @@ const initializeEndpoints = (app) => {
    */
   app.delete('/tags/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         var sql = "DELETE FROM tag WHERE pk = ?";
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -331,9 +308,12 @@ const initializeEndpoints = (app) => {
    */
   app.get('/tags/mains/:page', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         var sql =
                   `
@@ -347,23 +327,31 @@ const initializeEndpoints = (app) => {
           if(totalTag > totalPage * TAG_PER_PAGE){
             totalPage++;
           }
-          sql =
-                    `
-                      SELECT	  	T.PK
-                        		 	 ,	T.TITLE
-                        		 	 ,	T.BODY
-                      FROM 			  TAG AS T
-                      WHERE			  T.IS_REMOVED = ${FALSE}
-                      ORDER BY 	  T.PK ASC
-                      LIMIT 		  ${(req.params.page-1)*TAG_PER_PAGE}, ${TAG_PER_PAGE}
-                    `;
-          connection.query(sql, function(err, rows, fields) {
-            if (!err){
-              res.send({status: "success", data: rows, maxPage:totalPage});
-            }else{
-              res.send({status: "fail"});
-            }
-          });
+          if(totalPage < req.params.page){
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }else{
+            sql =
+                      `
+                        SELECT	  	T.PK
+                          		 	 ,	T.TITLE
+                          		 	 ,	T.BODY
+                        FROM 			  TAG AS T
+                        WHERE			  T.IS_REMOVED = ${FALSE}
+                        ORDER BY 	  T.PK ASC
+                        LIMIT 		  ${(req.params.page-1)*TAG_PER_PAGE}, ${TAG_PER_PAGE}
+                      `;
+
+            connection.query(sql, function(err, rows, fields) {
+              if (!err){
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                res.send({status: "success", data: rows, maxPage:totalPage});
+              }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                res.send({status: "fail"});
+              }
+            });
+          }          
         });
       }
     });

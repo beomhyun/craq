@@ -10,7 +10,7 @@ const options = {
     },
     basePath: '/',
   },
-  apis: ['./model/user.js','./model/topic.js','./model/notice.js','./model/subscribe.js','./model/article.js','./model/comment.js','./model/content.js','./model/hashtag.js','./model/tag.js'],
+  apis: ['./model/user.js','./model/topic.js','./model/notice.js','./model/subscribe.js','./model/article.js','./model/comment.js','./model/content.js','./model/hashtag.js','./model/tag.js','./model/vote.js','./model/ward.js'],
 };
 
 const specs = swaggerJsdoc(options);
