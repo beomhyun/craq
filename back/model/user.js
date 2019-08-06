@@ -124,7 +124,41 @@ const initializeEndpoints = (app)=>{
    *       200:
    */
   app.get('/users', function(req,res){
-      var sql = " SELECT * FROM user ";
+      var sql = 
+                `
+                SELECT
+                  U.PK
+                  ,U.EMAIL
+                  ,U.USERNAME
+                  ,U.LAST_LOGIN
+                  ,(SELECT
+                        COUNT(*)*13
+                    FROM
+                        ARTICLE AS A
+                    WHERE
+                        A.ARTICLE != 0
+                        AND A.CREATEDUSER = U.PK
+                        AND A.IS_ACTIVE = 1) AS SCORE                     
+                  ,(SELECT
+                        COUNT(*)
+                    FROM
+                        ARTICLE AS A
+                    WHERE
+                        A.ARTICLE != 0
+                        AND A.CREATEDUSER = U.PK
+                        AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+                  ,(SELECT
+                        COUNT(*)
+                    FROM
+                        ARTICLE AS A
+                    WHERE
+                        A.ARTICLE != 0
+                        AND A.CREATEDUSER = U.PK) AS ANSWERS
+                FROM
+                  USER AS U
+                WHERE
+                  IS_REMOVED = 0
+                `;
       // console.log(ip);
       connection.query(sql, function(err, rows, fields) {
               if (!err){
@@ -999,7 +1033,7 @@ app.get('/users/writing/:pk', function(req,res){
           sql = 
               `
               SELECT
-                A.PK
+                A.ARTICLE AS PK
                 ,(
                   SELECT
                     C.TITLE
@@ -1046,12 +1080,14 @@ app.get('/users/writing/:pk', function(req,res){
                 sql = 
                       `
                       SELECT
-                        C.PK, C.BODY
-                      FROM
-                        COMMENT AS C
-                      WHERE
-                        1=1
-                        AND C.USER = ${req.params.pk}
+                      CT.ARTICLE AS PK
+                      ,CM.BODY
+                    FROM
+                      COMMENT AS CM
+                        LEFT OUTER JOIN CONTENT AS CT ON CM.CONTENT = CT.PK
+                    WHERE
+                      1=1
+                      AND CM.USER = ${req.params.pk}
                       `;
                   connection.query(sql, function(err, comment, fields) {
                     if(!err){

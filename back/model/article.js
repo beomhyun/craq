@@ -649,13 +649,13 @@ const initializeEndpoints = (app) => {
                         ,CON.BODY
                         ,ASK.CREATED_AT AS ASKED_TIME
                         ,ANSWER.CREATED_AT AS ANSERD_TIME
-                        ,(SELECT
+                        ,IFNULL((SELECT
                             GROUP_CONCAT(T.TITLE SEPARATOR ", ")
                           FROM
                             HASHTAG AS H
                               LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
                           WHERE
-                            CON.PK = H.CONTENT) AS HASHTAG
+                            CON.PK = H.CONTENT),'') AS HASHTAG
                         ,(SELECT
                             COUNT(*)
                           FROM
@@ -1248,24 +1248,138 @@ const initializeEndpoints = (app) => {
       } else {
         var sql =
           `
-          UPDATE 
-            ARTICLE
-          SET
-            IS_ACTIVE = 0
+          SELECT
+            A.ANSWER
+          FROM
+            ARTICLE AS A
+          WHERE 
+            A.PK = ${req.params.questionId}
+          `;
+        connection.query(sql, function(err, preanswer, fields) {
+          if (!err) {
+            sql =
+                  `
+                  UPDATE 
+                    ARTICLE
+                  SET
+                    IS_ACTIVE = 0
+                  WHERE
+                    PK = ${preanswer[0].ANSWER}
+                  `;
+            connection.query(sql, function(err, rows, fields) {
+              if(!err){
+                sql =
+                      `
+                      UPDATE 
+                        ARTICLE
+                      SET
+                        ANSWER = ${req.params.answerId}
+                      WHERE
+                        PK =  ${req.params.questionId}
+                      `;
+                  connection.query(sql, function(err, rows, fields) {
+                    if(!err){
+                      sql =
+                          `
+                          UPDATE 
+                            ARTICLE
+                          SET
+                            IS_ACTIVE = 1
+                          WHERE
+                            PK =  ${req.params.answerId}
+                          `;
+                          connection.query(sql, function(err, rows, fields) {
+                            if(!err){
+                              serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                              res.send({status: "success"});
+                            }else{
+                              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                              res.send({status: "fail",data: err});
+                            }
+                          });
+                    }else{
+                      serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                      res.send({status: "fail",data: err});
+                    }
+                  });
+              }else{
+                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                res.send({status: "fail",data: err});
+              }
+            });
+          } else {
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status: "fail",data: err});
+          }
+        });
+      }
+    });
+  });
+
+    /**
+   * @swagger
+   *  /questions/{questionId}/content/{contentId}:
+   *    put:
+   *      tags:
+   *      - article
+   *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      - name: questionId
+   *        in: path
+   *        type: integer
+   *      - name: contentId
+   *        in: path
+   *        type: integer
+   *      responses:
+   *        200:
+   */
+  app.put('/questions/:questionId/content/:contentId', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        var sql =
+          `
+          SELECT
+            COUNT(*) AS CHECKING
+          FROM
+            CONTENT AS C
           WHERE
-            PK = (
-                SELECT
-                  ANSWER
-                FROM
-                  ARTICLE
-                WHERE 
-                  PK = ${req.params.questionId}
-                )
+            1=1
+            AND C.PK = ${req.params.contentId}
+            AND C.ARTICLE = ${req.params.questionId}
           `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-            res.send({status: "success", data: rows});
+            if(rows[0].CHECKING == 0){
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({status: "fail", data: "received the wrong data "});
+            }else{
+              sql = 
+                    `
+                    UPDATE 
+                      ARTICLE AS A
+                    SET
+                      A.CONTENT = ${req.params.contentId}
+                    WHERE
+                      A.PK = ${req.params.questionId}
+                    `;
+              connection.query(sql, function(err, rows, fields) {
+                if(!err){
+                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                  res.send({status: "success"});
+                }else{
+                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                  res.send({status: "fail",data: err});
+                }
+              });
+            }
           } else {
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({status: "fail",data: err});
