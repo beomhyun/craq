@@ -1,5 +1,5 @@
 <template>
-    <div class="card" :class="{'badquestion' :  list.cardInfo.Helpful*1 < 0}">
+    <div class="card" :class="{'badquestion' :  list.HELPFUL*1 < 0}">
         <div class="info">
             <div class="info__column-left">
                 <p>Answer</p>
@@ -7,23 +7,26 @@
                 <p>Helpful</p>
             </div>
             <div class="info__column-right">
-                <p>{{list.cardInfo.Answer}}</p>
-                <p>{{list.cardInfo.View}}</p>
-                <p>{{list.cardInfo.Helpful}}</p>
+                <p>{{list.ANSWER}}</p>
+                <p>{{list.VIEWS}}</p>
+                <p>{{list.HELPFUL}}</p>
             </div>
         </div>
 
         <div class="main">
-            <div class="main__title"><h4> {{list.cardMain.Title}} </h4></div>
+            <div class="main__title"><h4> {{list.TITLE}} </h4></div>
             <div class="main__hashtag">
-                <div class="btn btn--sm">{{list.cardMain.HashTags}}</div>
-  
+                <div class="btn btn--sm" :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
+                    {{tag}}
+                </div>
             </div>
-            <div>{{list.cardMain.Created_at}}| {{list.cardMain.Updated_at}} | {{list.cardMain.Answered_at}}</div>
+            <div>{{list.ASKED_TIME}} | {{list.ANSERD_TIME}}</div>
         </div>
-        
-        <div class="user" >
-            <UserCard/>
+        <div class="user">
+            <div v-if="list.ANSWER_USERPK" v-show="list.ANSWER_USERPK">
+                <UserCard :list="list.ANSWER_USERPK" />
+            </div>
+            <div v-show="!list.ANSWER_USERPK">없음</div>
         </div>
     </div>
 </template>
@@ -39,10 +42,8 @@ export default {
     ],
     data() {
         return {
-   
         }
-    },
-   
+    }, 
 }
 </script>
 
