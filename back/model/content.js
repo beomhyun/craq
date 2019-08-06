@@ -513,8 +513,8 @@ const initializeEndpoints = (app) => {
             두번째 쿼리 실행후 res에 data에 추가하여 같이 보낸다.
         */
         var sql = `
-                    SELECT 
-                          COUNT(*) AS TMP	
+                    SELECT
+                          COUNT(*) AS TMP
                           ,B.ROWNUM
                     FROM	(
                     				SELECT 	ROW_NUMBER() OVER(ORDER BY A.PK DESC)
@@ -703,5 +703,82 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+
+  /**
+   * @swagger
+   *  /contents/notices:
+   *    post:
+   *      tags:
+   *      - content
+   *      description: 게시판관리자가 공지사항을 작성함.
+   *      parameters:
+   *      - in: body
+   *        name: noticeInfo
+   *        schema:
+   *          type: object
+   *          properties:
+   *            topic_id:
+   *              type: integer
+   *            user_id:
+   *              type: integer
+   *            title:
+   *              type: string
+   *            body:
+   *              type: string
+   *            image:
+   *              type: string
+   *      - in: header
+   *        name: user_token
+   *        type: string
+   *        description: 작성자의 token값
+   *      responses:
+   *        200:
+   */
+
+   app.post('/contents/notices', function(req, res) {
+     var i = req.body;
+     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+       if (err){
+         res.status(401).send({
+           error: 'invalid token'
+         });
+         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+       }
+       else {
+         var sql =
+         `
+           SELECT	  COUNT(*) TMP
+           FROM 		MANAGER
+           WHERE		TOPIC = ${i.topic_id}
+           AND      USER  = ${i.user_id}
+         `;
+         connection.query(sql, function(err, rows, fields) {
+           if (!err && rows[0].TMP == 1 ) { // 해당 게시판의 관리자일 때
+             sql =
+             `
+               INSERT   INTO
+               CONTENT  (TITLE, BODY, IMAGE, CREATEDUSER)
+               VALUES   ('${i.title}','${i.body}','${i.image}',${i.user_id})
+             `;
+             connection.query(sql, function(err, rows, fields) {
+               if(!err){
+                 // 해당 게시판을 구독중인 사용자들에게 알림처리               
+                 serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                 res.send({ status: "success" });
+               }else{
+                 serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                 res.send({ status: "fail" });
+               }
+             });
+
+           } else {
+             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+             res.send({ status: "fail" });
+           }
+         });
+       }
+     });
+   });
+
 };
 module.exports = initializeEndpoints;
