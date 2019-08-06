@@ -327,26 +327,31 @@ const initializeEndpoints = (app) => {
           if(totalTag > totalPage * TAG_PER_PAGE){
             totalPage++;
           }
-          sql =
-                    `
-                      SELECT	  	T.PK
-                        		 	 ,	T.TITLE
-                        		 	 ,	T.BODY
-                      FROM 			  TAG AS T
-                      WHERE			  T.IS_REMOVED = ${FALSE}
-                      ORDER BY 	  T.PK ASC
-                      LIMIT 		  ${(req.params.page-1)*TAG_PER_PAGE}, ${TAG_PER_PAGE}
-                    `;
-                    
-          connection.query(sql, function(err, rows, fields) {
-            if (!err){
-              serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-              res.send({status: "success", data: rows, maxPage:totalPage});
-            }else{
-              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-              res.send({status: "fail"});
-            }
-          });
+          if(totalPage < req.params.page){
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }else{
+            sql =
+                      `
+                        SELECT	  	T.PK
+                          		 	 ,	T.TITLE
+                          		 	 ,	T.BODY
+                        FROM 			  TAG AS T
+                        WHERE			  T.IS_REMOVED = ${FALSE}
+                        ORDER BY 	  T.PK ASC
+                        LIMIT 		  ${(req.params.page-1)*TAG_PER_PAGE}, ${TAG_PER_PAGE}
+                      `;
+
+            connection.query(sql, function(err, rows, fields) {
+              if (!err){
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                res.send({status: "success", data: rows, maxPage:totalPage});
+              }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                res.send({status: "fail"});
+              }
+            });
+          }          
         });
       }
     });
