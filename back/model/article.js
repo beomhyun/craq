@@ -1218,6 +1218,7 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+
   /**
    * @swagger
    *  /questions/{questionId}/answers/{answerId}:
@@ -1248,7 +1249,7 @@ const initializeEndpoints = (app) => {
       } else {
         var sql =
           `
-          UPDATE 
+          UPDATE
             ARTICLE
           SET
             IS_ACTIVE = 0
@@ -1258,7 +1259,7 @@ const initializeEndpoints = (app) => {
                   ANSWER
                 FROM
                   ARTICLE
-                WHERE 
+                WHERE
                   PK = ${req.params.questionId}
                 )
           `;
@@ -1274,5 +1275,88 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+
+  /**
+   * @swagger
+   *  /articles/searches/{type}/{word}/{page}:
+   *    get:
+   *      tags:
+   *      - article
+   *      parameters:
+   *      - name: type
+   *        in: path
+   *        type: integer
+   *        description: 검색할 종류의 값 (0 = 제목, 1 = 내용, 2 = 제목+내용)
+   *      - name: word
+   *        in: path
+   *        type: string
+   *        description: 검색할 단어 또는 문장
+   *      - name: page
+   *        in: path
+   *        type: integer
+   *        description: 나타낼 page의 값
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/articles/searches/:type/:word/:page', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        var keyword = '';
+        switch(parseInt(req.params.type)){
+          case 0:
+            keyword = "AND C.TITLE LIKE '%"+req.params.word+"%'";
+            break;
+          case 1:
+            keyword = "AND C.BODY LIKE '%"+req.params.word+"%'";
+            break;
+          case 2:
+            keyword = "AND (C.TITLE LIKE '%"+req.params.word+"%' OR C.BODY LIKE '%"+req.params.word+"%') ";
+            break;
+        }
+        var sql ="SELECT COUNT(*) COUNT FROM ARTICLE A JOIN CONTENT C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = 0 ";
+        sql = sql.concat(keyword);
+        connection.query(sql, function(err, rows, fields) {
+          if (!err) {
+            var totalArticle = rows[0].COUNT;
+            var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
+            if(totalArticle > totalPage * ARTICLE_PER_PAGE){
+              totalPage++;
+            }
+            if(req.params.page > totalPage){
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({status: "fail"});
+            }else{
+              sql = "SELECT ROW_NUMBER() OVER(ORDER BY A.PK DESC) ROWNUM, A.PK, C.PK, C.TITLE, C.BODY, A.CREATED_AT FROM ARTICLE A JOIN CONTENT C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = 0 ";
+              sql+=keyword;
+              sql+="LIMIT "+String((req.params.page-1)*ARTICLE_PER_PAGE)+", "+String(ARTICLE_PER_PAGE);
+              //console.log(sql);
+              connection.query(sql, function(err, rows, fields) {
+                if (!err) {
+                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                  res.send({status: "success", data: rows,maxPage:totalPage});
+                } else {
+                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                  res.send({status: "fail",data: err});
+                }
+              });
+            }
+          } else {
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status: "fail",data: err});
+          }
+        });
+      }
+    });
+  });
+
 };
 module.exports = initializeEndpoints;
