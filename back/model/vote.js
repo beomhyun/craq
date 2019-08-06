@@ -80,7 +80,61 @@ const initializeEndpoints = (app) => {
     });
   });
 
-
+  /**
+   * @swagger
+   *  /votes/{article_id}/{user_id}:
+   *    get:
+   *      tags:
+   *      - vote
+   *      description: 특정 vote 결과를 가져온다.( -1 or 1 )
+   *      parameters:
+   *      - name: article_id
+   *        in: path
+   *        type: integer
+   *        description: article의 id값
+   *      - name: user_id
+   *        in: path
+   *        type: integer
+   *        description: user의 id값
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달
+   *      responses:
+   *        200:
+   */
+  app.get('/votes/:article_id/:user_id', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        var sql =
+        `
+          SELECT    COUNT(*)  AS TMP
+                  , GOOD
+          FROM      VOTE
+          WHERE     ARTICLE = ${req.params.article_id}
+          AND       USER    = ${req.params.user_id}
+        `;
+        connection.query(sql, function(err, rows, fields) {
+          var val = rows[0].GOOD;
+          if(String(rows[0].GOOD) == "null"){
+            val = 0;
+          }
+          if(!err){
+            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+            res.send({status: "success", data:val});
+          }else{
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }
+        });
+      }
+    });
+  });
 
 };
 module.exports = initializeEndpoints;
