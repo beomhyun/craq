@@ -8,10 +8,10 @@
             </ul>
         </div>
         <div>
-            <a class="comments-link" href="" title="avoid answering questions in comments">
+            <a class="comments-link" href="" title="avoid answering questions in comments" @click.prevent="addComment=!addComment" >
                 add a comment
             </a>
-            <ArticleCommenter></ArticleCommenter>
+            <ArticleCommenter :article_pk="article_pk" v-if="addComment" @clicked="tester"></ArticleCommenter>
         </div>
     </div>
 
@@ -24,20 +24,30 @@ export default {
     name: "ArticleComments",
     data() {
         return {
-            comments: []
+            comments: [],
+            addComment: false
         }
     },
     props: [
-        "article_pk"
+        "article_pk", "content_id"
     ],
     components: {
         ArticleCommentsCard,
         ArticleCommenter,
     },
+    methods: {
+        update: function() {
+            this.$axios.get(`comments/articles/${this.article_pk}`).then(res=>{
+                this.comments = res.data.data;
+                console.log('update');
+            })
+        },
+        tester() {
+            console.log('hi');
+        }
+    },
     mounted() {
-        this.$axios.get(`comments/articles/${this.article_pk}`).then(res=>{
-            this.comments = res.data.data;
-        })
+        this.update()
     }
 }
 </script>
