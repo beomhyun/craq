@@ -49,7 +49,7 @@ export default {
             return (this.$session.exists());
         }
     },
-    mounted() {
+    beforeCreate() {
         this.$axios.defaults.headers.common['user_token'] = this.$session.get('jwt'); 
     },
 }

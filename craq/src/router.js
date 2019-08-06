@@ -93,7 +93,7 @@ export default new Router({
       component: FreeBoard
     },
     {
-      path: '/code/:pk',
+      path: '/code/:question_pk',
       name: 'Questions',
       component: CodeDetail,
       props: true

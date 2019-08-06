@@ -1,31 +1,42 @@
 <template>
     <div class="post-taglist flex flex-column flex-gap-xs">
         <div class="d-block ps-relative">
-            <a class="post-tag" href="" rel="tag">
-                django
-            </a>
-            <a class="post-tag" href="" rel="tag">
-                django
-            </a>
-            <a class="post-tag" href="" rel="tag">
-                django
-            </a>
-            <a class="post-tag" href="" rel="tag">
-                django
-            </a>
-            <a class="post-tag" href="" rel="tag">
-                django
-            </a>
-            <a class="post-tag" href="" rel="tag">
-                django
-            </a>
+            <template v-for="hashtag in hashtags">
+                <a class="post-tag" href="" rel="tag">
+                    {{hashtag.TITLE}}
+                </a>
+            </template>
         </div>
     </div>
 </template>
 
 <script>
 export default {
-    name: "ArticleTagList"
+    name: "ArticleTagList",
+    props: [
+        "content_pk"
+    ],
+    data() {
+        return {
+            hashtags: [
+            ]
+        }
+    },
+    watch: {
+        content_pk: function() {
+            this.update()
+        }
+    },
+    methods: {
+        update: function() {
+            this.$axios.get(`hashtags/contents/${this.content_pk}`).then(res=> {
+                this.hashtags = res.data; 
+            })
+        }
+    },
+    mounted() {
+        this.update()
+    }
 }
 
 </script>

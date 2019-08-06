@@ -52,6 +52,15 @@ Vue.use({
 })
 
 // end axios
+// custom directive- focus
+Vue.directive('focus', {
+  inserted: function (el) {
+    el.focus()
+  }
+})
+
+
+// end custom directive
 
 // filters
 import moment from 'moment';

@@ -1,9 +1,9 @@
 <template>
-    <div class="post-signature owner">
+    <div class="post-signature">
         <div class="user-info">
             <div class="user-action-time">
-                <a href="" title="show all edits">edited
-                    <span title="2019-1-1">2020-12-20</span>
+                <a href="" title="show all edits">{{ primary ? 'edited' : 'created' }}
+                    <span title="2019-1-1">{{primary ? edited: created | formatDate}}</span>
                 </a>
             </div>
             <div class="user-gravatar32">
@@ -13,7 +13,7 @@
                 </a>
             </div>
             <div class="user-details">
-                <a href="">D.Va HanaSong</a>
+                <a href="">{{userName}}</a>
                 <div class="-flair">
                     <span class="reputation-score" title="reputation score">9,000</span>
                     <span title="helloworld">
@@ -31,9 +31,40 @@
 
 <script>
 export default {
-    name: "ArticleSignatureCard"
-}
+    name: "ArticleSignatureCard",
+    props: [
+        "creator", "editor", "primary", "created", "edited"
+    ],
+    data() {
+        return {
+            userName: "temp",
 
+        }
+    },
+    watch:{
+edited: function(val, oldVal) {
+this.update()
+}
+    },
+    methods: {
+        update() {
+            if (this.primary) {
+                this.$axios.get(`users/${this.editor}`).then(res=>{
+                    this.userName = res.data[0].username;
+                    console.log(this.editor)
+                })
+            } else {
+                this.$axios.get(`users/${this.creator}`).then(res=>{
+                    this.userName = res.data[0].username;
+                    console.log(this.creator)
+                })
+            }
+        }
+    },
+    mounted() {
+        this.update()
+    }
+}
 
 </script>
 
@@ -45,8 +76,7 @@ export default {
     & > span:not(.reputation-score) {
         margin-right: 3px;
         margin-left: 2px;
-        font-size: 13px;
-    }
+    font-size: 13px; }
 }
 .anonymous-gravatar {
     display: inline-block;
