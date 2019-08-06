@@ -78,7 +78,6 @@ const initializeEndpoints = (app) => {
    *        200:
    */
   app.get('/articles/questions', function(req, res) {
-    const QA = 1;
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -87,13 +86,19 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = `SELECT * FROM article WHERE topic = ${QA} AND article IS NULL`;
+        var sql =
+        `
+          SELECT  *
+          FROM    ARTICLE
+          WHERE   TOPIC   = 1
+          AND     ARTICLE = 0
+          AND     IS_REMOVED = 0
+        `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -719,7 +724,7 @@ const initializeEndpoints = (app) => {
             });
 
 
-        
+
       }
     });
   });
@@ -863,7 +868,7 @@ const initializeEndpoints = (app) => {
                             res.send({status: "success", data: json});
                           }else{
                             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                            res.send({status: "fail", data: err});    
+                            res.send({status: "fail", data: err});
                           }
                         });
                       }else{
@@ -872,7 +877,7 @@ const initializeEndpoints = (app) => {
                       }
                     }else{
                       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                      res.send({status: "fail", data: err});    
+                      res.send({status: "fail", data: err});
                     }
                   });
 
@@ -880,19 +885,19 @@ const initializeEndpoints = (app) => {
                   }else{
                     // console.log('article  err ', err);
                     serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                    res.send({status: "fail", data: err});    
+                    res.send({status: "fail", data: err});
                   }
-                });           
+                });
               }else{
                 // console.log('article  err ', err);
                 serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                res.send({status: "fail", data: err});    
+                res.send({status: "fail", data: err});
               }
             });
               }else{
                 // console.log('article  err ', err);
                 serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                res.send({status: "fail", data: err});    
+                res.send({status: "fail", data: err});
               }
             });
       }
@@ -926,10 +931,10 @@ const initializeEndpoints = (app) => {
                       ,C.TITLE
                       ,(SELECT
                           U.USERNAME
-                        FROM 
+                        FROM
                           USER AS U
                         WHERE
-                          U.PK = A.CREATEDUSER 
+                          U.PK = A.CREATEDUSER
                       ) AS WRITER
                       ,(SELECT
                           T.TOPIC
@@ -943,13 +948,13 @@ const initializeEndpoints = (app) => {
                         FROM
                           COMMENT AS CM
                             LEFT OUTER JOIN CONTENT AS CC ON CM.CONTENT = CC.PK
-                        WHERE 
+                        WHERE
                           A.PK = CC.ARTICLE
                       ) AS COMMENTS
                     FROM
                       ARTICLE AS A
                         LEFT OUTER JOIN CONTENT AS C ON A.CONTENT = C.PK
-                    WHERE 
+                    WHERE
                       1=1
                       AND A.TOPIC NOT IN (1,2)
                     ORDER BY PK DESC
@@ -967,7 +972,7 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-  
+
   /**
    * @swagger
    *  /questions/search:
