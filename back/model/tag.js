@@ -394,6 +394,7 @@ const initializeEndpoints = (app) => {
                       ORDER BY 	  T.PK ASC
                       LIMIT 		  ${(req.params.page-1)*TAG_PER_PAGE}, ${TAG_PER_PAGE}
                     `;
+                    
           connection.query(sql, function(err, rows, fields) {
             if (!err){
               serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);

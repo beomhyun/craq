@@ -282,10 +282,11 @@ const initializeEndpoints = (app) => {
           if (!err) {
             var totalArticle = rows[0].TOTAL_ARTICLE;
             //나올 수 있는 총 페이지의 수를 구한다.
-            var totalPage = totalArticle / ARTICLE_PER_PAGE;
+            var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
             if (totalArticle > totalPage * ARTICLE_PER_PAGE) {
               totalPage++;
             }
+            if(totalPage)
             sql =
               `
             SELECT    B.ROWNUM
@@ -332,11 +333,11 @@ const initializeEndpoints = (app) => {
             connection.query(sql, function(err, rows, fields) {
               if (!err) {
                 serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                res.json(rows);
+                res.send({status: "success", data: rows, maxPage:totalPage});
               } else {
                 // console.log('article insert err ', err);
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                res.send(err);
+                res.send({status: "fail"});
               }
             });
           } else {
