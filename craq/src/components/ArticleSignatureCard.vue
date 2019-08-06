@@ -1,5 +1,5 @@
 <template>
-    <div class="post-signature owner">
+    <div class="post-signature">
         <div class="user-info">
             <div class="user-action-time">
                 <a href="" title="show all edits">{{ primary ? 'edited' : 'created' }}

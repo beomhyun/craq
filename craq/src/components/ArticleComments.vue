@@ -11,7 +11,7 @@
             <a class="comments-link" href="" title="avoid answering questions in comments" @click.prevent="addComment=!addComment" >
                 add a comment
             </a>
-            <ArticleCommenter :article_pk="article_pk" v-if="addComment" @clicked="tester"></ArticleCommenter>
+            <ArticleCommenter v-bind="$props" v-if="addComment" @clicked="update"></ArticleCommenter>
         </div>
     </div>
 
@@ -41,10 +41,8 @@ export default {
                 this.comments = res.data.data;
                 console.log('update');
             })
+            this.addComment = false;
         },
-        tester() {
-            console.log('hi');
-        }
     },
     mounted() {
         this.update()

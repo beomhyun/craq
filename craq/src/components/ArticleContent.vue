@@ -1,6 +1,6 @@
 <template>
     <div class="post-text" item-prop="text">
-        {{body}}
+        <div v-html="body"></div>
     </div>
 </template>
 

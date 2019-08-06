@@ -1,7 +1,7 @@
 <template> 
     <div>
         <form @submit.prevent="submit2">
-            <input type="text" class="form-control" v-model="body"><button class="reset btn btn--primary"><font-awesome-icon :icon="['fas', 'paper-plane']"></font-awesome-icon></button>
+            <input v-focus type="text" class="form-control" v-model="body" autofocus><button class="reset btn btn--primary"><font-awesome-icon :icon="['fas', 'paper-plane']"></font-awesome-icon></button>
         </form>
     </div>
 </template>
@@ -14,7 +14,7 @@ export default {
     ],
     data() {
         return {
-            body: "hi"
+            body: ""
         }
     },
     methods: {
