@@ -127,6 +127,7 @@ const initializeEndpoints = (app) => {
         FROM    WARD
         WHERE   ARTICLE = ${req.params.article_id}
         AND     USER    = ${req.params.user_id}
+                AND IS_REMOVED = 0
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err && rows[0].COUNT == 1) {
