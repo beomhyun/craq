@@ -65,11 +65,12 @@ export default new Router({
 
     },
     {
-      path: '/profile',
+      path: '/profile/:user_name',
       meta: {
       },
       name: 'profile',
       component: Profile
+      // this.$router.push({'name': 'profile', 'params':{user_name: 'rngus'}})
     },
     {
       path: '/code',

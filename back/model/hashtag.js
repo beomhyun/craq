@@ -3,6 +3,7 @@ var connection = mysql_dbc.init();
 const jwt = require("jsonwebtoken");
 const secretObj = require("../config/jwt");
 const TRUE = 1;
+const serverlog = require('./serverlog.js');
 
 const initializeEndpoints = (app) => {
   /**
@@ -34,17 +35,22 @@ const initializeEndpoints = (app) => {
   app.post('/hashtags', function(req, res) {
     var i = req.body;
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         var sql = "INSERT INTO hashtag(content,hashtag,createdUser,updatedUser) ( SELECT c.pk,t.pk,c.createdUser,c.createdUser FROM content as c JOIN tag as t WHERE c.pk = ? AND t.pk = ? )";
         var params = [i.content_id, i.tag_id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -69,16 +75,21 @@ const initializeEndpoints = (app) => {
    */
   app.get('/hashtags', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         var sql = "SELECT * FROM hashtag";
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -107,17 +118,30 @@ const initializeEndpoints = (app) => {
    */
   app.get('/hashtags/contents/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
-        var sql = "SELECT * FROM hashtag WHERE content = ?";
-        var params = req.params.id;
-        connection.query(sql, params, function(err, rows, fields) {
+        var sql = `
+                    SELECT
+                    T.PK,
+                    T.TITLE
+                  FROM
+                    HASHTAG AS H
+                      LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+                  WHERE
+                    H.CONTENT = ${req.params.id}
+                  `;
+        connection.query(sql, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -150,17 +174,22 @@ const initializeEndpoints = (app) => {
    */
   app.get('/hashtags/contents/:c_id/tags/:t_id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         var sql = "SELECT * FROM hashtag WHERE content = ? AND hashtag = ?";
         var params = [req.params.c_id,req.params.t_id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -193,17 +222,22 @@ const initializeEndpoints = (app) => {
    */
   app.delete('/hashtags/contents/:c_id/tags/:t_id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) res.status(401).send({
+      if (err) {
+        res.status(401).send({
         error: 'invalid token'
       });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
       else {
         var sql = "DELETE FROM hashtag WHERE content = ? AND hashtag = ?";
         var params = [req.params.c_id,req.params.t_id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            console.log('Error while performing Query.', err);
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
         });

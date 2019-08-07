@@ -13,13 +13,13 @@
                     <div class="Code__filter-btn" :class="{'selected':query('order_by') =='PK'}" @click.prevent="sort('PK')">Latest</div>
                     <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='RELIABLE'}" @click.prevent="sort('RELIABLE')">Reliable</div>
                     <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='HELPFUL'}" @click.prevent="sort('HELPFUL')">Helpful</div>
-                    <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='ANSWER'}" @click.prevent="sort('ANSWER')">Answer</div>
+                    <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='USER_ANSWER'}" @click.prevent="sort('USER_ANSWER')">Answer</div>
                     <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='VIEWS'}" @click.prevent="sort('VIEWS')">View</div>
                 </div>  <!-- Filter /div -->
 
                 <div class="Code__list" v-if="loaded">
                     <div :key="idx" v-for="(ask, idx) in asks" class="content">
-                            <card class="shadow" :list="ask"/>
+                        <card class="shadow" :list="ask"/>
                     </div>
                 </div>
 
@@ -110,7 +110,7 @@ export default {
                     "page": 1,
                     "order_by": by,
                     "search_text": this.query('search_text')
-                    
+
                 }
             })
         },
@@ -188,8 +188,7 @@ export default {
     box-shadow: var(--shadow-sm);
     width: 100%;
     border: 1px solid var(--color-contrast-low);
-    margin-bottom: var(--space-sm);
-}
+    margin-bottom: var(--space-sm); }
 
 .content {
     width: 100%;
