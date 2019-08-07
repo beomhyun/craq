@@ -1183,6 +1183,10 @@ const initializeEndpoints = (app) => {
    *      - name: now_page
    *        in: path
    *        type: string
+   *      - name: order_by
+   *        in: query
+   *        type: string
+   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, ANSWER, RELIABLE
    *      - name: user_token
    *        in: header
    *        type: string
@@ -1339,7 +1343,8 @@ const initializeEndpoints = (app) => {
                           ORDER BY HELPFUL DESC) AS TAB
                       WHERE
                         1=1
-                      LIMIT ${page}, ${perpage}
+                      ORDER BY ${req.query.order_by} DESC
+                      LIMIT ${page}, ${perpage} 
                         `;
               connection.query(sql, function(err, rows2, fields) {
                 if (!err) {

@@ -357,5 +357,64 @@ const initializeEndpoints = (app) => {
     });
   });
 
+  /**
+   * @swagger
+   *  /tags/weekly/topten:
+   *    get:
+   *      tags:
+   *      - tag
+   *      description: 모든 태그를 받아옴.
+   *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달
+   *      responses:
+   *        200:
+   */
+  app.get('/tags/weekly/topten', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+        error: 'invalid token'
+      });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
+     else {
+        var sql = 
+                  `
+                  SELECT
+                      TAB.PK
+                      ,TAB.TITLE
+                      ,COUNT(*) AS COUNT
+                  FROM
+                    (
+                    SELECT
+                      T.PK AS PK
+                      ,T.TITLE AS TITLE
+                      FROM
+                        HASHTAG AS H
+                          LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+                      WHERE
+                        H.CREATED_AT BETWEEN (NOW() - INTERVAL 7 DAY) AND NOW()
+                    ) AS TAB
+                  GROUP BY TAB.TITLE
+                  ORDER BY COUNT DESC
+                  LIMIT 0,10
+                  `;
+        connection.query(sql, function(err, rows, fields) {
+          // console.log(rows);
+          if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            res.json({status: "success", data: rows});
+          } else {
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            res.send({status:"fail", data: err});
+          }
+        });
+      }
+    });
+  });
 };
 module.exports = initializeEndpoints;
