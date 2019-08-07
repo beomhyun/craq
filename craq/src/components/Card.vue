@@ -20,11 +20,11 @@
                     {{tag}}
                 </div>
             </div>
-            <div>{{list.ASKED_TIME}} | {{list.ANSERD_TIME}}</div>
+            <div>{{list.ASKED_TIME | formatDate}}</div>
         </div>
         <div class="user">
             <div v-if="list.ANSWER_USERPK" v-show="list.ANSWER_USERPK">
-                <UserCard :list="list.ANSWER_USERPK" />
+                <UserCard v-bind="$props"/>
             </div>
             <div v-show="!list.ANSWER_USERPK">
                 <div class="noneSelected">
