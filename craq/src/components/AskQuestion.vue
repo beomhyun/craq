@@ -99,6 +99,7 @@ import CardAsk from '@/components/CardAsk.vue';
 import TagsCard from '@/components/TagsCard.vue';
 import VueFroala from 'vue-froala-wysiwyg';
 import VueSimplemde from 'vue-simplemde';
+import Paginator from '@/components/Paginator.vue';
 
 export default {
     name: 'AskQuestion',
@@ -148,16 +149,16 @@ export default {
     },
     methods: {
         createQuestions() {
-            if (this.inputTags.length == 0) {
-                alert("해시태그는 1개 이상 작성하여야 합니다.")
-            }
             if (this.inputTitle.length == 0) {
-                alert("해시태그는 1개 이상 작성하여야 합니다.")
+                alert("제목은 반드시 작성하셔야 합니다.")
             }
             if (this.inputContent.length == 0) {
-                alert("해시태그는 1개 이상 작성하여야 합니다.")
+                alert("내용은 반드시 작성하셔야 합니다.")
             }
-            if (this.inputTags.length > 0) {
+            if (this.inputTags.length == 0) {
+                alert("태그는 1개 이상 작성하여야 합니다.")
+            }
+            if (this.inputTags.length > 0 && this.inputTags.length > 0 && this.inputContent.length > 0) {
             const data = {
                 "topic_id": 1,
                 "article_id": 0,
@@ -187,6 +188,10 @@ export default {
             this.tags = [] 
     },
     createHashtags(item) {
+        if ( this.inputHashtag.length == 0) {
+            alert("최소 1글자 이상 입력하여야 합니다.")
+        } 
+        if ( this.inputHashtag.length > 0) {
         const data = {
             'title' : this.inputHashtag, 
             'user_id' : this.$session.get('userPk'), 
@@ -201,7 +206,7 @@ export default {
                 this.inputHashtag = ''
                 this.tags = []   
             })
-                 
+        }
     },
     
     deleteTag(tag) {
