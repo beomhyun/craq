@@ -110,7 +110,7 @@
                 </div>
             </div>
             
-            <ProfileActivity v-show="setActivity" :userActivityData="userActivityData"/>
+            <ProfileActivity v-if="setActivity" :userActivityData="userActivityData" :userData="userData.PK"/>
             <ProfileFollow class="follow" v-show="setFollow"/>
 
             <div class="Notify" v-show="setNotify">
@@ -126,7 +126,13 @@
 </template>
 <script>
 import Noty from '@/components/Noty.vue';
-import ProfileActivity from '@/components/ProfileActivity.vue';
+//import ProfileActivity from '@/components/ProfileActivity.vue';
+import Spinner from '@/components/Spinner.vue';
+const ProfileActivity= () => ({
+    component: import("@/components/ProfileActivity.vue"),
+    loading: Spinner,
+    delay: 500
+})
 import ProfileFollow from '@/components/ProfileFollow.vue';
 
 export default {
@@ -228,6 +234,7 @@ export default {
                 this.allUserInfo.forEach((data) => {
                     if (data.USERNAME.toLowerCase() == this.$route.params.user_name.toLowerCase()) {
                         this.$axios.get('users/profile/' + data.PK).then(response => {
+                            console.log(response)
                             this.userData = response.data[0]
                         this.$axios.get('users/writing/' + data.PK).then(res => {
                             this.userActivityData = res.data.data
@@ -517,7 +524,7 @@ $--menu-width: 22rem;
     text-align: end;
     border: 1px dashed var(--color-contrast-low);
     border-radius: var(--radius-sm);
-    width: 300px;
+    width: 500px;
 }
 
 .skill-icon {

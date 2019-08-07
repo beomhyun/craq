@@ -28,8 +28,9 @@ export default {
                 if(this.config.Idx < typingTxt.length){ // 타이핑될 텍스트 길이만큼 반복 
                     this.config.playTyping = this.config.playTyping + typingTxt[this.config.Idx] // 한글자씩 이어준다.
                     this.config.Idx++
-                } else{ 
-                    clearInterval(this.config.Int); //끝나면 반복종료 
+                } else{
+                    this.config.Bool=false  
+                    // clearInterval(this.config.Int); //끝나면 반복종료 
                 } 
             },50); // 반복동작 
             }
@@ -66,7 +67,7 @@ export default {
 
 .typing {  
      display: inline-block; 
-    
+        color: var(--color-white)
     } 
 </style>
 
