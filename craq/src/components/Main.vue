@@ -2,42 +2,6 @@
     <div class="main">
         <router-link to="/code">
             <div class="content">
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
-            <pre>내려간다</pre>
             <!-- <div class="codeList">
                 <div :key="idx" v-for="(config, idx) in configsTop">
                     <MainText :config="config"/>
@@ -159,40 +123,40 @@ export default {
   font-weight: normal;
   font-style: normal;
 }
-pre {
-    font-size: var(--text-xxl);
-    color: var(--color-primary);
-    text-shadow: 0 0 0 transparent, 0 0 10px var(--color-primary-light), 0 0 20px alpha(var(--color-primary-darker), 0.7), 0 0 40px var(--color-primary-light), 0 0 100px var(--color-primary-light), 0 0 200px var(--color-primary-light);
-    letter-spacing: .3rem;
-  word-spacing: 1rem;
-  padding: 1rem 0;
+// pre {
+//     font-size: var(--text-xxl);
+//     color: var(--color-primary);
+//     text-shadow: 0 0 0 transparent, 0 0 10px var(--color-primary-light), 0 0 20px alpha(var(--color-primary-darker), 0.7), 0 0 40px var(--color-primary-light), 0 0 100px var(--color-primary-light), 0 0 200px var(--color-primary-light);
+//     letter-spacing: .3rem;
+//   word-spacing: 1rem;
+//   padding: 1rem 0;
 
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    transform: translatey(-500%);
-    animation: matrix linear 30s infinite;
-}
-@keyframes matrix {
-  100% {
-    transform: translatey(500%);
-  }
-}
-pre:nth-child(5n+1) {
-  animation-delay: 1s;
-  animation-duration: 3s;
-}
-pre:nth-child(5n+2) {
-  animation-delay: 1.33s;
-  animation-duration: 5s;
-}
-pre:nth-child(5n+3) {
-  animation-delay: -1s;
-  animation-duration: 2s;
-}
-pre:nth-child(4n) {
-  animation-delay: -2s;
-  animation-duration: 4s;
-}
+//     writing-mode: vertical-rl;
+//     text-orientation: mixed;
+//     transform: translatey(-500%);
+//     animation: matrix linear 30s infinite;
+// }
+// @keyframes matrix {
+//   100% {
+//     transform: translatey(500%);
+//   }
+// }
+// pre:nth-child(5n+1) {
+//   animation-delay: 1s;
+//   animation-duration: 3s;
+// }
+// pre:nth-child(5n+2) {
+//   animation-delay: 1.33s;
+//   animation-duration: 5s;
+// }
+// pre:nth-child(5n+3) {
+//   animation-delay: -1s;
+//   animation-duration: 2s;
+// }
+// pre:nth-child(4n) {
+//   animation-delay: -2s;
+//   animation-duration: 4s;
+// }
 .content {
     user-select: none;
     position: fixed;

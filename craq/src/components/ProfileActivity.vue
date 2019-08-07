@@ -9,18 +9,22 @@
         </div>
 
         <div class="follow__list following" v-show="setAsk">
-            <div :key="idx" v-for="(list, idx) in cardLists" class="cardlist">
-                <CardforAsk :list="list"/>
+            <div :key="idx" v-for="(list, idx) in askData" class="cardlist">
+                <router-link :to="{name: 'Questions', params: {question_pk : list.QUESTION[0].PK}}">
+                    <CardProfile :list="list"/>
+                </router-link>
             </div>
         </div>
 
         <div class="follow__list follower"  v-show="setAnswer">
-            <div :key="idx" v-for="(list, idx) in cardLists" class="cardlist">
-                <CardforAsk :list="list"/>
+            <div :key="idx" v-for="(list, idx) in answerData" class="cardlist">
+                <router-link :to="{name: 'Questions', params: {question_pk : list.QUESTION[0].PK}}">
+                    <CardProfile :list="list"/>
+                </router-link>
             </div>
         </div>
 
-        <div class="follow__list follower"  v-show="setPost">
+        <!-- <div class="follow__list follower"  v-show="setPost">
             <div :key="a" v-for="a in 10" class="cardlist">
                 <UserCard/>
             </div>
@@ -30,23 +34,26 @@
             <div :key="a" v-for="a in 10" class="cardlist">
                 <UserCard/>
             </div>
-        </div>
+        </div> -->
 
     </div>
 </template>
 <script>
-import CardforAsk from '@/components/CardforAsk.vue';
+import CardProfile from '@/components/CardProfile.vue';
 
 export default {
     name: 'ProfileFollow',
     props: [
-        'userActivityData'
+        'userActivityData',
+        'userData',
     ],
     components: {
-        CardforAsk,
+        CardProfile,
     },
     data() {
         return {
+            askData: [],
+            answerData: [],
             cardLists: [],
             setAsk: true,
             setAnswer: false,
@@ -94,6 +101,19 @@ export default {
     },
 
     mounted() {
+        
+        this.userActivityData.QUESTION.forEach((el) => {
+            this.$axios.get('questions/detail/' + el.PK).then(res => {
+                this.askData.push(res.data.data)
+            })
+        });
+        this.userActivityData.ANSWER.forEach((el) => {
+            this.$axios.get('questions/detail/' + el.PK).then(res => {
+                this.answerData.push(res.data.data)
+            })
+        });
+            
+        
         this.cardLists = [{
                     id: '1',
                     cardInfo:

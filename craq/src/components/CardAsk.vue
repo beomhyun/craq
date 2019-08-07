@@ -7,16 +7,16 @@
                 <p>Helpful</p>
             </div>
             <div class="info__column-right">
-                <p>{{list.cardInfo.Answer}}</p>
-                <p>{{list.cardInfo.View}}</p>
-                <p>{{list.cardInfo.Helpful}}</p>
+                <p>{{list.USER_ANSWERS}}</p>
+                <p>{{list.VIEWS}}</p>
+                <p>{{list.HELPFUL}}</p>
             </div>
         </div>
 
         <div class="main">
-            <div class="main__title"><h4> {{list.cardMain.Title}} </h4></div>
+            <div class="main__title"><h4> <VClamp autoresize :max-lines="1">{{list.TITLE}} </VClamp></h4></div>
             <div class="main__hashtag">
-                <div>{{list.cardMain.Content}}</div>
+                <VClamp autoresize :max-lines="3">{{list.BODY}}</VClamp>
             </div>
        </div>
         
@@ -24,8 +24,13 @@
     </div>
 </template>
 <script>
+import VClamp from 'vue-clamp'
+
 export default {
     name: 'Card',
+    components: {
+        VClamp
+    },
     props: [
         'list'
     ],

@@ -44,8 +44,8 @@ export default {
         }
     },
     mounted() {
-        if (list.ANSWER_USERPK) {
-            this.$axios.get('users/' + list).then(res => {
+        if (this.list.ANSWER_USERPK) {
+            this.$axios.get('users/' + this.list).then(res => {
                 this.userdata = res.data.data
             })
         }
