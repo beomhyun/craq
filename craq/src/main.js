@@ -77,7 +77,7 @@ import moment from 'moment';
 //  }
 //}
 Vue.filter('formatDate', function(val) {
-  return moment(String(val)).format('YYYY/MM/DD hh:mm');
+  return moment(String(val)).format('YYYY/MM/DD a hh:mm');
 })
 // {{date | formatDate}}
 
