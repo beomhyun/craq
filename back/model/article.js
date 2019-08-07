@@ -1216,8 +1216,8 @@ const initializeEndpoints = (app) => {
                       1=1
                       `;
 
-        async function replaceAll(str, searchStr, replaceStr) {
-          return await str.split(searchStr).join(replaceStr);
+        function replaceAll(str, searchStr, replaceStr) {
+          return  str.split(searchStr).join(replaceStr);
         }
         var str = "";
         if(req.query.search_text){
@@ -1247,7 +1247,7 @@ const initializeEndpoints = (app) => {
         }
         // console.log(sql);
         connection.query(sql, function(err, rows, fields) {
-          // console.log(this.sql);
+          console.log(this.sql);
           if (!err) {
             sql = `select count(*) as total from article where topic = 1`
             connection.query(sql, function(err, rows2, fields) {
@@ -1415,7 +1415,7 @@ const initializeEndpoints = (app) => {
         // console.log(sql);
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            console.log(rows[0].TOTAL);
+            // console.log(rows[0].TOTAL);
             if(rows[0].CHECKING == 0){
               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
               res.send({
@@ -1510,19 +1510,20 @@ const initializeEndpoints = (app) => {
                           WHERE
                           1=1
                         `;
-              async function addsql(sql, tag, nottag) {
                 for (var i in tag) {
-                  sql += await ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `;
+                  sql +=  ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `;
                 }
                 for (var i in nottag) {
-                  sql += await ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `;
+                  sql +=  ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `;
                 }
-                sql += await `ORDER BY ${req.query.order_by} DESC LIMIT ${page}, ${perpage}`;
-                return sql;
-              }
-              sql = addsql(sql,tag,nottag);
+                sql +=  `ORDER BY ${req.query.order_by} DESC LIMIT ${page}, ${perpage}`;
+                        
+              // setTimeout(function() {
+              //   //console.log(sql);
+              // }, 100);
+                          
               connection.query(sql, function(err, rows2, fields) {
-                console.log(sql);
+                // console.log(sql);
                 if (!err) {
                   serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
                   json.data = rows2;
