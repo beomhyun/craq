@@ -1203,7 +1203,8 @@ const initializeEndpoints = (app) => {
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
         var sql = ` SELECT
-                          *
+                      COUNT(*) AS CHECKING
+                      ,TAB.TOTAL
                     FROM
                         (SELECT
                             COUNT(*) AS TOTAL
@@ -1257,7 +1258,14 @@ const initializeEndpoints = (app) => {
         connection.query(sql, function(err, rows, fields) {
           // console.log(rows[0].TOTAL);
           if (!err) {
-            var perpage = 20;
+            if(rows[0].CHECKING == 0){
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({
+                status: "fail",
+                data: "no data"
+              });
+            }else{
+              var perpage = 20;
             var nowpage = req.params.now_page;
             var max_page = parseInt(rows[0].TOTAL / perpage) + 1;
             if (nowpage > max_page) {
@@ -1265,14 +1273,14 @@ const initializeEndpoints = (app) => {
               res.send({
                 status: "fail",
                 data: "nowpage > maxpage"
-              });
+              });            
             }
             else{
               var page = (nowpage - 1) * perpage;
               var json= {};
               json.nowpage = nowpage;
               json.max_page = max_page;
-              sql =
+              sql = 
                     `
                     SELECT
                             *
@@ -1361,6 +1369,8 @@ const initializeEndpoints = (app) => {
                 }
               });
             }
+            }
+            
 
           } else {
             // console.log('article insert err ', err);
@@ -1460,14 +1470,14 @@ const initializeEndpoints = (app) => {
             A.ANSWER
           FROM
             ARTICLE AS A
-          WHERE
+          WHERE 
             A.PK = ${req.params.questionId}
           `;
         connection.query(sql, function(err, preanswer, fields) {
           if (!err) {
             sql =
                   `
-                  UPDATE
+                  UPDATE 
                     ARTICLE
                   SET
                     IS_ACTIVE = 0
@@ -1478,7 +1488,7 @@ const initializeEndpoints = (app) => {
               if(!err){
                 sql =
                       `
-                      UPDATE
+                      UPDATE 
                         ARTICLE
                       SET
                         ANSWER = ${req.params.answerId}
@@ -1489,7 +1499,7 @@ const initializeEndpoints = (app) => {
                     if(!err){
                       sql =
                           `
-                          UPDATE
+                          UPDATE 
                             ARTICLE
                           SET
                             IS_ACTIVE = 1
@@ -1569,9 +1579,9 @@ const initializeEndpoints = (app) => {
               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
               res.send({status: "fail", data: "received the wrong data "});
             }else{
-              sql =
+              sql = 
                     `
-                    UPDATE
+                    UPDATE 
                       ARTICLE AS A
                     SET
                       A.CONTENT = ${req.params.contentId}
@@ -1599,27 +1609,23 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /articles/searches:
+   *  /articles/searches/{type}/{word}/{page}:
    *    get:
    *      tags:
    *      - article
    *      parameters:
-   *      - name: topic_id
-   *        in: query
+   *      - name: type
+   *        in: path
    *        type: integer
-   *        description: topic의 id 값
-   *      - name: type_id
-   *        in: query
-   *        type: integer
-   *        description: 검색할 키워드 (0 = 제목, 1 = 내용, 2 = 제목+내용)
+   *        description: 검색할 종류의 값 (0 = 제목, 1 = 내용, 2 = 제목+내용)
    *      - name: word
-   *        in: query
+   *        in: path
    *        type: string
-   *        description: 검색할 내용 및 문자열
+   *        description: 검색할 단어 또는 문장
    *      - name: page
-   *        in: query
+   *        in: path
    *        type: integer
-   *        description: 나타낼 위치의 값 = page
+   *        description: 나타낼 page의 값
    *      - name: user_token
    *        in: header
    *        type: string
@@ -1627,8 +1633,7 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/articles/searches', function(req, res) {
-    var i = req.query;
+  app.get('/articles/searches/:type/:word/:page', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -1637,73 +1642,38 @@ const initializeEndpoints = (app) => {
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
         var keyword = '';
-        switch(parseInt(i.type_id)){
+        switch(parseInt(req.params.type)){
           case 0:
-            //keyword = "AND C.TITLE LIKE '%"+req.params.word+"%'";
-            keyword = `AND  C.TITLE LIKE '%${i.word}%' `;
+            keyword = "AND C.TITLE LIKE '%"+req.params.word+"%'";
             break;
           case 1:
-            keyword = `AND  C.BODY  LIKE '%${i.word}%' `;
+            keyword = "AND C.BODY LIKE '%"+req.params.word+"%'";
             break;
           case 2:
-            keyword = `AND (C.TITLE LIKE '%${i.word}%' OR C.BODY LIKE '%${i.word}%') `;
+            keyword = "AND (C.TITLE LIKE '%"+req.params.word+"%' OR C.BODY LIKE '%"+req.params.word+"%') ";
             break;
         }
-        var sql =
-        `
-        SELECT  COUNT(*) COUNT
-        FROM    ARTICLE  A
-        JOIN    CONTENT  C
-        ON      A.CONTENT     = C.PK
-        WHERE   A.IS_REMOVED  = 0
-        `;
-        sql +=keyword;
+        var sql ="SELECT COUNT(*) COUNT FROM ARTICLE A JOIN CONTENT C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = 0 ";
+        sql = sql.concat(keyword);
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            var totalArticle = rows[0].COUNT;     // 검색 후 나온 article의 갯수
+            var totalArticle = rows[0].COUNT;
             var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
             if(totalArticle > totalPage * ARTICLE_PER_PAGE){
-              totalPage++;  // article이 20개씩 나올 페이지의 갯수
+              totalPage++;
             }
-            if(i.page > totalPage){
+            if(req.params.page > totalPage){
               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
               res.send({status: "fail"});
             }else{
-              sql =
-              `
-              SELECT    ROW_NUMBER() OVER(ORDER BY A.PK DESC) ROWNUM
-                      , A.PK AS ARTICLE_PK
-                      , C.PK AS CONTENT_PK
-                      , C.TITLE
-                      , C.BODY
-                      , A.CREATEDUSER
-                      , (
-                        SELECT  USERNAME
-                        FROM    USER
-                        WHERE   PK = A.CREATEDUSER
-                      ) USERNAME
-                      , A.CREATED_AT
-                      , (
-                        SELECT  COUNT(*)
-                        FROM    VIEW
-                        WHERE   ARTICLE = A.PK
-                      ) VIEW
-                      , (
-                        SELECT  IFNULL(SUM(GOOD),0)
-                        FROM    VOTE
-                        WHERE   ARTICLE = A.PK
-                      ) VOTE
-              FROM      ARTICLE AS A
-              JOIN      CONTENT AS C
-              ON        A.CONTENT = C.PK
-              WHERE     A.IS_REMOVED = 0
-              `;
+              sql = "SELECT ROW_NUMBER() OVER(ORDER BY A.PK DESC) ROWNUM, A.PK, C.PK, C.TITLE, C.BODY, A.CREATED_AT FROM ARTICLE A JOIN CONTENT C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = 0 ";
               sql+=keyword;
-              sql+=`LIMIT ${(i.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}`;
+              sql+="LIMIT "+String((req.params.page-1)*ARTICLE_PER_PAGE)+", "+String(ARTICLE_PER_PAGE);
+              //console.log(sql);
               connection.query(sql, function(err, rows, fields) {
                 if (!err) {
                   serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                  res.send({status: "success", data: rows, maxPage:totalPage});
+                  res.send({status: "success", data: rows,maxPage:totalPage});
                 } else {
                   serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                   res.send({status: "fail",data: err});
