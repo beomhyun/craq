@@ -714,7 +714,7 @@ const initializeEndpoints = (app) => {
    *      - name: order_by
    *        in: query
    *        type: string
-   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, ANSWER, RELIABLE
+   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, USER_ANSWER, RELIABLE
    *      - name: user_token
    *        in: header
    *        type: string
@@ -789,7 +789,7 @@ const initializeEndpoints = (app) => {
                             ARTICLE AS A
                           WHERE
                             A.ARTICLE != 0
-                            AND A.CREATEDUSER = U.PK) AS ANSWER
+                            AND A.CREATEDUSER = U.PK) AS USER_ANSWER
                         , ((SELECT
                             COUNT(*)
                           FROM
@@ -1293,7 +1293,7 @@ const initializeEndpoints = (app) => {
    *      - name: order_by
    *        in: query
    *        type: string
-   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, ANSWER, RELIABLE
+   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, USER_ANSWER, RELIABLE
    *      - name: user_token
    *        in: header
    *        type: string
