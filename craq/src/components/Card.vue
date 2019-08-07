@@ -14,7 +14,7 @@
         </div>
 
         <div class="main">
-            <div class="main__title"><h4> {{list.TITLE}} </h4></div>
+            <div class="main__title" @click="routerPush"><h4> {{list.TITLE}} </h4></div>
             <div class="main__hashtag">
                 <div class="btn btn--sm" :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
                     {{tag}}
@@ -44,170 +44,180 @@ export default {
         return {
         }
     }, 
+    methods: {
+        routerPush: function() {
+            this.$router.push({
+                "name": "Questions",
+                "params": {
+                    question_pk: this.list.PK
+                }
+            }) 
+        }
+    }
 }
 </script>
 
 <style  lang="scss" scoped>
 $--card-main-height: 120px;
-    .badquestion {
-        user-select: none;
-        width: 100%;
-        height: 120px;
-        color: alpha(var(--color-on-surface), 0.2) !important;
-        
-    }
-    .badquestion p{
-        color: alpha(var(--color-on-surface), 0.2) !important;
-    }
-    .badquestion h4{
-        color: alpha(var(--color-on-surface), 0.2) !important;
-    }
-    .badquestion:hover {
-        background-color: alpha(var(--color-accent-dark), 0.2) !important;
-    }
+.badquestion {
+    user-select: none;
+    width: 100%;
+    height: 120px;
+    color: alpha(var(--color-on-surface), 0.2) !important;
 
-    .badquestion .btn{
-        background-color: alpha(var(--color-tertiary), 0.4);
-    }
-    .card {
-        user-select: none;
-        border-radius: calc(var(--radius, 0.25em));
+}
+.badquestion p{
+    color: alpha(var(--color-on-surface), 0.2) !important;
+}
+.badquestion h4{
+    color: alpha(var(--color-on-surface), 0.2) !important;
+}
+.badquestion:hover {
+    background-color: alpha(var(--color-accent-dark), 0.2) !important;
+}
+
+.badquestion .btn{
+    background-color: alpha(var(--color-tertiary), 0.4);
+}
+.card {
+    user-select: none;
+    border-radius: calc(var(--radius, 0.25em));
+    display: flex;
+    justify-content: space-between;
+    background-color:var(--color-surface-light);
+    color:var(--color-on-surface);
+    margin-top: var(--space-xxxs);
+    width: 100%;
+    height: 120px;
+}
+
+.card:hover {
+    background-color: var(--color-surface-dark);
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    width: 140px;
+    padding: var(--space-md);
+    padding-right: var(--space-xxs); 
+
+    &__column-right {
         display: flex;
         justify-content: space-between;
-        background-color:var(--color-surface-light);
-        color:var(--color-on-surface);
-        margin-top: var(--space-xxxs);
-        width: 100%;
-        height: 120px;
+        text-align: end;
+        flex-direction: column;
+        color: var(--color-on-surface-lighter);
     }
 
-    .card:hover {
-        background-color: var(--color-surface-dark);
-    }
-
-    .info {
+    &__column-left {
         display: flex;
         justify-content: space-between;
-        width: 140px;
-        padding: var(--space-md);
-        padding-right: var(--space-xxs); 
+        flex-direction: column;
+        color: var(--color-on-surface-lighter);
+        font-weight: bold;
+    }
+}
 
-            &__column-right {
-                display: flex;
-                justify-content: space-between;
-                text-align: end;
-                flex-direction: column;
-                color: var(--color-on-surface-lighter);
-                }
+.main {
+    flex: 1;
+    padding: var(--space-xxs);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
 
-            &__column-left {
-                display: flex;
-                justify-content: space-between;
-                flex-direction: column;
-                color: var(--color-on-surface-lighter);
-                font-weight: bold;
-                }
-        }
+    &__title {
+        font-size: calc(#{$--card-main-height} * 0.2);   
+    }
 
-    .main {
-        flex: 1;
-        padding: var(--space-xxs);
+    &__title:hover {
+        cursor: pointer;
+    }
+
+}
+.none .user {
+    width: 300px;
+    height: 100%;
+
+    &__top {
+        display: none;
+    }
+
+    &__bottom {
+        display: none;
+    }
+
+    &__image {
+        display: none;
+    }
+
+    &__name {
+        display: none;
+    }
+
+    &__card {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
 
-        &__title {
+        &__title{
             font-size: calc(#{$--card-main-height} * 0.2);   
         }
-
-        &__title:hover {
-            cursor: pointer;
+        &__content {
+            text-align: center;
         }
-        
     }
-    .none .user {
-        width: 300px;
-        height: 100%;
+}
 
-            &__top {
-                    display: none;
-                }
+.user {
+    width: 300px;
+    height: 100%;
+    &__top {
+        display: flex;
+        font-weight: bold;
+    }
 
-            &__bottom {
-                display: none;
-            }
+    &__bottom {
+        display: flex;
+        justify-content: space-between;
+        margin-top: var(--space-xs);
 
-            &__image {
-                display: none;
-            }
-
-            &__name {
-                display: none;
-            }
-
-        &__card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            &__title{
-                font-size: calc(#{$--card-main-height} * 0.2);   
-            }
-            &__content {
-                text-align: center;
-            }
+        &__right {
+            text-align: end;
         }
     }
 
-    .user {
-            width: 300px;
-            height: 100%;
-                &__top {
-                    display: flex;
-                    font-weight: bold;
-                }
-
-                &__bottom {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-top: var(--space-xs);
-
-                    &__right {
-                        text-align: end;
-                    }
-                }
-
-                &__image {
-                    border-radius: 50%;
-                    background-color: alpha(var(--color-surface-dark), 0.4);
-                    width: 50px;
-                    height: 50px;
-                }
-
-                &__name {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    width: auto;
-                    margin: auto;
-                }
-
-                 &__card {
-                    display: none;
-                    flex-direction: column;
-                    align-items: center;
-
-                    &__title{
-                        font-size: var(--card-main-height)
-                    }
-                 }
-        }
-    .btn {
-        background-color: var(--color-tertiary);
-        margin: var(--space-xxxs);
-        color: var(--color-on-tertiary);
+    &__image {
+        border-radius: 50%;
+        background-color: alpha(var(--color-surface-dark), 0.4);
+        width: 50px;
+        height: 50px;
     }
+
+    &__name {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: auto;
+        margin: auto;
+    }
+
+    &__card {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+
+        &__title{
+            font-size: var(--card-main-height)
+        }
+    }
+}
+.btn {
+    background-color: var(--color-tertiary);
+    margin: var(--space-xxxs);
+    color: var(--color-on-tertiary);
+}
 </style>
 
 
