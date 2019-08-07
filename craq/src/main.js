@@ -52,6 +52,15 @@ Vue.use({
 })
 
 // end axios
+// custom directive- focus
+Vue.directive('focus', {
+  inserted: function (el) {
+    el.focus()
+  }
+})
+
+
+// end custom directive
 
 // filters
 import moment from 'moment';
@@ -68,7 +77,7 @@ import moment from 'moment';
 //  }
 //}
 Vue.filter('formatDate', function(val) {
-  return moment(String(val)).format('YYYY/MM/DD hh:mm');
+  return moment(String(val)).format('YYYY/MM/DD a hh:mm');
 })
 // {{date | formatDate}}
 

@@ -1216,10 +1216,13 @@ const initializeEndpoints = (app) => {
                       1=1
                       `;
 
-        function replaceAll(str, searchStr, replaceStr) {
-          return str.split(searchStr).join(replaceStr);
+        async function replaceAll(str, searchStr, replaceStr) {
+          return await str.split(searchStr).join(replaceStr);
         }
-        var str = req.query.search_text;
+        var str = "";
+        if(req.query.search_text){
+          str = req.query.search_text;
+        }
         str = replaceAll(str, '[', ' [');
         str = replaceAll(str, ']', '] ');
         var arr = str.split(' ');
@@ -1310,13 +1313,14 @@ const initializeEndpoints = (app) => {
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
         var sql = ` SELECT
-                      COUNT(*) AS CHECKING
-                      ,TAB.TOTAL
+                          COUNT(*) AS TOTAL
                     FROM
                         (SELECT
-                            COUNT(*) AS TOTAL
+                            ASK.PK
                             ,CON.TITLE
                             ,CON.BODY
+                            ,ASK.CREATED_AT AS ASKED_TIME
+                            ,ANSWER.CREATED_AT AS ANSERD_TIME
                             ,(SELECT
                                 GROUP_CONCAT(T.TITLE SEPARATOR ", ")
                               FROM
@@ -1324,6 +1328,47 @@ const initializeEndpoints = (app) => {
                                   LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
                               WHERE
                                 CON.PK = H.CONTENT) AS HASHTAG
+                            ,(SELECT
+                                COUNT(*)
+                              FROM
+                                VIEW AS V
+                              WHERE
+                                ASK.PK = V.ARTICLE) AS VIEWS
+                            ,(SELECT
+                                SUM(V.GOOD)
+                              FROM VOTE AS V
+                              WHERE ASK.PK = V.ARTICLE) AS HELPFUL
+                            ,U.PK AS ANSWER_USERPK
+                            ,U.USERNAME AS ANSWER_USERNAME
+                            ,(SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK
+                                AND A.IS_ACTIVE = 1) AS USER_SELECTED_ANSWER
+                            , (SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK) AS USER_ANSWER
+                            , ((SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK
+                                AND A.IS_ACTIVE = 1)/(SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK)) AS RELIABLE
                         FROM
                           ARTICLE AS ASK
                               LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
@@ -1333,15 +1378,16 @@ const initializeEndpoints = (app) => {
                           AND CON.IS_REMOVED = 0
                           AND ASK.ARTICLE = 0
                             AND ASK.TOPIC = 1
-                        ) AS TAB
+                        ORDER BY HELPFUL DESC) AS TAB
                     WHERE
                       1=1
                       `;
+
         function replaceAll(str, searchStr, replaceStr) {
           return str.split(searchStr).join(replaceStr);
         }
-        var str = '';
-        if( req.query.search_text){
+        var str = "";
+        if(req.query.search_text){
           str = req.query.search_text;
         }
         str = replaceAll(str, '[', ' [');
@@ -1358,6 +1404,8 @@ const initializeEndpoints = (app) => {
             nottag.push(arr[i].replace(' ', ''));
           }
         }
+        // console.log(tag);
+        // console.log(nottag);
         for (var i in tag) {
           sql += ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `
         }
@@ -1366,8 +1414,8 @@ const initializeEndpoints = (app) => {
         }
         // console.log(sql);
         connection.query(sql, function(err, rows, fields) {
-          // console.log(rows[0].TOTAL);
           if (!err) {
+            console.log(rows[0].TOTAL);
             if(rows[0].CHECKING == 0){
               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
               res.send({
@@ -1458,13 +1506,23 @@ const initializeEndpoints = (app) => {
                             AND CON.IS_REMOVED = 0
                             AND ASK.ARTICLE = 0
                               AND ASK.TOPIC = 1
-                          ORDER BY HELPFUL DESC) AS TAB
-                      WHERE
-                        1=1
-                      ORDER BY ${req.query.order_by} DESC
-                      LIMIT ${page}, ${perpage} 
+                               ) AS TAB
+                          WHERE
+                          1=1
                         `;
+              async function addsql(sql, tag, nottag) {
+                for (var i in tag) {
+                  sql += await ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `;
+                }
+                for (var i in nottag) {
+                  sql += await ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `;
+                }
+                sql += await `ORDER BY ${req.query.order_by} DESC LIMIT ${page}, ${perpage}`;
+                return sql;
+              }
+              sql = addsql(sql,tag,nottag);
               connection.query(sql, function(err, rows2, fields) {
+                console.log(sql);
                 if (!err) {
                   serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
                   json.data = rows2;
@@ -1717,87 +1775,127 @@ const initializeEndpoints = (app) => {
     });
   });
 
-  /**
-   * @swagger
-   *  /articles/searches/{type}/{word}/{page}:
-   *    get:
-   *      tags:
-   *      - article
-   *      parameters:
-   *      - name: type
-   *        in: path
-   *        type: integer
-   *        description: 검색할 종류의 값 (0 = 제목, 1 = 내용, 2 = 제목+내용)
-   *      - name: word
-   *        in: path
-   *        type: string
-   *        description: 검색할 단어 또는 문장
-   *      - name: page
-   *        in: path
-   *        type: integer
-   *        description: 나타낼 page의 값
-   *      - name: user_token
-   *        in: header
-   *        type: string
-   *        description: 사용자의 token 값을 전달.
-   *      responses:
-   *        200:
-   */
-  app.get('/articles/searches/:type/:word/:page', function(req, res) {
-    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err) {
-        res.status(401).send({
-          error: 'invalid token'
-        });
-        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-      } else {
-        var keyword = '';
-        switch(parseInt(req.params.type)){
-          case 0:
-            keyword = "AND C.TITLE LIKE '%"+req.params.word+"%'";
-            break;
-          case 1:
-            keyword = "AND C.BODY LIKE '%"+req.params.word+"%'";
-            break;
-          case 2:
-            keyword = "AND (C.TITLE LIKE '%"+req.params.word+"%' OR C.BODY LIKE '%"+req.params.word+"%') ";
-            break;
-        }
-        var sql ="SELECT COUNT(*) COUNT FROM ARTICLE A JOIN CONTENT C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = 0 ";
-        sql = sql.concat(keyword);
-        connection.query(sql, function(err, rows, fields) {
-          if (!err) {
-            var totalArticle = rows[0].COUNT;
-            var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
-            if(totalArticle > totalPage * ARTICLE_PER_PAGE){
-              totalPage++;
-            }
-            if(req.params.page > totalPage){
-              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-              res.send({status: "fail"});
-            }else{
-              sql = "SELECT ROW_NUMBER() OVER(ORDER BY A.PK DESC) ROWNUM, A.PK, C.PK, C.TITLE, C.BODY, A.CREATED_AT FROM ARTICLE A JOIN CONTENT C ON A.CONTENT = C.PK WHERE A.IS_REMOVED = 0 ";
-              sql+=keyword;
-              sql+="LIMIT "+String((req.params.page-1)*ARTICLE_PER_PAGE)+", "+String(ARTICLE_PER_PAGE);
-              //console.log(sql);
-              connection.query(sql, function(err, rows, fields) {
-                if (!err) {
-                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                  res.send({status: "success", data: rows,maxPage:totalPage});
-                } else {
-                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                  res.send({status: "fail",data: err});
-                }
-              });
-            }
-          } else {
-            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-            res.send({status: "fail",data: err});
-          }
-        });
+/**
+  * @swagger
+  *  /articles/searches:
+  *    get:
+  *      tags:
+  *      - article
+  *      parameters:
+  *      - name: topic_id
+  *        in: query
+  *        type: integer
+  *        description: topic의 id 값
+  *      - name: type_id
+  *        in: query
+  *        type: integer
+  *        description: 검색할 키워드 (0 = 제목, 1 = 내용, 2 = 제목+내용)
+  *      - name: word
+  *        in: query
+  *        type: string
+  *        description: 검색할 내용 및 문자열
+  *      - name: page
+  *        in: query
+  *        type: integer
+  *        description: 나타낼 위치의 값 = page
+  *      - name: user_token
+  *        in: header
+  *        type: string
+  *        description: 사용자의 token 값을 전달.
+  *      responses:
+  *        200:
+  */
+ app.get('/articles/searches', function(req, res) {
+  var i = req.query;
+  jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    if (err) {
+      res.status(401).send({
+        error: 'invalid token'
+      });
+      serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+    } else {
+      var keyword = '';
+      switch(parseInt(i.type_id)){
+        case 0:
+          //keyword = "AND C.TITLE LIKE '%"+req.params.word+"%'";
+          keyword = `AND  C.TITLE LIKE '%${i.word}%'` ;
+          break;
+        case 1:
+          keyword = `AND  C.BODY  LIKE '%${i.word}%'` ;
+          break;
+        case 2:
+          keyword = `AND (C.TITLE LIKE '%${i.word}%' OR C.BODY LIKE '%${i.word}%')` ;
+          break;
       }
-    });
+      var sql =
+      `
+      SELECT  COUNT(*) COUNT
+      FROM    ARTICLE  A
+      JOIN    CONTENT  C
+      ON      A.CONTENT     = C.PK
+      WHERE   A.IS_REMOVED  = 0
+      `;
+      sql +=keyword;
+      connection.query(sql, function(err, rows, fields) {
+        if (!err) {
+          var totalArticle = rows[0].COUNT;     // 검색 후 나온 article의 갯수
+          var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
+          if(totalArticle > totalPage * ARTICLE_PER_PAGE){
+            totalPage++;  // article이 20개씩 나올 페이지의 갯수
+          }
+          if(i.page > totalPage){
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }else{
+            sql =
+            `
+            SELECT    ROW_NUMBER() OVER(ORDER BY A.PK DESC) ROWNUM
+                    , A.PK AS ARTICLE_PK
+                    , C.PK AS CONTENT_PK
+                    , C.TITLE
+                    , C.BODY
+                    , A.CREATEDUSER
+                    , (
+                      SELECT  USERNAME
+                      FROM    USER
+                      WHERE   PK = A.CREATEDUSER
+                    ) USERNAME
+                    , A.CREATED_AT
+                    , (
+                      SELECT  COUNT(*)
+                      FROM    VIEW
+                      WHERE   ARTICLE = A.PK
+                    ) VIEW
+                    , (
+                      SELECT  IFNULL(SUM(GOOD),0)
+                      FROM    VOTE
+                      WHERE   ARTICLE = A.PK
+                    ) VOTE
+            FROM      ARTICLE AS A
+            JOIN      CONTENT AS C
+            ON        A.CONTENT = C.PK
+            WHERE     A.IS_REMOVED = 0
+            `;
+            sql+=keyword;
+            sql+= `LIMIT ${(i.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}`;
+            connection.query(sql, function(err, rows, fields) {
+              if (!err) {
+                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                res.send({status: "success", data: rows, maxPage:totalPage});
+              } else {
+                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                res.send({status: "fail",data: err});
+              }
+            });
+          }
+        } else {
+          serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+          res.send({status: "fail",data: err});
+        }
+      });
+    }
   });
+});
 
 
 

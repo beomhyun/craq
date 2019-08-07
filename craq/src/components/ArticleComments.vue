@@ -3,17 +3,15 @@
         <div class="comments">
             <ul class="comments-list">
                 <template v-for="comment in comments">
-                <ArticleCommentsCard></ArticleCommentsCard>
+                    <ArticleCommentsCard :comment="comment"></ArticleCommentsCard>
                 </template>
-                <ArticleCommentsCard></ArticleCommentsCard>
-                <ArticleCommentsCard></ArticleCommentsCard>
-                <ArticleCommentsCard></ArticleCommentsCard>
             </ul>
         </div>
         <div>
-            <a class="comments-link" href="" title="avoid answering questions in comments">
+            <a class="comments-link" href="" title="avoid answering questions in comments" @click.prevent="addComment=!addComment" >
                 add a comment
             </a>
+            <ArticleCommenter v-bind="$props" v-if="addComment" @clicked="update"></ArticleCommenter>
         </div>
     </div>
 
@@ -21,14 +19,34 @@
 
 <script>
 import ArticleCommentsCard from '@/components/ArticleCommentsCard.vue';
+import ArticleCommenter from '@/components/ArticleCommenter.vue';
 export default {
     name: "ArticleComments",
+    data() {
+        return {
+            comments: [],
+            addComment: false
+        }
+    },
     props: [
-        "comments"
+        "article_pk", "content_id"
     ],
     components: {
-        ArticleCommentsCard
+        ArticleCommentsCard,
+        ArticleCommenter,
     },
+    methods: {
+        update: function() {
+            this.$axios.get(`comments/articles/${this.article_pk}`).then(res=>{
+                this.comments = res.data.data;
+                console.log('update');
+            })
+            this.addComment = false;
+        },
+    },
+    mounted() {
+        this.update()
+    }
 }
 </script>
 

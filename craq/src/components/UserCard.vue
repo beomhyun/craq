@@ -12,21 +12,21 @@
         <div class="userInfo">
             <div class="userInfo__Top">
                 <div class="userInfo__Top-name">
-                    User Name
+                    {{userdata.USERNAME}}
                 </div>
                 <div class="userInfo__Top-mail">
-                    User mail
+                    {{userdata.EMAIL}}
                 </div>
             </div>
             
             <div class="userInfo__Bottom">
                 <div class="userInfo__Bottom-detail">
                     <p class="userInfo__Bottom-title">Score</p>
-                    <p>123</p>
+                    <p>{{userdata.SCORE}}</p>
                 </div>        
                 <div class="userInfo__Bottom-detail">
                     <p class="userInfo__Bottom-title">Answer</p>
-                    <p>123</p>
+                    <p>{{userdata.ANSWERS}}</p>
                 </div>        
             </div>
          </div>
@@ -34,7 +34,22 @@
 </template>
 <script>
 export default {
-    name: 'UserCard'
+    name: 'UserCard',
+    props: [
+        "list"
+    ],
+    data() {
+        return {
+            userdata : []
+        }
+    },
+    mounted() {
+        if (this.list.ANSWER_USERPK) {
+            this.$axios.get('users/' + this.list.ANSWER_USERPK).then(res => {
+                this.userdata = res.data.data[0];
+            })
+        }
+    }
 }
 </script>
 <style lang="scss" scoped>
@@ -73,7 +88,7 @@ export default {
 
     &__Middle {
         position: relative;
-        height: 31px;
+        height: 33px;
         top: -40px;
         display: flex;
         justify-content: space-around;

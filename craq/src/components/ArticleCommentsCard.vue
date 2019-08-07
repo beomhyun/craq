@@ -1,16 +1,16 @@
 <template>
     <li class="comment">
         <div class="comment-actions">
-            <div class="comment-score">22</div>
+            <div class="comment-score">{{comment.USER}}</div>
         </div>
         <div class="comment-text">
             <div class="comment-body">
-                <span class="comment-copy">Consectetur amet repudiandae officia incidunt aut. Dolorem maxime facilis voluptas rerum eveniet. Dolorem eos natus debitis sed quo? Perferendis dignissimos velit excepturi ab modi. Nulla aspernatur voluptate iure laboriosam tenetur?</span>
+                <span class="comment-copy">{{comment.BODY}}</span>
                 -
-                <a class="comment-user" href="">user</a> &nbsp;
+                <a class="comment-user" href="">{{comment.USERNAME}}</a> &nbsp;
                 <span class="comment-date">
                     <a class="comment-link" href="">
-                        <span class="relativetime">2months</span>
+                        <span class="absoluteTime">{{comment.CREATED_AT | formatDate}}</span>
 
                     </a>
 
@@ -24,6 +24,9 @@
 <script>
 export default {
     name: "ArticleCommentsCard",
+    props: [
+        "comment"
+    ]
 }
 
 </script>

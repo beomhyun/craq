@@ -65,11 +65,12 @@ export default new Router({
 
     },
     {
-      path: '/profile',
+      path: '/profile/:user_name',
       meta: {
       },
       name: 'profile',
       component: Profile
+      // this.$router.push({'name': 'profile', 'params':{user_name: 'rngus'}})
     },
     {
       path: '/code',
@@ -93,7 +94,7 @@ export default new Router({
       component: FreeBoard
     },
     {
-      path: '/code/:pk',
+      path: '/code/:question_pk',
       name: 'Questions',
       component: CodeDetail,
       props: true

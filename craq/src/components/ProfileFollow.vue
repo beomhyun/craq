@@ -6,7 +6,7 @@
             <div class="follow__filter-btn" @click="toggleFollower" :class="{'selected' : setFollower}">Follower</div>
         </div>
 
-        <div class="follow__list following" v-show="setFollowing">
+        <!-- <div class="follow__list following" v-show="setFollowing">
             <div :key="a" v-for="a in 10" class="cardlist">
                 <UserCard/>
             </div>
@@ -16,7 +16,7 @@
             <div :key="a" v-for="a in 10" class="cardlist">
                 <UserCard/>
             </div>
-        </div>
+        </div> -->
 
     </div>
 </template>

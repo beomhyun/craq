@@ -9,6 +9,7 @@
             <div class="userInfo">
                 <div class="userInfo__name">
                     {{username}}
+                    {{user_pk}}
                 </div>
                 <div class="userInfo__list">
                     <div class="userInfo__list__btn" @click="toggleInformation"><span>Information</span></div>
@@ -102,14 +103,14 @@
                         <textarea class="selfintroduce__form" v-model="userData.intro" v-show="toggleProfile" autofocus></textarea>
                     </div>
                 </div>
-                <div class="editAndSubmit">
+                <div class="editAndSubmit" v-if="MyProfile">
                     <div class="btn btn--primary btn--lg" v-show="!toggleProfile" @click="toggleProfile = true">Edit</div>
                     <div class="btn btn--primary btn--lg" v-show="toggleProfile" @click="editProfile">Save</div>
                     <div class="btn btn--lg" v-show="toggleProfile" @click="toggleProfile = false">Cancle</div>
                 </div>
             </div>
             
-            <ProfileActivity v-show="setActivity"/>
+            <ProfileActivity v-if="setActivity" :userActivityData="userActivityData" :userData="userData.PK"/>
             <ProfileFollow class="follow" v-show="setFollow"/>
 
             <div class="Notify" v-show="setNotify">
@@ -125,7 +126,13 @@
 </template>
 <script>
 import Noty from '@/components/Noty.vue';
-import ProfileActivity from '@/components/ProfileActivity.vue';
+//import ProfileActivity from '@/components/ProfileActivity.vue';
+import Spinner from '@/components/Spinner.vue';
+const ProfileActivity= () => ({
+    component: import("@/components/ProfileActivity.vue"),
+    loading: Spinner,
+    delay: 500
+})
 import ProfileFollow from '@/components/ProfileFollow.vue';
 
 export default {
@@ -137,6 +144,48 @@ export default {
     },
     data() {
         return {
+            // 내 프로필인지 확인
+            MyProfile : false,
+
+            // 모든 유저 정보
+            allUserInfo : [],
+
+            // 유저 정보
+            user_pk: '',
+            username: '',
+            userData: [],
+            // 유저 정보 끝
+
+            // 활동 모음
+            userActivityData : [],
+
+            // 팔로우 정보
+            userFollowData : [],
+           
+            // 수정 할 것인지 체크
+            toggleProfile: false,
+
+            // 프로필 필터 체크
+            setInformation : true,
+            setActivity : false,
+            setFollow : false,
+            setNotify : false,
+            
+            // 프로필 데이터용
+
+            // 전체 프로필 정보 목록
+             Profiles: {
+                    ssafyGrade : '',
+                    Major : '',
+                    SwGrade : '',
+                    Region : '',
+                    GitUrl : '',
+            },
+
+            // 자기소개
+            selfIntroduce: 'Edit Your Introduce',
+
+            // 반 DropDown
             grades: [
                 { Class: 1 },
                 { Class: 2 },
@@ -149,17 +198,8 @@ export default {
                 { Class: 9 },
                 { Class: 10 },
                 ],
-            username: '',
-            userData: {
-                User : '',
-                ssafy_years: '',
-                is_major: '',
-                region: '',
-                grade: '',
-                intro: '',
-                gitUrl: '',
-                profile_image: '',
-            },
+
+            // Skill DATA
             skillIcon: [
                 { title: 'Java', url : require('@/assets/Java.png') },
                 { title: 'Python', url : require('@/assets/Python.png') },
@@ -171,7 +211,9 @@ export default {
                 { title: 'Spring', url : require('@/assets/Spring.png') },
             ],
             checkedSkill : [],
-            selfIntroduce: 'Edit Your Introduce',
+            // End Skill DATA
+
+            // 알림창
             noties: [
                 {
                     id: 1,
@@ -182,58 +224,36 @@ export default {
                     to: {name: 'home'},
                     active: true
                 },
-                {
-                    id: 2,
-                    type: "Code",
-                    title:"titlenoty",
-                    body: "bodies here",
-                    author: "user22",
-                    to: {name: 'code'},
-                    active: true
-                },
-                {
-                    id: 3,
-                    type: "user",
-                    title:"TITLE",
-                    body: "bodies here",
-                    author: "user33",
-                    to: {name: 'freeboard'},
-                    active: true
-                },
-                {
-                    id: 4,
-                    title:"defaultType",
-                    body: "bodies here",
-                    author: "user44",
-                    to: {name: 'createtree'},
-                    active: false
-                },
             ],
-            setInformation : true,
-            setActivity : false,
-            setFollow : false,
-            setNotify : false,
-            Profiles: {
-                    ssafyGrade : '',
-                    Major : '',
-                    SwGrade : '',
-                    Region : '',
-                    GitUrl : '',
-            },
-            toggleProfile: false
-            
-            
         }
     },
     mounted() {
-        this.username = this.$session.get('username');
-        
-        this.$axios.get("users/profile/"+ this.$session.get('userPk')).then(res=>{
-                    console.log(res)
-                    this.userData = res.data[0]
-                    console.log(this.userData)
-                    console.log('asdasfsrya')
+        this.$axios.get('users').then(res => {
+            // console.log(res)
+            this.allUserInfo = res.data
+                this.allUserInfo.forEach((data) => {
+                    if (data.USERNAME.toLowerCase() == this.$route.params.user_name.toLowerCase()) {
+                        this.$axios.get('users/profile/' + data.PK).then(response => {
+                            console.log(response)
+                            this.userData = response.data[0]
+                        this.$axios.get('users/writing/' + data.PK).then(res => {
+                            this.userActivityData = res.data.data
+                            console.log(this.userActivityData)
+                        })
+                        })
+                    }
                 })
+            })
+
+        this.username = this.$route.params.user_name
+        console.log(this.username)
+
+        if(this.$session.get('username').toLowerCase() == this.$route.params.user_name.toLowerCase()) {
+            // console.log("내프로필")
+            this.MyProfile = true
+        }
+        
+
     },
     methods: {
         editProfile() {
@@ -504,7 +524,7 @@ $--menu-width: 22rem;
     text-align: end;
     border: 1px dashed var(--color-contrast-low);
     border-radius: var(--radius-sm);
-    width: 300px;
+    width: 500px;
 }
 
 .skill-icon {
