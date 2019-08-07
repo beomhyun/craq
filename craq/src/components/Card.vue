@@ -7,19 +7,26 @@
                 <p>Helpful</p>
             </div>
             <div class="info__column-right">
-                <p>{{list.ANSWER}}</p>
-                <p>{{list.VIEWS}}</p>
-                <p>{{list.HELPFUL}}</p>
+                <p>{{0 + list.USER_ANSWER}}</p>
+                <p>{{0 + list.VIEWS}}</p>
+                <p>{{0 + list.HELPFUL}}</p>
             </div>
         </div>
 
         <div class="main">
             <div class="main__title" @click="routerPush"><h4> {{list.TITLE}} </h4></div>
+            
             <div class="main__hashtag">
-                <div class="btn btn--sm btn--tag" :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
-                    {{tag}}
-                </div>
+                
+                
+                <span :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
+                    <span  class="btn btn--sm btn--tag taglist">
+                        {{tag}}
+                    </span>
+                </span>
+                
             </div>
+            
             <div>{{list.ASKED_TIME | formatDate}}</div>
         </div>
         <div class="user">
@@ -41,10 +48,13 @@
 </template>
 <script>
 import UserCard from '@/components/UserCard.vue';
+import VClamp from 'vue-clamp';
+
 export default {
     name: 'Card',
     components: {
         UserCard,
+        VClamp
     },
     props: [
         'list'
@@ -141,7 +151,12 @@ $--card-main-height: 120px;
         }
 
         &__title:hover {
+            cursor: pointer;
+        }
 
+        &__hashtag {
+            height: 30px;
+            overflow: hidden;
         }
         
     }
@@ -226,6 +241,7 @@ $--card-main-height: 120px;
         background-color: var(--color-tertiary);
         margin: var(--space-xxxs);
         color: var(--color-on-tertiary);
+        box-shadow: unset;
     }
 
 .noneSelected {
@@ -255,6 +271,9 @@ $--card-main-height: 120px;
 
 .btn--tag:hover {
     background-color: var(--color-tertiary-dark);
+}
+.taglist {
+    text-overflow: ellipsis;
 }
 </style>
 
