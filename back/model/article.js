@@ -591,6 +591,113 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+  /**
+   * @swagger
+   *  /questions/all:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 질문게시판의 모든 질문글을 페이징해서 보여줌
+   *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/questions/all', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+            sql = ` SELECT
+                        ASK.PK
+                        ,CON.TITLE
+                        ,CON.BODY
+                        ,ASK.CREATED_AT AS ASKED_TIME
+                        ,ANSWER.CREATED_AT AS ANSERD_TIME
+                        ,IFNULL((SELECT
+                            GROUP_CONCAT(T.TITLE SEPARATOR ", ")
+                          FROM
+                            HASHTAG AS H
+                              LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+                          WHERE
+                            CON.PK = H.CONTENT),'') AS HASHTAG
+                        ,(SELECT
+                            COUNT(*)
+                          FROM
+                            VIEW AS V
+                          WHERE
+                            ASK.PK = V.ARTICLE) AS VIEWS
+                        ,IFNULL((SELECT
+                            SUM(V.GOOD)
+                          FROM VOTE AS V
+                          WHERE ASK.PK = V.ARTICLE),0) AS HELPFUL
+                        ,U.PK AS ANSWER_USERPK
+                        ,U.USERNAME AS ANSWER_USERNAME
+                        ,(SELECT
+                            COUNT(*)
+                          FROM
+                            ARTICLE AS A
+                          WHERE
+                            A.ARTICLE != 0
+                            AND A.CREATEDUSER = U.PK
+                            AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+                        , (SELECT
+                            COUNT(*)
+                          FROM
+                            ARTICLE AS A
+                          WHERE
+                            A.ARTICLE != 0
+                            AND A.CREATEDUSER = U.PK) AS ANSWER
+                        , ((SELECT
+                            COUNT(*)
+                          FROM
+                            ARTICLE AS A
+                          WHERE
+                            A.ARTICLE != 0
+                            AND A.CREATEDUSER = U.PK
+                            AND A.IS_ACTIVE = 1)/(SELECT
+                            COUNT(*)
+                          FROM
+                            ARTICLE AS A
+                          WHERE
+                            A.ARTICLE != 0
+                            AND A.CREATEDUSER = U.PK)) AS RELIABLE
+                    FROM
+                      ARTICLE AS ASK
+                          LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
+                            LEFT OUTER JOIN ARTICLE AS ANSWER ON ASK.ANSWER = ANSWER.PK
+                              LEFT OUTER JOIN USER AS U ON ANSWER.CREATEDUSER = U.PK
+                    WHERE 1=1
+                      AND CON.IS_REMOVED = 0
+                      AND ASK.ARTICLE = 0
+                        AND ASK.TOPIC = 1
+                     `;
+            // console.log(sql);
+            connection.query(sql, function(err, rows, fields) {
+              if (!err) {
+                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                res.json({
+                  status: "success",
+                  data: rows
+                });
+              } else {
+                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                // console.log('article insert err ', err);
+                res.send({
+                  status: "fail",
+                  data: err
+                });
+              }
+            });
+      }
+    });
+  });
 
   /**
    * @swagger
@@ -1233,7 +1340,10 @@ const initializeEndpoints = (app) => {
         function replaceAll(str, searchStr, replaceStr) {
           return str.split(searchStr).join(replaceStr);
         }
-        var str = req.query.search_text;
+        var str = '';
+        if( req.query.search_text){
+          str = req.query.search_text;
+        }
         str = replaceAll(str, '[', ' [');
         str = replaceAll(str, ']', '] ');
         var arr = str.split(' ');
