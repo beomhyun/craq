@@ -363,7 +363,7 @@ const initializeEndpoints = (app) => {
    *    get:
    *      tags:
    *      - tag
-   *      description: 모든 태그를 받아옴.
+   *      description: 주간 Top 10 태그
    *      parameters:
    *      - name: user_token
    *        in: header
@@ -416,5 +416,70 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+
+    /**
+   * @swagger
+   *  /tags/relation/topfive:
+   *    get:
+   *      tags:
+   *      - tag
+   *      description: 해당 태그와 같이 많이 사용된 태그 상위 5개
+   *      parameters:
+   *      - name: tag
+   *        in: query
+   *        type: integer   
+   *        description: tag pk
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달
+   *      responses:
+   *        200:
+   */
+  app.get('/tags/relation/topfive', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+        error: 'invalid token'
+      });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
+     else {
+        var sql = 
+                  `
+                  SELECT
+                    A.HASHTAG AS PK
+                    ,B.TITLE AS TITLE
+                    ,COUNT(*) AS COUNT
+                  FROM
+                    HASHTAG AS A
+                      LEFT OUTER JOIN TAG AS B ON A.HASHTAG = B.PK
+                  WHERE
+                    A.CONTENT IN (
+                            SELECT
+                              H.CONTENT
+                            FROM
+                              HASHTAG AS H
+                            WHERE
+                              H.HASHTAG = ${req.query.tag})
+                    AND A.HASHTAG != ${req.query.tag}
+                  GROUP BY A.HASHTAG
+                  LIMIT 0,5
+                  `;
+        connection.query(sql, function(err, rows, fields) {
+          // console.log(rows);
+          if (!err) {
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            res.json({status: "success", data: rows});
+          } else {
+            // console.log('Error while performing Query.', err);
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            res.send({status:"fail", data: err});
+          }
+        });
+      }
+    });
+  });
+
 };
 module.exports = initializeEndpoints;
