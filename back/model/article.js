@@ -591,6 +591,113 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+  /**
+   * @swagger
+   *  /questions/all:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 질문게시판의 모든 질문글을 페이징해서 보여줌
+   *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/questions/all', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+            sql = ` SELECT
+                        ASK.PK
+                        ,CON.TITLE
+                        ,CON.BODY
+                        ,ASK.CREATED_AT AS ASKED_TIME
+                        ,ANSWER.CREATED_AT AS ANSERD_TIME
+                        ,IFNULL((SELECT
+                            GROUP_CONCAT(T.TITLE SEPARATOR ", ")
+                          FROM
+                            HASHTAG AS H
+                              LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+                          WHERE
+                            CON.PK = H.CONTENT),'') AS HASHTAG
+                        ,(SELECT
+                            COUNT(*)
+                          FROM
+                            VIEW AS V
+                          WHERE
+                            ASK.PK = V.ARTICLE) AS VIEWS
+                        ,IFNULL((SELECT
+                            SUM(V.GOOD)
+                          FROM VOTE AS V
+                          WHERE ASK.PK = V.ARTICLE),0) AS HELPFUL
+                        ,U.PK AS ANSWER_USERPK
+                        ,U.USERNAME AS ANSWER_USERNAME
+                        ,(SELECT
+                            COUNT(*)
+                          FROM
+                            ARTICLE AS A
+                          WHERE
+                            A.ARTICLE != 0
+                            AND A.CREATEDUSER = U.PK
+                            AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+                        , (SELECT
+                            COUNT(*)
+                          FROM
+                            ARTICLE AS A
+                          WHERE
+                            A.ARTICLE != 0
+                            AND A.CREATEDUSER = U.PK) AS ANSWER
+                        , ((SELECT
+                            COUNT(*)
+                          FROM
+                            ARTICLE AS A
+                          WHERE
+                            A.ARTICLE != 0
+                            AND A.CREATEDUSER = U.PK
+                            AND A.IS_ACTIVE = 1)/(SELECT
+                            COUNT(*)
+                          FROM
+                            ARTICLE AS A
+                          WHERE
+                            A.ARTICLE != 0
+                            AND A.CREATEDUSER = U.PK)) AS RELIABLE
+                    FROM
+                      ARTICLE AS ASK
+                          LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
+                            LEFT OUTER JOIN ARTICLE AS ANSWER ON ASK.ANSWER = ANSWER.PK
+                              LEFT OUTER JOIN USER AS U ON ANSWER.CREATEDUSER = U.PK
+                    WHERE 1=1
+                      AND CON.IS_REMOVED = 0
+                      AND ASK.ARTICLE = 0
+                        AND ASK.TOPIC = 1
+                     `;
+            // console.log(sql);
+            connection.query(sql, function(err, rows, fields) {
+              if (!err) {
+                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                res.json({
+                  status: "success",
+                  data: rows
+                });
+              } else {
+                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                // console.log('article insert err ', err);
+                res.send({
+                  status: "fail",
+                  data: err
+                });
+              }
+            });
+      }
+    });
+  });
 
   /**
    * @swagger
@@ -607,7 +714,7 @@ const initializeEndpoints = (app) => {
    *      - name: order_by
    *        in: query
    *        type: string
-   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, ANSWER, RELIABLE
+   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, USER_ANSWER, RELIABLE
    *      - name: user_token
    *        in: header
    *        type: string
@@ -682,7 +789,7 @@ const initializeEndpoints = (app) => {
                             ARTICLE AS A
                           WHERE
                             A.ARTICLE != 0
-                            AND A.CREATEDUSER = U.PK) AS ANSWER
+                            AND A.CREATEDUSER = U.PK) AS USER_ANSWER
                         , ((SELECT
                             COUNT(*)
                           FROM
@@ -1167,6 +1274,227 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+
+  /**
+   * @swagger
+   *  /questions/search/{now_page}:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 질문 게시판의 검색 결과를 보여준다.
+   *      parameters:
+   *      - name: search_text
+   *        in: query
+   *        type: string
+   *        description: 검색 문장을 전달
+   *      - name: now_page
+   *        in: path
+   *        type: string
+   *      - name: order_by
+   *        in: query
+   *        type: string
+   *        description: 정렬할 기준을 전달.<br> PK, VIEWS, HELPFUL, USER_ANSWER, RELIABLE
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/questions/search/:now_page', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        var sql = ` SELECT
+                      COUNT(*) AS CHECKING
+                      ,TAB.TOTAL
+                    FROM
+                        (SELECT
+                            COUNT(*) AS TOTAL
+                            ,CON.TITLE
+                            ,CON.BODY
+                            ,(SELECT
+                                GROUP_CONCAT(T.TITLE SEPARATOR ", ")
+                              FROM
+                                HASHTAG AS H
+                                  LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+                              WHERE
+                                CON.PK = H.CONTENT) AS HASHTAG
+                        FROM
+                          ARTICLE AS ASK
+                              LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
+                                LEFT OUTER JOIN ARTICLE AS ANSWER ON ASK.ANSWER = ANSWER.PK
+                                  LEFT OUTER JOIN USER AS U ON ANSWER.CREATEDUSER = U.PK
+                        WHERE 1=1
+                          AND CON.IS_REMOVED = 0
+                          AND ASK.ARTICLE = 0
+                            AND ASK.TOPIC = 1
+                        ) AS TAB
+                    WHERE
+                      1=1
+                      `;
+        function replaceAll(str, searchStr, replaceStr) {
+          return str.split(searchStr).join(replaceStr);
+        }
+        var str = '';
+        if( req.query.search_text){
+          str = req.query.search_text;
+        }
+        str = replaceAll(str, '[', ' [');
+        str = replaceAll(str, ']', '] ');
+        var arr = str.split(' ');
+        var tag = [];
+        var nottag = [];
+        for (var i in arr) {
+          arr[i] = replaceAll(arr[i], ' ', '');
+          if (arr[i].charAt(0) == '') continue;
+          if (arr[i].charAt(0) == '[') {
+            tag.push(arr[i].replace('[', '').replace(']', ''));
+          } else {
+            nottag.push(arr[i].replace(' ', ''));
+          }
+        }
+        for (var i in tag) {
+          sql += ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `
+        }
+        for (var i in nottag) {
+          sql += ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `
+        }
+        // console.log(sql);
+        connection.query(sql, function(err, rows, fields) {
+          // console.log(rows[0].TOTAL);
+          if (!err) {
+            if(rows[0].CHECKING == 0){
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({
+                status: "fail",
+                data: "no data"
+              });
+            }else{
+              var perpage = 20;
+            var nowpage = req.params.now_page;
+            var max_page = parseInt(rows[0].TOTAL / perpage) + 1;
+            if (nowpage > max_page) {
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({
+                status: "fail",
+                data: "nowpage > maxpage"
+              });            
+            }
+            else{
+              var page = (nowpage - 1) * perpage;
+              var json= {};
+              json.nowpage = nowpage;
+              json.max_page = max_page;
+              sql = 
+                    `
+                    SELECT
+                            *
+                      FROM
+                          (SELECT
+                              ASK.PK
+                              ,CON.TITLE
+                              ,CON.BODY
+                              ,ASK.CREATED_AT AS ASKED_TIME
+                              ,ANSWER.CREATED_AT AS ANSERD_TIME
+                              ,(SELECT
+                                  GROUP_CONCAT(T.TITLE SEPARATOR ", ")
+                                FROM
+                                  HASHTAG AS H
+                                    LEFT OUTER JOIN TAG AS T ON H.HASHTAG = T.PK
+                                WHERE
+                                  CON.PK = H.CONTENT) AS HASHTAG
+                              ,(SELECT
+                                  COUNT(*)
+                                FROM
+                                  VIEW AS V
+                                WHERE
+                                  ASK.PK = V.ARTICLE) AS VIEWS
+                              ,(SELECT
+                                  SUM(V.GOOD)
+                                FROM VOTE AS V
+                                WHERE ASK.PK = V.ARTICLE) AS HELPFUL
+                              ,U.PK AS ANSWER_USERPK
+                              ,U.USERNAME AS ANSWER_USERNAME
+                              ,(SELECT
+                                  COUNT(*)
+                                FROM
+                                  ARTICLE AS A
+                                WHERE
+                                  A.ARTICLE != 0
+                                  AND A.CREATEDUSER = U.PK
+                                  AND A.IS_ACTIVE = 1) AS USER_SELECTED_ANSWER
+                              , (SELECT
+                                  COUNT(*)
+                                FROM
+                                  ARTICLE AS A
+                                WHERE
+                                  A.ARTICLE != 0
+                                  AND A.CREATEDUSER = U.PK) AS USER_ANSWER
+                              , ((SELECT
+                                  COUNT(*)
+                                FROM
+                                  ARTICLE AS A
+                                WHERE
+                                  A.ARTICLE != 0
+                                  AND A.CREATEDUSER = U.PK
+                                  AND A.IS_ACTIVE = 1)/(SELECT
+                                  COUNT(*)
+                                FROM
+                                  ARTICLE AS A
+                                WHERE
+                                  A.ARTICLE != 0
+                                  AND A.CREATEDUSER = U.PK)) AS RELIABLE
+                          FROM
+                            ARTICLE AS ASK
+                                LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
+                                  LEFT OUTER JOIN ARTICLE AS ANSWER ON ASK.ANSWER = ANSWER.PK
+                                    LEFT OUTER JOIN USER AS U ON ANSWER.CREATEDUSER = U.PK
+                          WHERE 1=1
+                            AND CON.IS_REMOVED = 0
+                            AND ASK.ARTICLE = 0
+                              AND ASK.TOPIC = 1
+                          ORDER BY HELPFUL DESC) AS TAB
+                      WHERE
+                        1=1
+                      ORDER BY ${req.query.order_by} DESC
+                      LIMIT ${page}, ${perpage} 
+                        `;
+              connection.query(sql, function(err, rows2, fields) {
+                if (!err) {
+                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                  json.data = rows2;
+                  json.status = "success";
+                  res.send(json);
+                } else {
+                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                  res.send({
+                    status: "fail",
+                    data: err
+                  });
+                }
+              });
+            }
+            }
+            
+
+          } else {
+            // console.log('article insert err ', err);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({
+              status: "fail",
+              data: err
+            });
+          }
+        });
+      }
+    });
+  });
+
   /**
    * @swagger
    *  /articles/news:
