@@ -14,7 +14,7 @@
             <li class="menu__label-wrapper"><span class="menu__label">Noty</span></li>
             <template v-for="noty in noties" v-key="noty.id">
                 <li class="menu__item js-menu__item" role="menuitem">
-                    <Noty :noty="noty" @onClose="onClose(noty.id)" @onGo="onGo(noty.id)"></Noty>
+                    <Noty :noty="noty" @onClose="onClose(noty.pk)" @onGo="onGo(noty.id)"></Noty>
                 </li>
             </template>
 

@@ -1,22 +1,23 @@
 <template>
     <div class="alert"
          :class="[
-         {'alert--primary': noty.type=='Noty'},
-         {'alert--secondary': noty.type=='Code'},
+         {'alert--primary': noty.type==2},
+         {'alert--secondary': noty.Type==1},
          {'alert--tertiary': noty.type=='user'},
-         {'alert--not-active': !noty.active}
+         {'alert--not-active': noty.is_active}
          ]
          " 
          @click.prevent="onGo">
         <div class="flex items-center justify-between">
             <div class="alert__content items-center">
 
-                <p>
+                <!--<p>
                 <font-awesome-icon icon="bell" class="icon"></font-awesome-icon>
                 <strong>{{noty.type}}</strong></p>
                 <p>{{noty.title}}</p>
+                -->
                 <p>{{noty.body}}</p>
-                <p>{{noty.author}}</p>
+                <!--<p>{{noty.author}}</p> -->
             </div>
             <button class="reset alert__close-btn">
                 <font-awesome-icon @click.stop="onClose" icon="times" class="icon close-btn"></font-awesome-icon>

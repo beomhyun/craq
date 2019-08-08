@@ -20,7 +20,7 @@
                 
                 
                 <span :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
-                    <span  class="btn btn--sm btn--tag taglist">
+                    <span  class="btn btn--sm btn--tag taglist" @click="goSearch(tag)">
                         {{tag}}
                     </span>
                 </span>
@@ -71,6 +71,16 @@ export default {
                     question_pk: this.list.PK
                 }
             }) 
+        },
+        goSearch: function(tag) {
+            this.$router.push({
+                name:'code',
+                query: {
+                    'order_by': 'PK',
+                    'page': 1,
+                    'search_text': '['+ tag.trim() + ']'
+                }
+            })
         }
     }
 }

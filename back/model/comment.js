@@ -49,16 +49,53 @@ const initializeEndpoints = (app) => {
        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       }
       else {
-        var sql = "INSERT INTO comment(user,content,parentcomment,body,createdUser,updatedUser) VALUES(?,?,?,?,?,?)";
-        var params = [i.user_id, i.content_id, i.parent_id, i.body, i.user_id, i.user_id];
-        connection.query(sql, params, function(err, rows, fields) {
+        var sql =
+        `
+        INSERT  INTO
+        COMMENT (USER,CONTENT,PARENTCOMMENT,BODY,CREATEDUSER,UPDATEDUSER)
+        VALUES  (${i.user_id},${i.content_id},${i.parent_id},'${i.body}',${i.user_id},${i.user_id})
+        `;
+        connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-            res.json(rows);
+            // content 작성자에게도 알림이 가도록 한다.
+            sql =
+            `
+            SELECT    TITLE
+                    , CREATEDUSER
+                    , (
+                      SELECT  USERNAME
+                      FROM    USER
+                      WHERE   PK = CREATEDUSER
+                    ) USERNAME
+            FROM      CONTENT
+            WHERE     PK = ${i.content_id}
+            `;
+            connection.query(sql, function(err, rows, fields) {
+              if(!err && i.user_id != rows[0].CREATEDUSER){
+                var msg = rows[0].TITLE+" 에 댓글이 달렸습니다.";
+                sql =
+                `
+                INSERT  INTO
+                NOTICE  (USER,TYPE,BODY)
+                VALUES  (${rows[0].CREATEDUSER},2,'${msg}')
+                `;
+                connection.query(sql, function(err, rows, fields) {
+                  if (!err){
+                    serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                    res.send({status: "success"});
+                  } else{
+                    serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                    res.send({status: "fail", msg: "insert notice err"});
+                  }
+                });
+              }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                res.send({status: "fail", msg: "select content err"});
+              }
+            });
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            res.send(err);
+            res.send({status: "fail", msg: "insert comment err"});
           }
         });
       }

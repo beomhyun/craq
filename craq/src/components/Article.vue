@@ -72,6 +72,8 @@ export default {
             this.ANSWERS = data.ANSWERS;
             this.QUESTION = data.QUESTION;
             this.VERSION = this.VERSION.concat(data.VERSION);
+            console.log(this.VERSION);
+            console.log(this.QUESTION[0])
             this.loaded = true;
             this.current = this.QUESTION[0].VERSION+2;
             this.creator = this.VERSION[3].USER_PK;

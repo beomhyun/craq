@@ -63,6 +63,7 @@ export default {
     watch: {
         $route: function(a, b) {
             console.log('watched')
+            console.log(this.query('search_text'))
             this.update();
         }
     },
@@ -74,6 +75,10 @@ export default {
         update() {
             this.$axios.get(`questions/search/${this.query('page')}?order_by=${this.query('order_by')}&search_text=${this.query('search_text')}`)
                 .then(res=>{
+                    if (res.data.status == "fail") {
+                        this.asks = [];
+                        return;
+                    }
                     console.log(res.data);
                     this.asks = res.data.data;
                     this.maxPage = res.data.max_page
@@ -101,6 +106,7 @@ export default {
                     "search_text": this.query('search_text')
                 }
             })
+            this.loaded = true;
         },
         sort(by) {
             this.loaded = false;
@@ -112,7 +118,8 @@ export default {
                     "search_text": this.query('search_text')
 
                 }
-            })
+            }) 
+            this.loaded = true; // if pushed to same route no mount watch will happen;
         },
     },
     computed: {
