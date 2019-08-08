@@ -777,7 +777,6 @@ app.post('/profile/images', upload.single('image'), function(req, res) {
       var filename = "default_profile.png";
       if(req.file){ // 이미지 파일이 첨부되었을 때
         filename = req.file.filename;
-      }
       var sql = 
               `
               UPDATE
@@ -789,13 +788,16 @@ app.post('/profile/images', upload.single('image'), function(req, res) {
       connection.query(sql, function(err, rows, fields) {
         if(!err){
           serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-          res.send({status: "success", data:req.file.filename});
+          res.send({status: "success"});
         } else{
           serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail",data:err});
         }       
       });
+    }else{
+      res.send({status: "fail"});
     }
+  }
   });
 });
 
@@ -902,9 +904,9 @@ app.get('/users/profile-image/:pk', function(req,res){
       var params = [req.params.pk];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
-          var img = '<img src="/'+rows[0].profile_image + '">';
+          // var img = '<img src="/'+rows[0].profile_image + '">';
           serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-          res.send({sattus: "success",data: img});
+          res.send({sattus: "success",data: rows[0].profile_image});
         }else{
           serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
