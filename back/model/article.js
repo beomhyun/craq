@@ -7,7 +7,7 @@ const path = require("path");
 const serverlog = require('./serverlog.js');
 const TRUE = 1;
 const FALSE = 0;
-const ARTICLE_PER_PAGE = 20;
+const ARTICLE_PER_PAGE = 5;
 const IS_QUESTION = 0;
 const STANDARD_VOTE = 1;
 let storage = multer.diskStorage({
@@ -1407,7 +1407,7 @@ const initializeEndpoints = (app) => {
         // console.log(tag);
         // console.log(nottag);
         for (var i in tag) {
-          sql += ` AND TAB.HASHTAG LIKE '${tag[i]}' `
+          sql += ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `
         }
         for (var i in nottag) {
           sql += ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `
@@ -1448,6 +1448,13 @@ const initializeEndpoints = (app) => {
                               ,CON.TITLE
                               ,CON.BODY
                               ,ASK.CREATED_AT AS ASKED_TIME
+                              ,(SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS B
+                              WHERE
+                                ASK.PK = B.ARTICLE
+                              ) AS ANSWERS
                               ,ANSWER.CREATED_AT AS ANSERD_TIME
                               ,(SELECT
                                   GROUP_CONCAT(T.TITLE SEPARATOR ", ")
@@ -1511,7 +1518,7 @@ const initializeEndpoints = (app) => {
                           1=1
                         `;
                 for (var i in tag) {
-                  sql +=  ` AND TAB.HASHTAG LIKE '${tag[i]}' `;
+                  sql +=  ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `;
                 }
                 for (var i in nottag) {
                   sql +=  ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `;
