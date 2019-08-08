@@ -516,6 +516,14 @@ const initializeEndpoints = (app) => {
         var sql =
           `
                     SELECT	PK
+                          ,(
+                            SELECT
+                              U.USERNAME
+                            FROM
+                              USER AS U
+                            WHERE
+                              C.CREATEDUSER = U.PK
+                          ) AS USERNAME
                           , TITLE
                     		  , BODY
                     	    , CONCAT("http://192.168.31.58:10123/",IMAGE) AS IMAGE
@@ -881,6 +889,7 @@ const initializeEndpoints = (app) => {
 
   app.post('/contents/notices', function(req, res) {
     var i = req.body;
+    console.log(i);
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -896,6 +905,7 @@ const initializeEndpoints = (app) => {
            AND      USER  = ${i.user_id}
          `;
         connection.query(sql, function(err, rows, fields) {
+          console.log(this.sql);
           if (!err && rows[0].TMP == 1) { // 해당 게시판의 관리자일 때
             sql =
               `
@@ -904,11 +914,49 @@ const initializeEndpoints = (app) => {
                VALUES   ('${i.title}','${i.body}','${i.image}',${i.user_id})
              `;
             connection.query(sql, function(err, rows, fields) {
+              console.log(this.sql);
+
               if (!err) {
-                // 해당 게시판을 구독중인 사용자들에게 알림처리
-                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                res.send({
-                  status: "success"
+                var contentId = rows.insertId; // 방금 생성된 content의 id값
+                sql =
+                `
+                INSERT    INTO
+                ARTICLE   (TOPIC,ARTICLE,CONTENT,CREATEDUSER,UPDATEDUSER,IS_ACTIVE)
+                VALUES    (${i.topic_id},0,${contentId},${i.user_id},${i.user_id},1)
+                `;
+                connection.query(sql, function(err, rows, fields) {
+                  console.log(this.sql);
+
+                  if(!err){
+                    var articleId = rows.insertId; // 방금 생성된 article의 id값
+                    console.log(rows);
+                    sql = // 방금 생성된 article의 id값으로 갱신시켜준다.
+                      `
+                    UPDATE  CONTENT
+                    SET     ARTICLE = ${articleId}
+                    WHERE   PK      = ${contentId}
+                    `;
+                    connection.query(sql, function(err, rows, fields) {
+                      console.log(this.sql);
+
+                      if(!err){
+                        serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                        res.send({
+                          status: "success"
+                        });
+                      }else{
+                        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                        res.send({
+                          status: "fail"
+                        });
+                      }
+                    });
+                  }else{
+                    serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                    res.send({
+                      status: "fail"
+                    });
+                  }
                 });
               } else {
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);

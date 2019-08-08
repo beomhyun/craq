@@ -261,7 +261,7 @@ const initializeEndpoints = (app) => {
         res.status(401).send({
         error: 'invalid token'
       });
-      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      //serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }else {
         var sql =
         `
@@ -272,10 +272,10 @@ const initializeEndpoints = (app) => {
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err){
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            //serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.send({status: "success", data:rows});
           }else{
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            //serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status: "fail"});
           }
         });
@@ -308,7 +308,7 @@ const initializeEndpoints = (app) => {
         res.status(401).send({
         error: 'invalid token'
       });
-      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      // serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }else {
         var sql =
         `
@@ -320,10 +320,10 @@ const initializeEndpoints = (app) => {
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err){
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            // serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.send({status: "success", data:rows});
           }else{
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            // serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status: "fail"});
           }
         });
@@ -356,7 +356,7 @@ const initializeEndpoints = (app) => {
         res.status(401).send({
         error: 'invalid token'
       });
-      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      // serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }else {
         var sql =
         `
@@ -368,10 +368,10 @@ const initializeEndpoints = (app) => {
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err){
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            // serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.send({status: "success", data:rows});
           }else{
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            // serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status: "fail"});
           }
         });
