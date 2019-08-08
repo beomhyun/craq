@@ -516,6 +516,14 @@ const initializeEndpoints = (app) => {
         var sql =
           `
                     SELECT	PK
+                          ,(
+                            SELECT
+                              U.USERNAME
+                            FROM
+                              USER AS U
+                            WHERE
+                              C.CREATEDUSER = U.PK
+                          ) AS USERNAME
                           , TITLE
                     		  , BODY
                     	    , CONCAT("http://192.168.31.58:10123/",IMAGE) AS IMAGE
