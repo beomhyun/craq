@@ -2,7 +2,7 @@
     <div class="container padding-sm">
         <div>
             <div class="inner-content clearfix">
-                <CodeDetailQuestionHeader v-if="loaded" :title="VERSION[QUESTION[0].VERSION].TITLE"></CodeDetailQuestionHeader>
+                <CodeDetailQuestionHeader v-if="loaded" :title="VERSION[QUESTION[0].VERSION].TITLE" :article_pk="QUESTION[0].PK"></CodeDetailQuestionHeader>
                 <CodeDetailQuestionHeaderBottom 
                   v-if="loaded"
                  :created_at="VERSION[1].CREATED_AT"
