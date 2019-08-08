@@ -11,6 +11,8 @@ import Main from '@/components/Main.vue'
 import Code from '@/components/Code.vue';
 import AskQuestion from '@/components/AskQuestion.vue';
 import CodeDetail from '@/components/CodeDetail.vue';
+import CodeAnswer from '@/components/CodeAnswer.vue';
+import CodeImprove from '@/components/CodeImprove.vue';
 
 //Community
 import Community from '@/components/Community.vue';
@@ -98,6 +100,18 @@ export default new Router({
       name: 'Questions',
       component: CodeDetail,
       props: true
-    }
+    },
+    {
+      path: '/code/:question_pk/answers/',
+      name: 'Answer',
+      component: CodeAnswer,
+      props: true
+    },
+    {
+      path: '/questions/:question_pk/improve/',
+      name: 'Improve',
+      component: CodeImprove,
+      props: true
+    },
   ]
 })
