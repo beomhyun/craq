@@ -45,8 +45,8 @@ const initializeEndpoints = (app) => {
         var sql =
         `
           INSERT  INTO
-          NOTICE  (USER,TYPE,BODY,CREATEDUSER)
-          VALUES  (${i.user_id},4,'${i.body}',${decoded.pk})
+          NOTICE  (USER,TYPE,BODY,INFO,CREATEDUSER)
+          VALUES  (${i.user_id},4,'${decoded.pk}에게 쪽지가 왔습니다.','${i.body}',${decoded.pk})
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err){
