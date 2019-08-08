@@ -1240,7 +1240,7 @@ const initializeEndpoints = (app) => {
         // console.log(tag);
         // console.log(nottag);
         for (var i in tag) {
-          sql += ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `
+          sql += ` AND TAB.HASHTAG LIKE '${tag[i]}' `
         }
         for (var i in nottag) {
           sql += ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `
@@ -1407,7 +1407,7 @@ const initializeEndpoints = (app) => {
         // console.log(tag);
         // console.log(nottag);
         for (var i in tag) {
-          sql += ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `
+          sql += ` AND TAB.HASHTAG LIKE '${tag[i]}' `
         }
         for (var i in nottag) {
           sql += ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `
@@ -1462,28 +1462,28 @@ const initializeEndpoints = (app) => {
                                   VIEW AS V
                                 WHERE
                                   ASK.PK = V.ARTICLE) AS VIEWS
-                              ,(SELECT
+                              ,IFNULL((SELECT
                                   SUM(V.GOOD)
                                 FROM VOTE AS V
-                                WHERE ASK.PK = V.ARTICLE) AS HELPFUL
+                                WHERE ASK.PK = V.ARTICLE),0) AS HELPFUL
                               ,U.PK AS ANSWER_USERPK
                               ,U.USERNAME AS ANSWER_USERNAME
-                              ,(SELECT
+                              ,IFNULL((SELECT
                                   COUNT(*)
                                 FROM
                                   ARTICLE AS A
                                 WHERE
                                   A.ARTICLE != 0
                                   AND A.CREATEDUSER = U.PK
-                                  AND A.IS_ACTIVE = 1) AS USER_SELECTED_ANSWER
-                              , (SELECT
+                                  AND A.IS_ACTIVE = 1),0) AS USER_SELECTED_ANSWER
+                              , IFNULL((SELECT
                                   COUNT(*)
                                 FROM
                                   ARTICLE AS A
                                 WHERE
                                   A.ARTICLE != 0
-                                  AND A.CREATEDUSER = U.PK) AS USER_ANSWER
-                              , ((SELECT
+                                  AND A.CREATEDUSER = U.PK),0) AS USER_ANSWER
+                              , IFNULL(((SELECT
                                   COUNT(*)
                                 FROM
                                   ARTICLE AS A
@@ -1496,7 +1496,7 @@ const initializeEndpoints = (app) => {
                                   ARTICLE AS A
                                 WHERE
                                   A.ARTICLE != 0
-                                  AND A.CREATEDUSER = U.PK)) AS RELIABLE
+                                  AND A.CREATEDUSER = U.PK)),0) AS RELIABLE
                           FROM
                             ARTICLE AS ASK
                                 LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
@@ -1511,7 +1511,7 @@ const initializeEndpoints = (app) => {
                           1=1
                         `;
                 for (var i in tag) {
-                  sql +=  ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `;
+                  sql +=  ` AND TAB.HASHTAG LIKE '${tag[i]}' `;
                 }
                 for (var i in nottag) {
                   sql +=  ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `;
@@ -1523,7 +1523,7 @@ const initializeEndpoints = (app) => {
               // }, 100);
                           
               connection.query(sql, function(err, rows2, fields) {
-                // console.log(sql);
+                console.log(this.sql);
                 if (!err) {
                   serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
                   json.data = rows2;
