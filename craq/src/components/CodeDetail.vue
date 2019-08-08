@@ -14,7 +14,7 @@
                         <Article v-if="loaded" :article_pk="QUESTION[0].PK"></Article>
                     </div>
                     <div id="answers">
-                        <CodeDetailAnswerHeader v-if="loaded"></CodeDetailAnswerHeader>
+                        <CodeDetailAnswerHeader :count="ANSWERS.length"v-if="loaded"></CodeDetailAnswerHeader>
                         <template v-if="loaded" v-for="answer in ANSWERS" v-key="answer.PK">
                             <Article :article_pk="answer.PK"></Article>
                             <div class="separator"></div>

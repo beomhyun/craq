@@ -1,7 +1,7 @@
 <template>
     <div id=answers-header>
         <div class="subheader answers-subheader">
-            <h2 data-answercount="10">10 Answers</h2>
+            <h2 :data-answercount="count">{{count}} Answers</h2>
             <div>
                 <div id="tabs">
                     <a href="">active</a>
@@ -17,7 +17,8 @@
 
 <script>
 export default {
-    name: "CodeDetailAnswerHeader"
+    name: "CodeDetailAnswerHeader",
+    props: ["count"],
 }
 
 </script>
