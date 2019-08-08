@@ -22,7 +22,7 @@
 
 
                         </li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/code" :class="{'main-header__nav-selected': currentRouteName == 'code'}">Code</router-link></li>
+                        <li class="main-header__nav-item" v-if="!onSearch"><div class="main-header__nav-link" @click.prevent="goSearch()" :class="{'main-header__nav-selected': currentRouteName == 'code'}" style="cursor: pointer;">Code</div></li>
                         <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
                         <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
                         <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
@@ -130,6 +130,16 @@ export default {
                 this.noties = res.data.data;
             })
 
+        },
+        goSearch() {
+            this.$router.push({
+                name: "code",
+                query: {
+                    'order_by': 'PK',
+                    'search_text': "",
+                    'page': 1
+                }
+            })
         }
     },
     mounted() {
