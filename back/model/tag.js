@@ -335,10 +335,17 @@ const initializeEndpoints = (app) => {
                       `
                         SELECT	  	T.PK
                           		 	 ,	T.TITLE
-                          		 	 ,	T.BODY
+                                  ,	T.BODY
+                                  ,(SELECT
+                                    COUNT(*)
+                                  FROM
+                                    HASHTAG AS H
+                                  WHERE
+                                    H.HASHTAG = T.PK
+                                  ) AS COUNT
                         FROM 			  TAG AS T
                         WHERE			  T.IS_REMOVED = ${FALSE}
-                        ORDER BY 	  T.PK ASC
+                        ORDER BY 	  COUNT DESC
                         LIMIT 		  ${(req.params.page-1)*TAG_PER_PAGE}, ${TAG_PER_PAGE}
                       `;
 
@@ -419,14 +426,14 @@ const initializeEndpoints = (app) => {
 
     /**
    * @swagger
-   *  /tags/relation/topfive:
+   *  /tags/relation/topfive/{tag}:
    *    get:
    *      tags:
    *      - tag
    *      description: 해당 태그와 같이 많이 사용된 태그 상위 5개
    *      parameters:
    *      - name: tag
-   *        in: query
+   *        in: path
    *        type: integer   
    *        description: tag pk
    *      - name: user_token
@@ -436,7 +443,7 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/tags/relation/topfive', function(req, res) {
+  app.get('/tags/relation/topfive/:tag', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -461,8 +468,8 @@ const initializeEndpoints = (app) => {
                             FROM
                               HASHTAG AS H
                             WHERE
-                              H.HASHTAG = ${req.query.tag})
-                    AND A.HASHTAG != ${req.query.tag}
+                              H.HASHTAG = ${req.params.tag})
+                    AND A.HASHTAG != ${req.params.tag}
                   GROUP BY A.HASHTAG
                   LIMIT 0,5
                   `;

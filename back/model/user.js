@@ -963,10 +963,9 @@ app.put('/users/password/:pk', function(req, res){
   var hash = crypto.createHash('sha512');
   var data = hash.update('1234','utf-8');
   var gen_hash= data.digest('hex');
-  // console.log(gen_hash);
-  var sql = " UPDATE user SET last_login = now() WHERE pk = ? ";
-  var params = [req.params.pk];
-  connection.query(sql,params, function(err, rows, fields) {
+  console.log(gen_hash);
+  var sql = ` UPDATE user SET PASSWORD = '${gen_hash}' WHERE pk = ${req.params.pk}`;
+  connection.query(sql, function(err, rows, fields) {
           if (!err){
             // console.log('The solution is: ', rows);
             // return callback(null,rows);
