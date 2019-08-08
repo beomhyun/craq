@@ -327,6 +327,7 @@ const initializeEndpoints = (app) => {
                       ON           A.CONTENT = C.PK
                       WHERE     A.TOPIC = ${req.params.topic}
                       AND         A.IS_REMOVED = ${FALSE}
+                      AND       A.IS_ACTIVE = ${FALSE}
                     ) AS B
             LIMIT     ${(req.params.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}
           `;
@@ -1905,7 +1906,79 @@ const initializeEndpoints = (app) => {
   });
 });
 
-
+  /**
+   * @swagger
+   *  /articles/notices/topics/{pk}:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 모든 글을 받아옴.
+   *      parameters:
+   *      - name: pk
+   *        in: path
+   *        type: integer
+   *        description: topic pk
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/articles/notices/topics/:pk', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        var sql = 
+                  `
+                  SELECT      ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
+                                ROWNUM
+                              , A.PK
+                              , A.TOPIC
+                              , C.TITLE
+                              ,
+                              (
+                                SELECT  USERNAME
+                                FROM    USER
+                                WHERE   PK = A.CREATEDUSER
+                              ) AS USERNAME
+                              , C.CREATED_AT
+                              ,
+                              (
+                                SELECT     COUNT(ARTICLE)
+                                FROM         VIEW
+                                WHERE     ARTICLE = A.PK
+                              ) AS VIEW
+                              ,
+                              (
+                                SELECT    SUM(GOOD)
+                                FROM         VOTE
+                                WHERE     ARTICLE = A.PK
+                              ) AS VOTE
+                      FROM        ARTICLE AS A
+                      JOIN         CONTENT AS C
+                      ON           A.CONTENT = C.PK
+                      WHERE     A.TOPIC = ${req.params.pk}
+                      AND         A.IS_REMOVED = ${FALSE}
+                      AND A.IS_ACTIVE = 1
+                  `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err) {
+            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+            res.send({status:"success",data: rows});
+          } else {
+            // console.log('article insert err ', err);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status:"fail"});
+          }
+        });
+      }
+    });
+  });
 
 };
 module.exports = initializeEndpoints;
