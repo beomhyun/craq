@@ -182,10 +182,10 @@ const initializeEndpoints = (app) => {
                           var msg = `${title} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
 
                           sql =
-                            `
-                            INSERT  INTO
-                            NOTICE  ( USER, TYPE, BODY )
-                            VALUES  ( ${created_user}, 1, "${msg}" )
+                          `
+                          INSERT  INTO
+                          NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT)
+                          VALUES  (${created_user},1,'${msg}',${i.article_id},${contentId})
                           `;
                           connection.query(sql, function(err, rows, fields) {
                             if (!err) {
@@ -198,16 +198,17 @@ const initializeEndpoints = (app) => {
                           });
 
                           sql = // 답변을 작성한 직후에 답변 article의 article 컬럼을 찾는다.
-                            `
+                          `
                           SELECT  COUNT(*) COUNT
                           FROM    WARD
                           WHERE   ARTICLE = ${i.article_id}
                           AND     IS_REMOVED = 0
                           `;
                           connection.query(sql, function(err, rows, fields) {
+                            console.log("sum="+rows[0].COUNT);
                             if (!err && rows[0].COUNT > 0) {
                               sql =
-                                `
+                              `
                               SELECT  USER
                               FROM    WARD
                               WHERE   ARTICLE = ${i.article_id}
@@ -215,12 +216,12 @@ const initializeEndpoints = (app) => {
                               `;
                               connection.query(sql, function(err, rows, fields) {
                                 if (!err) {
-                                  for (var i = 0; i < rows.length; i++) {
+                                  for (var i = 0; i < rows.length; i++) { // 와드를 설정한 사용자들에게 알림을 보낸다.
                                     sql =
-                                      `
+                                    `
                                     INSERT  INTO
-                                    NOTICE    (USER,TYPE,BODY)
-                                    VALUES  (${rows[i].USER},1,'${msg}')
+                                    NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT)
+                                    VALUES  (${rows[i].USER},1,'${msg}',${i.article_id}, ${contentId})
                                     `;
                                     connection.query(sql, function(err, rows, fields) {
                                       if (!err) {
@@ -247,7 +248,7 @@ const initializeEndpoints = (app) => {
                               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                               res.send({
                                 status: "fail",
-                                msg: "select count user err"
+                                msg: "select count user err1"
                               });
                             }
                           });
@@ -306,6 +307,7 @@ const initializeEndpoints = (app) => {
           VALUES    (${i.article_id},${i.beforeContent},'${i.title}','${i.body}','${i.image}',${i.user_id},${i.user_id},${version})
           `;
           connection.query(sql, function(err, rows, fields) {
+            var contentId = rows.insertId;
             if (!err) { // 기존 article의 content 값을 최신 contetn id값으로 변경, updatedUser 수정
               sql =
                 `
@@ -333,10 +335,10 @@ const initializeEndpoints = (app) => {
                       var msg = `${title} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
 
                       sql =
-                        `
-                        INSERT  INTO
-                        NOTICE  ( USER, TYPE, BODY )
-                        VALUES  ( ${created_user}, 1, '${msg}')
+                      `
+                      INSERT  INTO
+                      NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT)
+                      VALUES  (${created_user},1,'${msg}',${i.article_id},${contentId})
                       `;
                       connection.query(sql, function(err, rows, fields) {
                         if (!err) {
@@ -349,7 +351,7 @@ const initializeEndpoints = (app) => {
                       });
 
                       sql = // 답변을 작성한 직후에 답변 article의 article 컬럼을 찾는다.
-                        `
+                      `
                       SELECT  COUNT(*) COUNT
                       FROM    WARD
                       WHERE   ARTICLE     =   ${i.article_id}
@@ -358,7 +360,7 @@ const initializeEndpoints = (app) => {
                       connection.query(sql, function(err, rows, fields) {
                         if (!err && rows[0].COUNT > 0) {
                           sql =
-                            `
+                          `
                           SELECT  USER
                           FROM    WARD
                           WHERE   ARTICLE     =  ${i.article_id}
@@ -368,10 +370,10 @@ const initializeEndpoints = (app) => {
                             if (!err) {
                               for (var i = 0; i < rows.length; i++) {
                                 sql =
-                                  `
+                                `
                                 INSERT  INTO
-                                NOTICE  (USER,TYPE,BODY)
-                                VALUES  (${rows[i].USER},1,'${msg}')
+                                NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT)
+                                VALUES  (${rows[i].USER},1,'${msg}',${i.article_id},${contentId})
                                 `;
                                 connection.query(sql, function(err, rows, fields) {
                                   if (!err) {

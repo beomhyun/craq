@@ -56,11 +56,13 @@ const initializeEndpoints = (app) => {
         VALUES  (${i.user_id},${i.content_id},${i.parent_id},'${i.body}',${i.user_id},${i.user_id})
         `;
         connection.query(sql, function(err, rows, fields) {
+          var commentId = rows.insertId;
           if (!err) {
             // content 작성자에게도 알림이 가도록 한다.
             sql =
             `
-            SELECT    TITLE
+            SELECT    ARTICLE
+                    , TITLE
                     , CREATEDUSER
                     , (
                       SELECT  USERNAME
@@ -76,8 +78,8 @@ const initializeEndpoints = (app) => {
                 sql =
                 `
                 INSERT  INTO
-                NOTICE  (USER,TYPE,BODY)
-                VALUES  (${rows[0].CREATEDUSER},2,'${msg}')
+                NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT,COMMENT)
+                VALUES  (${rows[0].CREATEDUSER},2,'${msg}',${rows[0].ARTICLE},${i.content_id},${commentId})
                 `;
                 connection.query(sql, function(err, rows, fields) {
                   if (!err){
