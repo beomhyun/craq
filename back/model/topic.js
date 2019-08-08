@@ -418,7 +418,7 @@ const initializeEndpoints = (app) => {
     }
       else {
         //var sql = ' SELECT pk,topic FROM topic WHERE topic like "'+'%' + req.query.title + '%" and is_active =  1 ';
-        sql = ` SELECT pk,topic FROM topic WHERE topic like "%${req.query.title}%" and is_active =  ${TRUE}`;
+        sql = ` SELECT pk,topic FROM topic WHERE topic like "%${req.query.title}%" and is_active =  ${TRUE} and topic !=1`;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             // console.log(this.sql);
