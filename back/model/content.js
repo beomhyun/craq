@@ -21,42 +21,46 @@ const upload = multer({
 
 const initializeEndpoints = (app) => {
 
-    /**
-     * @swagger
-     *  /contents/images:
-     *    post:
-     *      tags:
-     *      - content
-     *      description: 해당 content의 이미지를 저장
-     *      parameters:
-     *      - in: formData
-     *        name: image
-     *        type: file
-     *        description: content에 넣을 image
-     *      - name: user_token
-     *        in: header
-     *        type: string
-     *        description: 사용자의 token값을 전달.
-     *      responses:
-     *       200:
-     */
-    app.post('/contents/images', upload.single('image'), function(req, res) {
-      jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-        if(err){
-          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-          res.status(401).send({error:'invalid token'});
+  /**
+   * @swagger
+   *  /contents/images:
+   *    post:
+   *      tags:
+   *      - content
+   *      description: 해당 content의 이미지를 저장
+   *      parameters:
+   *      - in: formData
+   *        name: image
+   *        type: file
+   *        description: content에 넣을 image
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달.
+   *      responses:
+   *       200:
+   */
+  app.post('/contents/images', upload.single('image'), function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+        res.status(401).send({
+          error: 'invalid token'
+        });
+      } else {
+        console.log(req.file);
+        var filename = "default_image.png";
+        if (req.file) { // 이미지 파일이 첨부되었을 때
+          filename = req.file.filename;
         }
-        else{
-          console.log(req.file);
-          var filename = "default_image.png";
-          if(req.file){ // 이미지 파일이 첨부되었을 때
-            filename = req.file.filename;
-          }
-          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-          res.send({status: "success",data:req.file.filename});
-        }
-      });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+        res.send({
+          status: "success",
+          data: req.file.filename
+        });
+      }
     });
+  });
 
   /**
    * @swagger
@@ -64,7 +68,8 @@ const initializeEndpoints = (app) => {
    *    post:
    *      tags:
    *      - content
-   *      description: content를 작성
+   *      description: content를 작성, 질문&작성글일 땐 topic = 1 이며 , 질문글을 작성할 때는 article_id = 0 , 답변글을 작성할 때
+   *                   답변을 달을 질문 article id값을 입력
    *      parameters:
    *      - in: body
    *        name: contentsbody
@@ -95,204 +100,328 @@ const initializeEndpoints = (app) => {
    *        200:
    */
   app.post('/contents', function(req, res) {
-    // console.log("request post contents1");
     var i = req.body;
     var sql = "";
 
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
-        res.status(401).send({
-        error: 'invalid token'
-      });
-      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-    }
-      else {
-        // console.log("request post contents2");
-        // console.log("beforeContent : " + i.beforeContent);
+        res.status(401).send({ error: 'invalid token' });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
         if (i.beforeContent == 0) { // 이전에 작성한 content가 없는 최초의 article 작성일 때
-          // console.log("request post contents3");
-
-          sql = "INSERT INTO content(title,body,image,createdUser,updatedUser) VALUES(?,?,?,?,?)";
-          var params = [i.title, i.body, i.image, i.user_id, i.user_id];
-          connection.query(sql, params, function(err, rows, fields) {
+          sql =
+            `
+          INSERT    INTO
+          CONTENT   (TITLE,BODY,IMAGE,CREATEDUSER,UPDATEDUSER)
+          VALUES    ('${i.title}','${i.body}','${i.image}',${i.user_id},${i.user_id})
+          `;
+          connection.query(sql, function(err, rows, fields) {
             if (!err) {
-              var contentId = rows.insertId;
+              var contentId = rows.insertId; // 방금 생성된 content의 id값
               sql =
-                    `
-                      INSERT    INTO
-                      ARTICLE   ( TOPIC, ARTICLE, CONTENT, CREATEDUSER, UPDATEDUSER )
-                      VALUES    ( ${i.topic_id}, ${i.article_id}, ${contentId}, ${i.user_id}, ${i.user_id} )
-                    `;
+              `
+              INSERT    INTO
+              ARTICLE   (TOPIC,ARTICLE,CONTENT,CREATEDUSER,UPDATEDUSER)
+              VALUES    (${i.topic_id},${i.article_id},${contentId},${i.user_id},${i.user_id})
+              `;
               connection.query(sql, function(err, rows, fields) {
                 if (!err) {
-                  // console.log("rows.insertId = " + rows.insertId);
-                  sql = `UPDATE CONTENT SET ARTICLE = ${rows.insertId} WHERE pk = ${contentId}`;
+                  var articleId = rows.insertId; // 방금 생성된 article의 id값
+                  sql = // 방금 생성된 article의 id값으로 갱신시켜준다.
+                    `
+                  UPDATE  CONTENT
+                  SET     ARTICLE = ${articleId}
+                  WHERE   PK      = ${contentId}
+                  `;
                   connection.query(sql, function(err, rows, fields) {
                     if (!err) {
                       // console.log(rows);
                       async function replaceAll(str, searchStr, replaceStr) {
                         return await str.split(searchStr).join(replaceStr);
                       }
-                      async function toArray(tags,createdUser,contentId){
-                        tags = await replaceAll(tags,'[','');
-                        tags = await replaceAll(tags,']','');
-                        tags = await replaceAll(tags,' ','');
+                      async function toArray(tags, createdUser, contentId) {
+                        tags = await replaceAll(tags, '[', '');
+                        tags = await replaceAll(tags, ']', '');
+                        tags = await replaceAll(tags, ' ', '');
                         // console.log(tags);
                         var arr = await tags.split(',');
-                        for(var i in arr){
-                          var sql = await
-                          `
+                        for (var i in arr) {
+                          var sql = await `
                           INSERT  INTO
                           HASHTAG  ( CONTENT, HASHTAG , CREATEDUSER, UPDATEDUSER )
                           VALUES
                           `;
-                          sql += await `(${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
+                          sql += await ` (${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
                           await connection.query(sql, function(err, rows, fields) {
                             // console.log(this.sql);
-                            if(!err){
+                            if (!err) {
                               console.log("tag add successs");
-                            }else{
+                            } else {
                               console.log("tag add fail");
                             }
                           });
                         }
                       }
-                      toArray(i.tags,decoded.pk,contentId);
+                      toArray(i.tags, decoded.pk, contentId);
 
-                      // 작성한 글이 어느 질문에 대한 답변일 때
-                      if( i.topic_id == 1 && i.article_id != 0){
-                        // 질문 글의 작성자를 얻어온다
-                        // console.log("TRUE");
+
+                      if (i.topic_id == 1 && i.article_id != 0) { // 작성한 글이 어느 질문에 대한 답변일 때
                         sql =
-                              `
-                                SELECT    A.CREATEDUSER
-                                        , C.TITLE
-                                FROM      ARTICLE AS A
-                                JOIN      CONTENT AS C
-                                ON        A.CONTENT = C.PK
-                                WHERE     A.PK = ${i.article_id}
-                              `;
+                          `
+                          SELECT    A.CREATEDUSER
+                                  , C.TITLE
+                          FROM      ARTICLE AS A
+                          JOIN      CONTENT AS C
+                          ON        A.CONTENT = C.PK
+                          WHERE     A.PK = ${i.article_id}
+                        `;
+
                         connection.query(sql, function(err, rows, fields) {
-                          // console.log(rows[0].CREATEDUSER);
-                          // console.log(rows[0].TITLE);
                           var created_user = rows[0].CREATEDUSER;
                           var title = rows[0].TITLE;
-                          // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
-                          var msg = `${title} 글에 답변이 달렸습니다`;
+                          var msg = `${title} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+
                           sql =
-                                `
-                                  INSERT  INTO
-                                  NOTICE  ( USER, TYPE, BODY )
-                                  VALUES  ( ${created_user}, 1, "${msg}" )
-                                `;
+                            `
+                            INSERT  INTO
+                            NOTICE  ( USER, TYPE, BODY )
+                            VALUES  ( ${created_user}, 1, "${msg}" )
+                          `;
                           connection.query(sql, function(err, rows, fields) {
-                            if (!err){
-                              serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                              res.send({status: "success2"});
-                            }else{
-                              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                              res.send({status: "fail4"});
+                            if (!err) {
+                              serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                              //res.send({status: "success2"});
+                            } else {
+                              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                              //res.send({status: "fail4"});
+                            }
+                          });
+
+                          sql = // 답변을 작성한 직후에 답변 article의 article 컬럼을 찾는다.
+                            `
+                          SELECT  COUNT(*) COUNT
+                          FROM    WARD
+                          WHERE   ARTICLE = ${i.article_id}
+                          AND     IS_REMOVED = 0
+                          `;
+                          connection.query(sql, function(err, rows, fields) {
+                            if (!err && rows[0].COUNT > 0) {
+                              sql =
+                                `
+                              SELECT  USER
+                              FROM    WARD
+                              WHERE   ARTICLE = ${i.article_id}
+                              AND     IS_REMOVED = 0
+                              `;
+                              connection.query(sql, function(err, rows, fields) {
+                                if (!err) {
+                                  for (var i = 0; i < rows.length; i++) {
+                                    sql =
+                                      `
+                                    INSERT  INTO
+                                    NOTICE    (USER,TYPE,BODY)
+                                    VALUES  (${rows[i].USER},1,'${msg}')
+                                    `;
+                                    connection.query(sql, function(err, rows, fields) {
+                                      if (!err) {
+                                        serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                      } else {
+                                        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                      }
+                                    });
+                                  }
+                                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                  res.send({
+                                    status: "success",
+                                    msg: "insert notice"
+                                  });
+                                } else {
+                                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                  res.send({
+                                    status: "fail",
+                                    msg: "select user err"
+                                  });
+                                }
+                              });
+                            } else {
+                              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                              res.send({
+                                status: "fail",
+                                msg: "select count user err"
+                              });
                             }
                           });
                         });
-                      }else{
+                      } else {
                         // console.log("sucesssssssssssss\n"+rows);
-                        serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                        res.send({status: "success"});
+                        serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                        res.send({
+                          status: "success"
+                        });
                       }
                     } else {
                       console.log('content update err.', err);
-                      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                      serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                       res.send(err);
                     }
                   });
                 } else {
-                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                  res.send({status: "fail2"});
+                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                  res.send({
+                    status: "fail2"
+                  });
                 }
               });
             } else {
-              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-              res.send({status: "fail3"});
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({
+                status: "fail3"
+              });
             }
           });
-        }  else { // 이전에 작성한 content가 있고 기존의 article이 존재할 때
+        } else { // 이전에 작성한 content가 있고 기존의 article이 존재할 때
           var version = 1;
-          var getversion = `SELECT
-                              COUNT(*) AS C
-                            FROM
-                              CONTENT
-                            WHERE 1=1
-                              AND ARTICLE = ${i.article_id}`;
-          connection.query(sql, params, function(err, rows, fields) {
-            if(!err) version = rows[0].C +1;
-            else{
-              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-              res.send({status: "fail"})
+          sql =
+            `
+          SELECT  COUNT(*) AS C
+          FROM    CONTENT
+          WHERE   1 = 1
+          AND     ARTICLE = ${i.article_id};
+          `;
+          connection.query(sql, function(err, rows, fields) {
+            if (!err) {
+              version = rows[0].C + 1;
+            } else {
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({
+                status: "fail",
+                msg: "select count version err"
+              })
             }
           });
-          sql = "INSERT INTO content(Article,beforeContent,title,body,image,createdUser,updatedUser,version) VALUES(?,?,?,?,?,?,?,?)";
-          params = [i.article_id, i.beforeContent, i.title, i.body, filename, i.user_id, i.user_id,version];
-          connection.query(sql, params, function(err, rows, fields) {
-            if (!err) {
-              // 기존 article의 content 값을 최신 contetn id값으로 변경, updatedUser 수정
+          sql =
+            `
+          INSERT    INTO
+          CONTENT   (ARTICLE,BEFORECONTENT,TITLE,BODY,IMAGE,CREATEDUSER,UPDATEDUSER,VERSION)
+          VALUES    (${i.article_id},${i.beforeContent},'${i.title}','${i.body}','${i.image}',${i.user_id},${i.user_id},${version})
+          `;
+          connection.query(sql, function(err, rows, fields) {
+            if (!err) { // 기존 article의 content 값을 최신 contetn id값으로 변경, updatedUser 수정
               sql =
-                    `
-                      UPDATE    ARTICLE
-                      SET       CONTENT       = ${rows.insertId}
-                              , UPDATEDUSER   = ${i.user_id}
-                      WHERE     PK            = ${i.article_id}
+                `
+              UPDATE    ARTICLE
+              SET       CONTENT       =   ${rows.insertId}
+                      , UPDATEDUSER   =   ${i.user_id}
+              WHERE     PK            =   ${i.article_id}
+              `;
+              connection.query(sql, function(err, rows, fields) {
+                if (!err) {
+                  if (i.topic_id == 1 && i.article_id != 0) { // 작성한 글이 어느 질문에 대한 답변일 때
+                    sql =
+                      `
+                    SELECT    A.CREATEDUSER
+                            , C.TITLE
+                    FROM      ARTICLE AS A
+                    JOIN      CONTENT AS C
+                    ON        A.CONTENT     =   C.PK
+                    WHERE     A.PK          =   ${i.article_id}
                     `;
 
-              connection.query(sql, function(err, rows, fields) {
-                if (!err){
-                  // 작성한 글이 어느 질문에 대한 답변일 때
-                  if( i.topic_id == 1 && i.article_id != 0){ // 질문 글이면서
-                    // 질문 글의 작성자를 얻어온다
-                    console.log("TRUE");
-                    sql =
-                          `
-                            SELECT    A.CREATEDUSER
-                                    , C.TITLE
-                            FROM      ARTICLE AS A
-                            JOIN      CONTENT AS C
-                            ON        A.CONTENT = C.PK
-                            WHERE     A.PK = ${i.article_id}
-                          `;
                     connection.query(sql, function(err, rows, fields) {
-                      console.log(rows[0].CREATEDUSER);
-                      console.log(rows[0].TITLE);
                       var created_user = rows[0].CREATEDUSER;
                       var title = rows[0].TITLE;
-                      // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
-                      var msg = `${title} 글에 답변이 달렸습니다`;
+                      var msg = `${title} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+
                       sql =
-                            `
-                              INSERT  INTO
-                              NOTICE  ( USER, TYPE, BODY )
-                              VALUES  ( ${created_user}, 1, "${msg}" )
-                            `;
+                        `
+                        INSERT  INTO
+                        NOTICE  ( USER, TYPE, BODY )
+                        VALUES  ( ${created_user}, 1, '${msg}')
+                      `;
                       connection.query(sql, function(err, rows, fields) {
-                        if (!err){
-                          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                          res.send({status: "success2"});
-                        }else{
-                          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                          res.send({status: "fail4"});
+                        if (!err) {
+                          serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                          //res.send({status: "success2"});
+                        } else {
+                          serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                          //res.send({status: "fail4"});
+                        }
+                      });
+
+                      sql = // 답변을 작성한 직후에 답변 article의 article 컬럼을 찾는다.
+                        `
+                      SELECT  COUNT(*) COUNT
+                      FROM    WARD
+                      WHERE   ARTICLE     =   ${i.article_id}
+                      AND     IS_REMOVED  =   0
+                      `;
+                      connection.query(sql, function(err, rows, fields) {
+                        if (!err && rows[0].COUNT > 0) {
+                          sql =
+                            `
+                          SELECT  USER
+                          FROM    WARD
+                          WHERE   ARTICLE     =  ${i.article_id}
+                          AND     IS_REMOVED  =  0
+                          `;
+                          connection.query(sql, function(err, rows, fields) {
+                            if (!err) {
+                              for (var i = 0; i < rows.length; i++) {
+                                sql =
+                                  `
+                                INSERT  INTO
+                                NOTICE  (USER,TYPE,BODY)
+                                VALUES  (${rows[i].USER},1,'${msg}')
+                                `;
+                                connection.query(sql, function(err, rows, fields) {
+                                  if (!err) {
+                                    serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                  } else {
+                                    serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                  }
+                                });
+                              }
+                              serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                              res.send({
+                                status: "success",
+                                msg: "insert notice"
+                              });
+                            } else {
+                              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                              res.send({
+                                status: "fail",
+                                msg: "select user err"
+                              });
+                            }
+                          });
+                        } else {
+                          serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                          res.send({
+                            status: "fail",
+                            msg: "select count user err"
+                          });
                         }
                       });
                     });
+                  } else {
+                    // console.log("sucesssssssssssss\n"+rows);
+                    serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                    res.send({
+                      status: "success"
+                    });
                   }
-                  serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                  res.send({status: "success"});
-                }else{
-                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                  res.send({status: "fail1"});
+                } else {
+                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                  res.send({
+                    status: "fail1"
+                  });
                 }
               });
-            }else{
-              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-              res.send({status: "fail1"});
+            } else {
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({
+                status: "fail1"
+              });
             }
           });
 
@@ -321,21 +450,22 @@ const initializeEndpoints = (app) => {
    *        description: 사용자 pk 전달
    */
   app.get('/contents/content-image/:pk', function(req, res) {
-    jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
-      if(err){
-        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-        res.status(401).send({error:'invalid token'});
-      }
-      else{
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+        res.status(401).send({
+          error: 'invalid token'
+        });
+      } else {
         var sql = " select count(*) as cheking, image from content where pk = ? ";
         var params = [req.params.pk];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
             var img = '<img src="/' + rows[0].image + '">';
             res.send(img);
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
           } else {
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({
               status: "fail"
             });
@@ -366,15 +496,14 @@ const initializeEndpoints = (app) => {
    */
   app.get('/contents/articles/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err){
+      if (err) {
         res.status(401).send({
           error: 'invalid token'
         });
-        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      }
-      else {
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
         var sql =
-                  `
+          `
                     SELECT	PK
                           , TITLE
                     		  , BODY
@@ -404,7 +533,7 @@ const initializeEndpoints = (app) => {
                     AND 		IS_REMOVED = 0
                   `;
         connection.query(sql, function(err, rows, fields) {
-          if (!err){
+          if (!err) {
 
             sql = `
             INSERT INTO
@@ -413,18 +542,26 @@ const initializeEndpoints = (app) => {
             `;
             connection.query(sql, function(err, answers, fields) {
               console.log(this.sql);
-              if(!err){
-                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                res.send({status: "success",data:rows});
-              }else{
-                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                res.send({status: "success",data:rows});
+              if (!err) {
+                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                res.send({
+                  status: "success",
+                  data: rows
+                });
+              } else {
+                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                res.send({
+                  status: "success",
+                  data: rows
+                });
               }
             });
             //res.json(rows);
-          }else{
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            res.send({status: "fail1"});
+          } else {
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({
+              status: "fail1"
+            });
             //res.send(err);
           }
         });
@@ -453,22 +590,21 @@ const initializeEndpoints = (app) => {
    */
   app.get('/contents/last/articles/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err){
+      if (err) {
         res.status(401).send({
           error: 'invalid token'
         });
-        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      }
-      else {
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
         var sql = "SELECT * FROM content WHERE article = ? ORDER BY pk DESC limit 1";
         var params = [req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
             console.log('article insert err ', err);
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -498,13 +634,12 @@ const initializeEndpoints = (app) => {
   app.get('/contents/:id', function(req, res) {
     const ARTICLE_PER_PAGE = 20;
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err){
+      if (err) {
         res.status(401).send({
-         error: 'invalid token'
-       });
-       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      }
-      else {
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
         /*
             content의 정보를 받아오기 전에
             해당 content를 포함하는 article이
@@ -567,7 +702,7 @@ const initializeEndpoints = (app) => {
                 sql = `SELECT * FROM CONTENT WHERE PK = ${req.params.id}`;
                 connection.query(sql, function(err, rows, fields) {
                   if (!err) {
-                    serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                    serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
                     res.send({
                       status: "success",
                       data: rows[0],
@@ -575,14 +710,14 @@ const initializeEndpoints = (app) => {
                       maxPage: maxPage
                     });
                   } else {
-                    serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                    serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                     res.send({
                       status: "fail"
                     });
                   }
                 });
               } else {
-                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                 res.send({
                   status: "fail"
                 });
@@ -590,7 +725,7 @@ const initializeEndpoints = (app) => {
             });
 
           } else {
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             console.log('SELECT ROWNUM err ', err);
             res.send(err);
           }
@@ -631,15 +766,14 @@ const initializeEndpoints = (app) => {
   app.put('/contents/:id', function(req, res) {
     var i = req.body;
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err){
+      if (err) {
         res.status(401).send({
           error: 'invalid token'
         });
-        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      }
-      else {
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
         var sql =
-        `
+          `
           UPDATE  CONTENT
           SET     TITLE   = '${i.title}'
                 , BODY    = '${i.body}'
@@ -648,11 +782,11 @@ const initializeEndpoints = (app) => {
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
             console.log('article insert err ', err);
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -681,22 +815,21 @@ const initializeEndpoints = (app) => {
    */
   app.delete('/contents/:id', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-      if (err){
+      if (err) {
         res.status(401).send({
           error: 'invalid token'
         });
-        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      }
-      else {
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
         var sql = `UPDATE content SET is_removed = ${TRUE} WHERE pk = ?`;
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
             console.log('article insert err ', err);
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
         });
@@ -735,50 +868,55 @@ const initializeEndpoints = (app) => {
    *        200:
    */
 
-   app.post('/contents/notices', function(req, res) {
-     var i = req.body;
-     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
-       if (err){
-         res.status(401).send({
-           error: 'invalid token'
-         });
-         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-       }
-       else {
-         var sql =
-         `
+  app.post('/contents/notices', function(req, res) {
+    var i = req.body;
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        var sql =
+          `
            SELECT	  COUNT(*) TMP
            FROM 		MANAGER
            WHERE		TOPIC = ${i.topic_id}
            AND      USER  = ${i.user_id}
          `;
-         connection.query(sql, function(err, rows, fields) {
-           if (!err && rows[0].TMP == 1 ) { // 해당 게시판의 관리자일 때
-             sql =
-             `
+        connection.query(sql, function(err, rows, fields) {
+          if (!err && rows[0].TMP == 1) { // 해당 게시판의 관리자일 때
+            sql =
+              `
                INSERT   INTO
                CONTENT  (TITLE, BODY, IMAGE, CREATEDUSER)
                VALUES   ('${i.title}','${i.body}','${i.image}',${i.user_id})
              `;
-             connection.query(sql, function(err, rows, fields) {
-               if(!err){
-                 // 해당 게시판을 구독중인 사용자들에게 알림처리               
-                 serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                 res.send({ status: "success" });
-               }else{
-                 serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                 res.send({ status: "fail" });
-               }
-             });
+            connection.query(sql, function(err, rows, fields) {
+              if (!err) {
+                // 해당 게시판을 구독중인 사용자들에게 알림처리
+                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                res.send({
+                  status: "success"
+                });
+              } else {
+                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                res.send({
+                  status: "fail"
+                });
+              }
+            });
 
-           } else {
-             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-             res.send({ status: "fail" });
-           }
-         });
-       }
-     });
-   });
+          } else {
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({
+              status: "fail"
+            });
+          }
+        });
+      }
+    });
+  });
 
 };
 module.exports = initializeEndpoints;

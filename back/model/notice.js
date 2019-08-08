@@ -23,9 +23,6 @@ const initializeEndpoints = (app) => {
    *            user_id:
    *              type: integer
    *              description: user의 id값
-   *            type_id:
-   *              type: integer
-   *              description: type의 id값
    *            body:
    *              type: string
    *              description: 전달할 내용
@@ -48,8 +45,8 @@ const initializeEndpoints = (app) => {
         var sql =
         `
           INSERT  INTO
-          NOTICE  (USER,TYPE,BODY)
-          VALUES  (${i.user_id},${i.type_id},'${i.body}')
+          NOTICE  (USER,TYPE,BODY,CREATEDUSER)
+          VALUES  (${i.user_id},4,'${i.body}',${decoded.pk})
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err){
@@ -105,7 +102,50 @@ const initializeEndpoints = (app) => {
       }
     });
   });
-
+  /**
+   * @swagger
+   *  /notices/checks/{pk}:
+   *    put:
+   *      tags:
+   *      - notice
+   *      description: 모든 알림 정보를 가져옴.
+   *      parameters:
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달
+   *      responses:
+   *        200:
+   */
+  app.put('/notices/checks/:pk', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+        error: 'invalid token'
+      });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }else {
+        var sql =
+        `
+          UPDATE
+            NOTICE
+          SET
+            IS_ACTIVE = 1
+          WHERE
+            PK = ${req.params.pk}
+        `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err){
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            res.send({status: "success", data:rows});
+          }else{
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }
+        });
+      }
+    });
+  });
   /**
    * @swagger
    *  /notices/checks:
