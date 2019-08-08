@@ -106,6 +106,7 @@ export default {
                     "search_text": this.query('search_text')
                 }
             })
+            this.loaded = true;
         },
         sort(by) {
             this.loaded = false;
@@ -117,7 +118,8 @@ export default {
                     "search_text": this.query('search_text')
 
                 }
-            })
+            }) 
+            this.loaded = true; // if pushed to same route no mount watch will happen;
         },
     },
     computed: {
