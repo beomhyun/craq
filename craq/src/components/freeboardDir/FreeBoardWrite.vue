@@ -14,11 +14,14 @@
       <textarea rows="10" cols="80" name="content" class="form-control width-100%" v-model="content"/>
       <div>
         <!-- <input type="text" name="filename" v-model="filename" readonly=true/> -->
-        <input type="file" @change="previewImage" accept="image/*" class="form-control-file"/>
+        <div v-if="imageData.length > 0">
+          <img class="preview" :src="imgDir">
+        </div>
+        <input type="file" @change="previewImage" accept="image/*" class="form-control" />
       </div>
       <div>
-        <button @click="clearForm" class="btn btn-subtle btn-sm" style="margin:5px;">Clear</button>
-        <button type="submit" class="btn btn-accept btn-sm" name="button" @click="submitForm" style="margin:5px;">Submit</button>
+        <!-- <button @click="clearForm" class="btn btn-subtle btn-sm" style="margin:5px;">Clear</button> -->
+        <button type="submit" class="btn btn-accept btn-sm" name="button" style="margin:5px;">Submit</button>
       </div>
     </form>
   </div>
@@ -35,29 +38,41 @@ export default {
       selected : "",
       title : "",
       content : "",
-      filename : "",
+      imgDir : ""
+      // selectFile : null
+      // filename : "",
     }
   },
+  created() {
+    this.$axios
+    .get(`topics/pk/${this.$route.params.topic}`)
+    .then((res) => {
+      var title = res.data;
+      // console.log(title.data[0]);
+      this.boardName = title.data[0].TOPIC;
+      // if(title.data[0].IS_SUBSCRIBE == 0) {
+      //   this.isSubscribe = false;
+      // }else {
+      //   this.isSubscribe = true;
+      // }
+    });
+  },
   methods : {
-    clearForm() {
-
-    },
-    submitForm() {
-      //axios
-      // this.$router.push({path : `/freeboard/${this.boardName}`});
-      this.$router.go(-1);
-      // this.$router.push({name : 'freeboard', params : {topic : this.boardName}});
-    },
     addfreeBoard() {
-      // axios.post('http://192.168.31.58:10123/api-docs/', {
-      //   topic : '',
-      //   user_name : '',
-      //   title : '',
-      //   content : '',
-      // }).
-      // then((response) => {
-      //
-      // })
+      this.$axios.post('contents', {
+        topic_id : this.$route.params.topic,
+        article_id : '0',
+        title : this.title,
+        body : this.content,
+        image : this.imageData,
+        // user_id : this.$store.state.loginPK,
+        user_id : `${this.$session.get("userPk")}`,
+        beforeContent : '0',
+        tags : " "
+      }).
+      then((response) => {
+        this.$router.go(-1);
+      })
       // this.isAddBoard = false;
       // this.$emit('childs-event', this.isAddBoard)
     },
@@ -72,11 +87,20 @@ export default {
             reader.onload = (e) => {
                 // Note: arrow function used here, so that "this.imageData" refers to the imageData of Vue component
                 // Read image as base64 and set to imageData
-                this.imageData = e.target.result;
-                this.filename = this.imageData;
+                this.imgDir = e.target.result;
+                // this.filename = this.imageData;
             }
             // Start the reader job - read file as a data url (base64 format)
             reader.readAsDataURL(input.files[0]);
+
+            const formData = new FormData();
+            formData.append('image', input.files[0], input.files[0].name)
+
+            this.$axios
+            .post('contents/images', formData)
+            .then((res) => {
+              this.imageData = res.data.data
+            })
         }
     }
   }

@@ -15,6 +15,7 @@ import Main from '@/components/Main.vue'
 // Code
 import Code from '@/components/Code.vue';
 import AskQuestion from '@/components/AskQuestion.vue';
+import CodeDetail from '@/components/CodeDetail.vue';
 
 //Community
 import FreeBoard from '@/components/freeboardDir/FreeBoard.vue';
@@ -86,15 +87,13 @@ export default new Router({
 
       },
       component: Code,
+    },
+    {
+      path: '/askquestion',
+      meta: {},
+      name: 'askquestion',
 
-      children: [
-        {
-          path: 'askquestion',
-          meta: {},
-          name: 'askquestion',
-          component: AskQuestion
-        },
-      ]
+      component: AskQuestion
     },
 
 
@@ -131,5 +130,10 @@ export default new Router({
         }
       ]
     },
+    {
+      path: '/code/:question_id',
+      name: 'Questions',
+      component: CodeDetail,
+    }
   ]
 })

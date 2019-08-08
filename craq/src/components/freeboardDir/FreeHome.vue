@@ -12,7 +12,7 @@
               <ul v-for="allpost in all_tmp_data">
                 <li>
                   ({{allpost.TOPIC}})
-                  <strong class="strong" @click="showDetail(allpost)">{{allpost.TITLE}}</strong>
+                  <strong class="strong" @click="boardShowDetail(allpost)">{{allpost.TITLE}}</strong>
                   [{{allpost.COMMENTS}}]&emsp;
                   <span>{{allpost.writer}}</span>
                 </li>
@@ -46,11 +46,6 @@ export default {
     }
   },
   created() {
-    // var id = this.$route.params.id
-    //get All FreeBoard
-    // axios.get('http://192.168.31.58:10123/api-docs/', {
-    //
-    // })
     this.$axios
     .get(`topics/pk/${this.$route.params.topic}`)
     .then((res) => {
@@ -87,8 +82,10 @@ export default {
         });
       }
     },
-    showDetail(data) {
-       this.$router.push({path: `${this.$route.params.topic}/detail/${data.id}`, params: { info : data}});
+    boardShowDetail(data) {
+       // this.$router.push({path: `${this.$route.params.topic}/detail/${data.id}`, params: { info : data}});
+       console.log(data.PK + ", " + this.$route.params.topic)
+       this.$router.push({name: 'freedetail' , params: { id: data.PK, topic : this.$route.params.topic, page : 1}});
       // this.$router.push({name: 'freedetail' , params: { id: data.id, info : data}});
     },
     newest: function(arr) {

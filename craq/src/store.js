@@ -8,8 +8,7 @@ export default new Vuex.Store({
     theme: "default",
     isLogin: false,
     //junhui
-    loginPK : "",
-    boardPK : ''
+    boardPK : '',
   },
   mutations: {
     toggleTheme (state) {

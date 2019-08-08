@@ -23,7 +23,7 @@ export default {
   },
   created() {
     this.$axios
-    .get(`topics/users/${this.$store.state.loginPK}`)
+    .get(`topics/users/${this.$session.get("userPk")}`)
     .then(res=> {
         // console.log(res.data);
         this.mytopics = this.mytopics.concat(res.data);
@@ -31,7 +31,7 @@ export default {
     });
 
     this.$axios
-    .get(`subscribes/${this.$store.state.loginPK}`)
+    .get(`subscribes/${this.$session.get("userPk")}`)
     .then(res=> {
         // console.log(res.data);
         this.mytopics = this.mytopics.concat(res.data);

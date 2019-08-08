@@ -1,24 +1,14 @@
 <template>
   <div>
     <table class="table freecomment width-100%" cellpadding="0" cellspacing="0">
-      <col width="10%"><col width="30%"><col width="20%"><col width="20%">
+      <col width="20%"><col width="40%"><col width="40%">
       <thead style="text-align:left">
         <tr>
-          <th scope="col" style="text-align : center;">{{comment.user_name}}</th>
-          <th scope="col" >{{comment.content}}</th>
-          <th scope="col" style="text-align : center;">{{comment.createAt}}</th>
-          <th scope="col" style="text-align : center;">
-            <button type="button" name="repeat" class="btn btn--primary btn--md" @click="commentAnswer">답글</button>
-          </th>
+          <th scope="col" style="text-align : center;">{{comment.USERNAME}}</th>
+          <th scope="col" >{{comment.BODY}}</th>
+          <th scope="col" style="text-align : center;">{{comment.CREATED_AT}}</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-if="isAnswer">
-          <!-- <td><input type="text" name="answer" v-model="" /></td> -->
-          <td colspan="3"><input type="text" name="answer" v-model="answer" class="form-control width-100%"/></td>
-          <td><button type="button" name="regist" class="btn btn--accent btn--md" @click="commentRegist">등록</button></td>
-        </tr>
-      </tbody>
     </table>
     <!-- <strong>{{comment.user_name}}</strong>|&nbsp;
     <i>{{comment.content}}</i>&nbsp;-&nbsp;<strong>{{comment.createAt}}</strong> -->

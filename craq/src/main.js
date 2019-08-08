@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+
 //vue session
 import VueSession from 'vue-session'
 Vue.use(VueSession);
@@ -25,6 +26,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faUserSecret, faAddressCard, faSearch, faBell, faGlobe, farBell, faCheck, faExclamation);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 //end font awesome
+
 
 //font awesome tester i tag  to svg
 import {dom} from '@fortawesome/fontawesome-svg-core';
