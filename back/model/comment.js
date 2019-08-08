@@ -91,10 +91,11 @@ const initializeEndpoints = (app) => {
 
               if(!err && i.user_id != rows[0].CREATEDUSER){
                 sql =
+
                 `
                 INSERT  INTO
                 NOTICE  (USER,TYPE,BODY,INFO)
-                VALUES  (${rows[0].CREATEDUSER},2,'${msg}',${info})
+                VALUES  (${rows[0].CREATEDUSER},2,'${msg}','${info}')
                 `;
                 connection.query(sql, function(err, rows, fields) {
                   if (!err){
