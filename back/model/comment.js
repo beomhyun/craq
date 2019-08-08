@@ -56,30 +56,45 @@ const initializeEndpoints = (app) => {
         VALUES  (${i.user_id},${i.content_id},${i.parent_id},'${i.body}',${i.user_id},${i.user_id})
         `;
         connection.query(sql, function(err, rows, fields) {
-          var commentId = rows.insertId;
-          if (!err) {
-            // content 작성자에게도 알림이 가도록 한다.
+          var commentId = rows.insertId;  // 방금 생성한 comment의 id값
+          if (!err) { // content 작성자에게도 알림이 가도록 한다.
             sql =
             `
-            SELECT    ARTICLE
-                    , TITLE
-                    , CREATEDUSER
-                    , (
-                      SELECT  USERNAME
-                      FROM    USER
-                      WHERE   PK = CREATEDUSER
-                    ) USERNAME
-            FROM      CONTENT
-            WHERE     PK = ${i.content_id}
+            SELECT	A.ARTICLE AS QUESTION_PK
+              		 , (
+                		 	SELECT 	CONTENT
+                		 	FROM 		ARTICLE
+                		 	WHERE 	PK = A.ARTICLE
+              		 ) QUESTION_CONTENT
+              		 , A.PK 		 AS ANSWER_PK
+              		 , C.PK 		 AS ANSWER_CONTENT
+              		 , C.TITLE
+              		 , A.CREATEDUSER
+              		 , (
+                		 	SELECT	USERNAME
+                		 	FROM 		USER
+                		 	WHERE 	PK = A.CREATEDUSER
+              		 ) USERNAME
+            FROM 		ARTICLE A
+            JOIN 		CONTENT C
+            ON 	  	A.CONTENT = C.PK
+            WHERE 	C.PK = 298
+            WHERE 	C.PK = ${i.content_id}
             `;
             connection.query(sql, function(err, rows, fields) {
+              var msg = rows[0].TITLE+" 에 댓글이 달렸습니다.";
+              var qst_pk = rows[0].QUESTION_PK;
+              var qst_content = rows[0].QUESTION_CONTENT;
+              var ans_pk = rows[0].ANSWER_PK;
+              var ans_content = rows[0].ANSWER_CONTENT;
+              var info = `{question_pk:${qst_pk}, question_content:${qst_content}, answer_pk:${ans_pk}, answer_content:${ans_content}}`;
+
               if(!err && i.user_id != rows[0].CREATEDUSER){
-                var msg = rows[0].TITLE+" 에 댓글이 달렸습니다.";
                 sql =
                 `
                 INSERT  INTO
-                NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT,COMMENT)
-                VALUES  (${rows[0].CREATEDUSER},2,'${msg}',${rows[0].ARTICLE},${i.content_id},${commentId})
+                NOTICE  (USER,TYPE,BODY,INFO)
+                VALUES  (${rows[0].CREATEDUSER},2,'${msg}',${info})
                 `;
                 connection.query(sql, function(err, rows, fields) {
                   if (!err){
