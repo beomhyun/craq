@@ -224,7 +224,8 @@ const initializeEndpoints = (app) => {
     }else {
         var sql =
         `
-        SELECT    USER
+        SELECT    COUNT(*) COUNT
+                , USER
                 , (
                   SELECT  USERNAME
                   FROM    USER
@@ -244,9 +245,9 @@ const initializeEndpoints = (app) => {
         AND       M.IS_REMOVED = 0
         `;
         connection.query(sql, function(err, rows, fields) {
-          if (!err){
+          if (!err&&rows[0].COUNT >0){
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-            res.send({status: "success", data:rows});
+            res.send({status: "success", data:rows[0]});
           } else{
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status: "fail",msg: "select err"});
