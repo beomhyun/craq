@@ -1,5 +1,5 @@
 <template>
-    <div class="card" :class="{'badquestion' :  list.cardInfo.Helpful*1 < 0}">
+    <div class="card" :class="{'badquestion' :  list.HELPFUL*1 < 0}">
         <div class="info">
             <div class="info__column-left">
                 <p>Answer</p>
@@ -7,42 +7,72 @@
                 <p>Helpful</p>
             </div>
             <div class="info__column-right">
-                <p>{{list.cardInfo.Answer}}</p>
-                <p>{{list.cardInfo.View}}</p>
-                <p>{{list.cardInfo.Helpful}}</p>
+                <p>{{0 + list.USER_ANSWER}}</p>
+                <p>{{0 + list.VIEWS}}</p>
+                <p>{{0 + list.HELPFUL}}</p>
             </div>
         </div>
 
         <div class="main">
-            <div class="main__title"><h4> {{list.cardMain.Title}} </h4></div>
+            <div class="main__title" @click="routerPush"><h4> {{list.TITLE}} </h4></div>
+
             <div class="main__hashtag">
-                <div class="btn btn--sm">{{list.cardMain.HashTags}}</div>
+
+
+                <span :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
+                    <span  class="btn btn--sm btn--tag taglist">
+                        {{tag}}
+                    </span>
+                </span>
 
             </div>
-            <div>{{list.cardMain.Created_at}}| {{list.cardMain.Updated_at}} | {{list.cardMain.Answered_at}}</div>
-        </div>
 
-        <div class="user" >
-            <UserCard/>
+            <div>{{list.ASKED_TIME | formatDate}}</div>
+        </div>
+        <div class="user">
+            <div v-if="list.ANSWER_USERPK" v-show="list.ANSWER_USERPK">
+                <UserCard v-bind="$props"/>
+            </div>
+            <div v-show="!list.ANSWER_USERPK">
+                <div class="noneSelected">
+                    <div class="noneSelected__title">
+                        채택된 답변이 없습니다.
+                    </div>
+                    <div class="noneSelected__content">
+                        답변을 작성해 질문자에게 도움이 되어 주세요!
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 <script>
 import UserCard from '@/components/UserCard.vue';
+import VClamp from 'vue-clamp';
+
 export default {
     name: 'Card',
     components: {
         UserCard,
+        VClamp
     },
     props: [
         'list'
     ],
     data() {
         return {
-
         }
     },
-
+    methods: {
+        routerPush: function() {
+            this.$router.push({
+                "name": "Questions",
+                "params": {
+                    question_pk: this.list.PK
+                }
+            })
+        }
+    }
 }
 </script>
 
@@ -122,6 +152,11 @@ $--card-main-height: 120px;
 
         &__title:hover {
             cursor: pointer;
+        }
+
+        &__hashtag {
+            height: 30px;
+            overflow: hidden;
         }
 
     }
@@ -206,5 +241,38 @@ $--card-main-height: 120px;
         background-color: var(--color-tertiary);
         margin: var(--space-xxxs);
         color: var(--color-on-tertiary);
+        box-shadow: unset;
     }
+
+.noneSelected {
+    width: 300px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: var(--space-sm);
+    background-color: alpha(var(--color-accent), 0.4);
+    border: 1px solid var(--color-contrast-low);
+
+    &__title {
+        font-size: var(--text-lg);
+        font-weight: bold;
+    }
+
+    &__content {
+        text-align: center;
+        margin-top: var(--space-xxs);
+        padding-left: var(--space-md);
+        padding-right: var(--space-md);
+    }
+}
+
+.btn--tag:hover {
+    background-color: var(--color-tertiary-dark);
+}
+.taglist {
+    text-overflow: ellipsis;
+}
 </style>

@@ -194,16 +194,21 @@ export default {
             this.$axios.post('login', data, {headers: headers}).then(res=> {
                 if (res.data.status == "fail") {
                     return alert('check email or password');
+// <<<<<<< HEAD
                 }
                 // console.log(res);
                 // this.$store.state.loginPK = res.data.pk;
                 //
+// =======
+                // } 
+
+// >>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
                 this.$session.start();
                 this.$session.set('jwt', res.data.jwt);
                 this.$session.set('username', res.data.username);
                 this.$session.set('userPk', res.data.pk);
                 this.$axios.defaults.headers.common['user_token'] = res.data.jwt;
-                this.$router.push('/');
+                this.$router.go('/');
             }).catch(err => console.log(err));
 
         },

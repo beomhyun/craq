@@ -31,7 +31,8 @@ export default {
         },
         responsive: true,
         maintainAspectRatio: false,
-        onClick : this.handle
+        onClick : this.handle,
+        // borderColor
       }
     }
   },

@@ -6,10 +6,18 @@
                     <a href="">share</a>
                     <span style="visibility: hidden;">|</span>
                     <a href="">improve this question</a>
+                    <span style="visibility: hidden;">|</span>
+                    <span style="visibility: hidden;">|</span>
+                    <a @click.prevent="left"><</a>
+                    <span style="visibility: hidden;">|</span>
+                    <a @click.prevent class="none">{{current-2}}</a>
+                    <span style="visibility: hidden;">|</span>
+                    <a @click.prevent="right">></a>
 
                 </div>
             </div>
-            <CodeDetailQuestionSignatureCard></CodeDetailQuestionSignatureCard>
+            <ArticleSignatureCard v-bind="$props" :primary="true"></ArticleSignatureCard>
+            <ArticleSignatureCard v-bind="$props" :primary="false"></ArticleSignatureCard>
         </div>
     </div>
 
@@ -19,8 +27,19 @@
 import ArticleSignatureCard from '@/components/ArticleSignatureCard.vue';
 export default {
     name: "ArticleSignature",
+    props: [
+        "current", "creator","created", "editor", "edited"
+    ],
     components: {
         ArticleSignatureCard
+    },
+    methods: {
+        right: function() {
+            this.$emit('right');
+        },
+        left: function() {
+            this.$emit('left');
+        }
     }
 }
 
@@ -36,5 +55,11 @@ export default {
         color: var(--color-contrast-medium);
         font-size: 13px;
     }
+}
+a {
+    cursor: pointer;
+}
+.none {
+    cursor: unset;
 }
 </style>

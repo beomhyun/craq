@@ -7,40 +7,45 @@
                 <p>Helpful</p>
             </div>
             <div class="info__column-right">
-                <p>{{list.cardInfo.Answer}}</p>
-                <p>{{list.cardInfo.View}}</p>
-                <p>{{list.cardInfo.Helpful}}</p>
+                <p>{{list.QUESTION[0].ANSWERS}}</p>
+                <p>{{list.QUESTION[0].VIEWS}}</p>
+                <p>{{list.QUESTION[0].HELPFUL}}</p>
             </div>
         </div>
 
         <div class="main">
-            <div class="main__title"><h4> {{list.cardMain.Title}} </h4></div>
+            <div class="main__title"><h4> <VClamp autoresize :max-lines="1">{{list.VERSION[0].TITLE}} </VClamp></h4></div>
             <div class="main__hashtag">
-                <div>{{list.cardMain.Content}}</div>
+                <VClamp autoresize :max-lines="3">{{list.VERSION[0].BODY}}</VClamp>
             </div>
        </div>
-
-
+        
+        
     </div>
 </template>
 <script>
+import VClamp from 'vue-clamp'
+
 export default {
     name: 'Card',
+    components: {
+        VClamp
+    },
     props: [
         'list'
     ],
     data() {
         return {
-
+   
         }
     },
-
+   
 }
 </script>
 
 <style  lang="scss" scoped>
 $--card-main-height: 120px;
-
+   
     .card {
         border-radius: calc(var(--radius, 0.25em));
         display: flex;
@@ -61,7 +66,7 @@ $--card-main-height: 120px;
         justify-content: space-between;
         width: 140px;
         padding: var(--space-md);
-        padding-right: var(--space-xxs);
+        padding-right: var(--space-xxs); 
 
             &__column-right {
                 display: flex;
@@ -88,11 +93,13 @@ $--card-main-height: 120px;
         align-items: flex-start;
 
         &__title {
-            font-size: calc(#{$--card-main-height} * 0.2);
+            font-size: calc(#{$--card-main-height} * 0.2);   
         }
         &__hashtag {
             width: 100%;
         }
-
+        
     }
 </style>
+
+

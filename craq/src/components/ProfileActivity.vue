@@ -9,18 +9,22 @@
         </div>
 
         <div class="follow__list following" v-show="setAsk">
-            <div :key="list" v-for="list in cardLists" class="cardlist">
-                <CardforAsk :list="list"/>
+            <div :key="idx" v-for="(list, idx) in askData" class="cardlist">
+                <router-link :to="{name: 'Questions', params: {question_pk : list.QUESTION[0].PK}}">
+                    <CardProfile :list="list"/>
+                </router-link>
             </div>
         </div>
 
         <div class="follow__list follower"  v-show="setAnswer">
-            <div :key="list" v-for="list in cardLists" class="cardlist">
-                <CardforAsk :list="list"/>
+            <div :key="idx" v-for="(list, idx) in answerData" class="cardlist">
+                <router-link :to="{name: 'Questions', params: {question_pk : list.QUESTION[0].PK}}">
+                    <CardProfile :list="list"/>
+                </router-link>
             </div>
         </div>
 
-        <div class="follow__list follower"  v-show="setPost">
+        <!-- <div class="follow__list follower"  v-show="setPost">
             <div :key="a" v-for="a in 10" class="cardlist">
                 <UserCard/>
             </div>
@@ -30,20 +34,26 @@
             <div :key="a" v-for="a in 10" class="cardlist">
                 <UserCard/>
             </div>
-        </div>
+        </div> -->
 
     </div>
 </template>
 <script>
-import CardforAsk from '@/components/CardforAsk.vue';
+import CardProfile from '@/components/CardProfile.vue';
 
 export default {
     name: 'ProfileFollow',
+    props: [
+        'userActivityData',
+        'userData',
+    ],
     components: {
-        CardforAsk,
+        CardProfile,
     },
     data() {
         return {
+            askData: [],
+            answerData: [],
             cardLists: [],
             setAsk: true,
             setAnswer: false,
@@ -91,6 +101,19 @@ export default {
     },
 
     mounted() {
+        
+        this.userActivityData.QUESTION.forEach((el) => {
+            this.$axios.get('questions/detail/' + el.PK).then(res => {
+                this.askData.push(res.data.data)
+            })
+        });
+        this.userActivityData.ANSWER.forEach((el) => {
+            this.$axios.get('questions/detail/' + el.PK).then(res => {
+                this.answerData.push(res.data.data)
+            })
+        });
+            
+        
         this.cardLists = [{
                     id: '1',
                     cardInfo:
@@ -135,7 +158,11 @@ export default {
             justify-content: center;
             align-items: center;
             font-size: var(--text-md);
+<<<<<<< HEAD
             color: var(--color-contrast-low);
+=======
+            color: var(--color-contrast-high);            
+>>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
 
             border-radius: var(--radius-sm);
 

@@ -1,12 +1,12 @@
 <template>
-  <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
-    <nav-bar></nav-bar>
-    <component :is="layout"></component>
-    <Landing v-if="!isLogin"/>
-    <div>{{isLogin}}</div>
-    <Footer/>
-
-  </div>
+    <div id="app" :data-theme="theme" :class="{transition: themeTransition}">
+        <nav-bar></nav-bar>
+        <component :is="layout" v-if="isLogin"></component>
+        <Landing v-if="!isLogin"/>
+        <div class="transparent">{{isLogin}}</div>
+        <Footer/>
+            <Tester></Tester>
+    </div>
 </template>
 
 <script>
@@ -17,25 +17,20 @@ import Default from '@/layouts/Default.vue';
 //end layouts
 import Landing from '@/views/Landing.vue';
 import Footer from '@/components/Footer.vue';
+import Tester from '@/components/tester.vue';
 
 export default {
-  components: {
-    NavBar,
-    Footer,
-    Default,
-    Landing,
-    // Community
-  },
-  data() {
-    return {
-      themeTransition: false,
-    }
-  },
-  methods: {
-  },
-  computed: {
-    layout() {
-      return this.$route.meta.layout || "Default";
+    components: {
+        NavBar,
+        Footer,
+        Default,
+        Landing,
+        Tester
+    },
+    data() {
+        return {
+            themeTransition: false,
+        }
     },
     theme() {
       this.themeTransition = true;
@@ -44,10 +39,24 @@ export default {
       }, 2050);
       return this.$store.state.theme;
     },
-    isLogin() {
-      return (this.$session.exists());
-    }
-  },
+    computed: {
+        layout() {
+            return this.$route.meta.layout || "Default";
+        },
+        theme() {
+            this.themeTransition = true;
+            setTimeout(()=> {
+                this.themeTransition = false;
+            }, 2050);
+            return this.$store.state.theme;
+        },
+        isLogin() {
+            return (this.$session.exists());
+        }
+    },
+    beforeCreate() {
+        this.$axios.defaults.headers.common['user_token'] = this.$session.get('jwt');
+    },
 }
 
 
@@ -60,7 +69,10 @@ export default {
   margin: auto; // align center
 }
 body { //TODO
-  background-color: var(--color-black);
+       background-color: var(--color-black); //TODO
+}
+.transparent {
+    opacity: 0;
 }
 // dark mode smooth transition
 #app.transition {

@@ -75,10 +75,12 @@ export default new Router({
       ]
     },
     {
-      path: '/profile',
-      meta: {},
+      path: '/profile/:user_name',
+      meta: {
+      },
       name: 'profile',
       component: Profile
+      // this.$router.push({'name': 'profile', 'params':{user_name: 'rngus'}})
     },
     {
       path: '/code',
@@ -131,9 +133,10 @@ export default new Router({
       ]
     },
     {
-      path: '/code/:question_id',
+      path: '/code/:question_pk',
       name: 'Questions',
       component: CodeDetail,
+      props: true
     }
   ]
 })

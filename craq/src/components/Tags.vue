@@ -4,7 +4,7 @@
 
             <!-- Headline -->
             <div class="headline">
-                {{currentRouteName}}
+                TAGS
             </div> <!-- headline -->
 
             <!-- Filter && Card -->
@@ -26,11 +26,8 @@
 
 
             <!-- Pagenation -->
-            <div class="pagenation">
-                <ul v-for="(i, index) in (1,11)">
-                    <li>{{index}}</li>
-                </ul>
-            </div>  <!-- pagenation -->
+            <Paginator :chunkSize="chunkSize" :maxPage="maxPage" :curPage="curPage" @clicked="move"></Paginator>
+            <!-- pagenation -->
 
         </div> <!-- Container /div -->
 
@@ -41,34 +38,57 @@
 //import Card from '@/components/Card.vue';
 //import Ask from '@/components/AskQuestion.vue';
 import TagsCard from '@/components/TagsCard.vue';
+import Paginator from '@/components/Paginator.vue';
 //import axios from 'axios';
 //const apiUrl = "https://jsonplaceholder.typicode.com/posts"
 export default {
     name: "Tags",
     components: {
-        //Card,
-        //Ask,
-        TagsCard
+        TagsCard,
+        Paginator,
     },
     data() {
         return {
             messages: '',
-            //latested: true,
-            //cardLists: [],
             tags: [],
+
+            //paginations
+            chunkSize: 5,
+            maxPage: 1,
+            starter: 0,
+            renderSize: 1,
+            curPage: 1,
         }
     },
-    computed: {
-        currentRouteName() {
-            console.log(this.$route.name);
-            return this.$route.name;
-        },
+    watch: {
+        '$route': function (to, from) { // wathcing query changes
+            this.update();
+        }
     },
-    mounted () {
-        this.$axios.get('tags').then(res=> {
-            console.log(res);
-            this.tags = res.data;
-        })
+    methods: {
+        move(page) {
+            this.$router.push({
+                "name": "tags",
+                "query": {
+                    "page": page
+                }
+            })
+        },
+        update() {
+            this.$axios.get(`tags/mains/${this.$route.query.page}`).then(res=>{
+                this.maxPage = res.data.maxPage;
+                this.tags = res.data.data;
+                this.starter = parseInt((this.$route.query.page - 1) / this.chunkSize) * this.chunkSize;
+                this.renderSize = Math.min(this.maxPage - this.starter, this.chunkSize);
+                this.curPage = this.$route.query.page;
+            })
+        }
+    },
+    mounted() {
+        if (!this.$route.query.page) {
+            this.$router.push({name:"tags", query: {page: 1}});
+        }
+        this.update();
     }
 }
 
@@ -77,7 +97,6 @@ export default {
 <style scoped lang="scss">
 // Test End
 .filler {
-    height: 1000px;
     width: auto;
     background-color: var(--color-background);
 }
@@ -91,19 +110,6 @@ export default {
     text-transform: capitalize;
 }
 
-.pagenation {
-    display: flex;
-    justify-content: center;
-    background-color: var(--color-background);
-    margin-top: var(--space-lg);
-    width: 100%;
-    height: 30px;
-    font-size: var(--text-lg)
-}
-
-.pagenation ul li{
-    display: inline;
-}
 
 .subnav {
     display: flex;

@@ -19,26 +19,14 @@
 export default {
   name : 'FreeComment',
   data() {
-    return {
-      isAnswer : false,
-      answer : "answer",
-    }
+    return {}
   },
   props : {
     comment : {type : null}
   },
   methods : {
-    commentAnswer() {
-      this.isAnswer = !this.isAnswer;
-    },
-    commentRegist() {
-      // axios
-      this.isAnswer = !this.isAnswer;
-    }
   },
   mounted() {
-    this.isAnswer = false;
-    this.answer = "answer";
   },
 }
 </script>

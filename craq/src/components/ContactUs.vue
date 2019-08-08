@@ -239,7 +239,7 @@ $--menu-item-padding: var(--space-xxxs) var(--space-xxs);
         width: 100%;
         height: 100%;
         background-color: alpha(var(--color-black), 0.5);
-        z-index: 50;
+        z-index: 900;
     }
 
     &__box {
@@ -252,7 +252,7 @@ $--menu-item-padding: var(--space-xxxs) var(--space-xxs);
         border-radius: var(--radius-md);
         padding: var(--space-xxxs);
         text-align: center;
-        z-index: 51;
+        z-index: 901;
     }
     &__content {
         text-align: center;

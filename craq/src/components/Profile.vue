@@ -1,14 +1,15 @@
 <template>
     <div class="profiles">
         <div class="backimg">
-            <img src="http://lorempixel.com/1100/250/technics/" alt="" class="userBack">
+            <img src="@/assets/header.jpg" alt="" class="userBack">
             <div class="circle"></div>
-            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="" class="userImg">
+            <img src="@/assets/Admin-1.png" alt="" class="userImg">
             <div class="rectangular"></div>
 
             <div class="userInfo">
                 <div class="userInfo__name">
-                    User Name
+                    {{username}}
+                    {{user_pk}}
                 </div>
                 <div class="userInfo__list">
                     <div class="userInfo__list__btn" @click="toggleInformation"><span>Information</span></div>
@@ -27,43 +28,54 @@
                     </div>
                     <div class="information__content">
                         <div class="information__content-details">
-                            <strong>SSAFY Grade</strong>
+                            <strong>SSAFY Years</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editSsafyGrade" v-model="Profiles.ssafyGrade" @keydown.enter="Toggle.editSsafyGrade = !Toggle.editSsafyGrade">
-                                <span v-show="!Toggle.editSsafyGrade">{{ Profiles.ssafyGrade }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editSsafyGrade = !Toggle.editSsafyGrade"></font-awesome-icon>
+                                <select class="editInput" v-show="toggleProfile" v-model="userData.ssafy_years">
+                                    <option value="1" selected="selected">1</option>
+                                    <option value="2">2</option>
+                               </select>
+                                <span v-show="!toggleProfile">{{ userData.ssafy_years }} 기</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
                             <strong>Major</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editMajor" v-model="Profiles.Major" @keydown.enter="Toggle.editMajor = !Toggle.editMajor">
-                                <span v-show="!Toggle.editMajor">{{ Profiles.Major }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editMajor = !Toggle.editMajor"></font-awesome-icon>
+                                <input class="editInput" v-show="toggleProfile" v-model="userData.is_major">
+                                <span v-show="!toggleProfile">{{ userData.is_major }}</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
                             <strong>SW Grade</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editSwGrade" v-model="Profiles.SwGrade" @keydown.enter="Toggle.editSwGrade = !Toggle.editSwGrade">
-                                <span v-show="!Toggle.editSwGrade">{{ Profiles.SwGrade }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editSwGrade = !Toggle.editSwGrade"></font-awesome-icon>
+                                <select class="editInput" v-show="toggleProfile" v-model="userData.grade">
+                                    <option class="editOption" v-for="i in 10" :value="i" selected="selected">{{i}}</option>
+                               </select>
+                                <span v-show="!toggleProfile">{{ userData.grade }} 반</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
                             <strong>Region</strong>
                             <div>
+<!-- <<<<<<< HEAD -->
                                 <input class="editInput" v-show="Toggle.editRegion" v-model="Profiles.Region" @keydown.enter="Toggle.editRegion = !Toggle.editRegion">
                                 <span v-show="!Toggle.editRegion">{{ Profiles.Region }}</span> &nbsp;
                                 <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editRegion = !Toggle.editRegion"></font-awesome-icon>
+<!-- ======= -->
+                                <select class="editInput" v-show="toggleProfile" v-model="userData.region">
+                                    <option class="editOption" value="대전" selected="selected">대전</option>
+                                    <option class="editOption" value="서울" >서울</option>
+                                    <option class="editOption" value="구미" >구미</option>
+                                    <option class="editOption" value="광주" >광주</option>
+                               </select>
+                                <span v-show="!toggleProfile">{{ userData.region }}</span> &nbsp;
+<!-- >>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b -->
                             </div>
                         </div>
                         <div class="information__content-github">
                             <strong>Git URL</strong>
                             <div>
-                                <input class="editInput" v-show="Toggle.editGitUrl" v-model="Profiles.GitUrl" @keydown.enter="Toggle.editGitUrl = !Toggle.editGitUrl">
-                                <span v-show="!Toggle.editGitUrl">{{ Profiles.GitUrl }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editGitUrl = !Toggle.editGitUrl"></font-awesome-icon>
+                                <input class="editGithub" v-show="toggleProfile" v-model="userData.gitUrl">
+                                <a :href="userData.gitUrl" target="_blank"><span v-show="!toggleProfile">{{ userData.gitUrl }}</span> &nbsp;</a>
                             </div>
                         </div>
                     </div>
@@ -75,16 +87,15 @@
                     <div class="information__title">
                         Skill
                     </div>
-                    <div class="information__content">
-                        <div class="skill-icon" :key="skill" v-for="skill in skillIcon" v-show="Toggle.editSkill">
+                    <!-- <div class="information__content">
+                        <div class="skill-icon" :key="skill" v-for="skill in skillIcon" v-show="toggleProfile">
                             <input type="checkbox" :id="skill.title" :value="skill" v-model="checkedSkill">
                             <label :for="skill.title"><img :src="skill.url" alt="" class="skill-icon-img"></label>
                         </div>
-                        <div class="skill-icon" :key="check" v-for="check in checkedSkill" v-show="!Toggle.editSkill">
+                        <div class="skill-icon" :key="check" v-for="check in checkedSkill" v-show="!toggleProfile">
                             <img :src="check.url" alt="" class="skill-icon-img">
                         </div>
-                        <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editSkill = !Toggle.editSkill"></font-awesome-icon>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="separator"></div>
@@ -94,15 +105,25 @@
                         Self-Introduction
                     </div>
                     <div class="information__content">
-                        <div v-show="!Toggle.editIntroduce" class="selfintroduce">{{selfIntroduce}} </div>
-                        <textarea class="selfintroduce__form" v-model="selfIntroduce" v-show="Toggle.editIntroduce" autofocus></textarea>
-                        <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editIntroduce = !Toggle.editIntroduce"></font-awesome-icon>
+                        <div v-show="!toggleProfile" class="selfintroduce">{{userData.intro}} </div>
+                        <textarea class="selfintroduce__form" v-model="userData.intro" v-show="toggleProfile" autofocus></textarea>
                     </div>
                 </div>
+<<<<<<< HEAD
 
             </div>
 
             <ProfileActivity v-show="setActivity"/>
+=======
+                <div class="editAndSubmit" v-if="MyProfile">
+                    <div class="btn btn--primary btn--lg" v-show="!toggleProfile" @click="toggleProfile = true">Edit</div>
+                    <div class="btn btn--primary btn--lg" v-show="toggleProfile" @click="editProfile">Save</div>
+                    <div class="btn btn--lg" v-show="toggleProfile" @click="toggleProfile = false">Cancle</div>
+                </div>
+            </div>
+
+            <ProfileActivity v-if="setActivity" :userActivityData="userActivityData" :userData="userData.PK"/>
+>>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
             <ProfileFollow class="follow" v-show="setFollow"/>
 
             <div class="Notify" v-show="setNotify">
@@ -118,7 +139,13 @@
 </template>
 <script>
 import Noty from '@/components/Noty.vue';
-import ProfileActivity from '@/components/ProfileActivity.vue';
+//import ProfileActivity from '@/components/ProfileActivity.vue';
+import Spinner from '@/components/Spinner.vue';
+const ProfileActivity= () => ({
+    component: import("@/components/ProfileActivity.vue"),
+    loading: Spinner,
+    delay: 500
+})
 import ProfileFollow from '@/components/ProfileFollow.vue';
 
 export default {
@@ -130,6 +157,62 @@ export default {
     },
     data() {
         return {
+            // 내 프로필인지 확인
+            MyProfile : false,
+
+            // 모든 유저 정보
+            allUserInfo : [],
+
+            // 유저 정보
+            user_pk: '',
+            username: '',
+            userData: [],
+            // 유저 정보 끝
+
+            // 활동 모음
+            userActivityData : [],
+
+            // 팔로우 정보
+            userFollowData : [],
+
+            // 수정 할 것인지 체크
+            toggleProfile: false,
+
+            // 프로필 필터 체크
+            setInformation : true,
+            setActivity : false,
+            setFollow : false,
+            setNotify : false,
+
+            // 프로필 데이터용
+
+            // 전체 프로필 정보 목록
+             Profiles: {
+                    ssafyGrade : '',
+                    Major : '',
+                    SwGrade : '',
+                    Region : '',
+                    GitUrl : '',
+            },
+
+            // 자기소개
+            selfIntroduce: 'Edit Your Introduce',
+
+            // 반 DropDown
+            grades: [
+                { Class: 1 },
+                { Class: 2 },
+                { Class: 3 },
+                { Class: 4 },
+                { Class: 5 },
+                { Class: 6 },
+                { Class: 7 },
+                { Class: 8 },
+                { Class: 9 },
+                { Class: 10 },
+                ],
+
+            // Skill DATA
             skillIcon: [
                 { title: 'Java', url : require('@/assets/Java.png') },
                 { title: 'Python', url : require('@/assets/Python.png') },
@@ -141,7 +224,9 @@ export default {
                 { title: 'Spring', url : require('@/assets/Spring.png') },
             ],
             checkedSkill : [],
-            selfIntroduce: 'Edit Your Introduce',
+            // End Skill DATA
+
+            // 알림창
             noties: [
                 {
                     id: 1,
@@ -152,33 +237,8 @@ export default {
                     to: {name: 'home'},
                     active: true
                 },
-                {
-                    id: 2,
-                    type: "Code",
-                    title:"titlenoty",
-                    body: "bodies here",
-                    author: "user22",
-                    to: {name: 'code'},
-                    active: true
-                },
-                {
-                    id: 3,
-                    type: "user",
-                    title:"TITLE",
-                    body: "bodies here",
-                    author: "user33",
-                    to: {name: 'freeboard'},
-                    active: true
-                },
-                {
-                    id: 4,
-                    title:"defaultType",
-                    body: "bodies here",
-                    author: "user44",
-                    to: {name: 'createtree'},
-                    active: false
-                },
             ],
+<<<<<<< HEAD
             setInformation : true,
             setActivity : false,
             setFollow : false,
@@ -201,17 +261,58 @@ export default {
             }
 
 
+=======
+>>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
         }
     },
     mounted() {
-        const headers = {
-                "Content-Type": "application/json"
-            };
-        this.$axios.get("articles/questions", {headers: headers}).then(res=>{
-                    console.log(res.data);
+        this.$axios.get('users').then(res => {
+            // console.log(res)
+            this.allUserInfo = res.data
+                this.allUserInfo.forEach((data) => {
+                    if (data.USERNAME.toLowerCase() == this.$route.params.user_name.toLowerCase()) {
+                        this.$axios.get('users/profile/' + data.PK).then(response => {
+                            console.log(response)
+                            this.userData = response.data[0]
+                        this.$axios.get('users/writing/' + data.PK).then(res => {
+                            this.userActivityData = res.data.data
+                            console.log(this.userActivityData)
+                        })
+                        })
+                    }
                 })
+            })
+
+        this.username = this.$route.params.user_name
+        console.log(this.username)
+
+        if(this.$session.get('username').toLowerCase() == this.$route.params.user_name.toLowerCase()) {
+            // console.log("내프로필")
+            this.MyProfile = true
+        }
+
+
     },
     methods: {
+        editProfile() {
+            const data = {
+                'User' : this.userData.User,
+                'ssafy_years': this.userData.ssafy_years,
+                'is_major': this.userData.is_major,
+                'region': this.userData.region,
+                'grade': this.userData.grade,
+                'intro': this.userData.intro,
+                'gitUrl': this.userData.gitUrl,
+                'profile_image': this.userData.profile_image,
+            }
+            this.$axios.put('profile', data).then(res =>
+                console.log(res)
+                ).catch(err => console.log(err))
+            this.$axios.get("users/profile/" + this.$session.get('userPk')).then(res=>{
+                    console.log(res.data[0])
+                })
+            this.toggleProfile = false
+        },
         notyClose(id) {
           this.noties = this.noties.filter(noty=>noty.id != id);
         },
@@ -265,6 +366,7 @@ $--menu-width: 22rem;
 }
 
 .userBack {
+    width: 100%;
     height: 280px;
 }
 
@@ -284,7 +386,7 @@ $--menu-width: 22rem;
     border: 10px solid alpha(var(--color-tertiary), 0.8);
     width: 250px;
     height: 250px;
-    z-index: 100;
+    z-index: 10;
 }
 
 .rectangular {
@@ -295,7 +397,7 @@ $--menu-width: 22rem;
     background-color: var(--color-white);
     width: 100%;
     height: 50px;
-    z-index: 150;
+    z-index: 15;
 }
 
 .userImg {
@@ -306,7 +408,7 @@ $--menu-width: 22rem;
     height: 230px;
     border: 10px solid var(--color-white);
     border-radius: 50%;
-    z-index: 200;
+    z-index: 20;
     display: flex;
     flex-direction: column;
 }
@@ -322,14 +424,14 @@ $--menu-width: 22rem;
     left: 300px;
     height: 100px;
     background-color: var(--color-surface-light);
-    z-index: 250;
+    z-index: 25;
     padding: var(--space-xxs);
 
     &__name {
         font-size: var(--text-xl);
         font-weight: bold;
         margin: var(--space-xxs);
-        cursor: none;
+        cursor: default;
     }
 
     &__list {
@@ -449,14 +551,18 @@ $--menu-width: 22rem;
 
 }
 
-.editBtn:hover {
-    cursor: pointer;
-}
-
 .editInput {
+    width: 200px;
     text-align: end;
     border: 1px dashed var(--color-contrast-low);
     border-radius: var(--radius-sm);
+}
+
+.editGithub {
+    text-align: end;
+    border: 1px dashed var(--color-contrast-low);
+    border-radius: var(--radius-sm);
+    width: 500px;
 }
 
 .skill-icon {
@@ -482,7 +588,13 @@ $--menu-width: 22rem;
 .selfintroduce {
     width: 100%;
     height: 200px;
+<<<<<<< HEAD
     border: 1px solid var(--color-contrast-low);
+=======
+    border: 1px solid var(--color-contrast-low);
+    padding: var(--space-sm);
+    font-size: var(--text-lg);
+>>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
 
     &__form {
         width: 100%;
@@ -492,5 +604,11 @@ $--menu-width: 22rem;
     }
 }
 
+.editAndSubmit {
+    text-align: end;
+}
 
+.btn {
+    margin: var(--space-xs);
+}
 </style>

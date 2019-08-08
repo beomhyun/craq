@@ -1,197 +1,150 @@
 <template>
     <div>
-      <div class="filler">
+        <div class="filler">
 
-          <!-- Headline -->
-          <div class="headline">
-            {{currentRouteName}}
-          </div> <!-- headline -->
+            <!-- Headline -->
+            <div class="headline">
+                <div class="headline__title">{{currentRouteName}}</div>
+                <router-link to="/askquestion"><div class="btn btn--primary" @click="askQuestion">Ask Question</div></router-link> </div> <!-- headline -->
 
-           <!-- Filter && Card -->
-          <div class="subnav">
-            <div class="subnav__filter">
-              <div class="btn btn--sm" :class="{'subnav__filter-seleted': latested}">Latest</div>
-              <div class="btn btn--sm">Reliable</div>
-              <div class="btn btn--sm">Helpful</div>
-              <div class="btn btn--sm">Answer</div>
-              <div class="btn btn--sm">View</div>
+            <!-- Filter && Card -->
+            <div class="Code">
+                <div class="Code__filter">
+                    <div class="Code__filter-btn" :class="{'selected':query('order_by') =='PK'}" @click.prevent="sort('PK')">Latest</div>
+                    <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='RELIABLE'}" @click.prevent="sort('RELIABLE')">Reliable</div>
+                    <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='HELPFUL'}" @click.prevent="sort('HELPFUL')">Helpful</div>
+                    <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='USER_ANSWER'}" @click.prevent="sort('USER_ANSWER')">Answer</div>
+                    <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='VIEWS'}" @click.prevent="sort('VIEWS')">View</div>
+                </div>  <!-- Filter /div -->
+
+                <div class="Code__list" v-if="loaded">
+                    <div :key="idx" v-for="(ask, idx) in asks" class="content">
+                        <card class="shadow" :list="ask"/>
+                    </div>
+                </div>
+
             </div>
-            <div class="filter__ask">
-              <router-link to="/askquestion"><div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div></router-link>
-            </div>
-          </div> <!-- Filter /div -->
-
-
-          <div v-for="list in cardLists" class="content">
-
-            <card class="shadow" :list="list"/>
-
-          </div>
-
-
-          <!-- Pagenation -->
-          <div class="pagenation">
-            <ul v-for="(i, index) in (1,11)">
-              <li>{{index}}</li>
-            </ul>
-          </div>  <!-- pagenation -->
+            <!-- end FILTER & CARD -->
+            <!-- Pagenation -->
+            <Paginator :chunkSize="5" :maxPage="maxPage" :curPage="curPage" @clicked="move"></Paginator>
+            <!-- pagenation -->
 
         </div> <!-- Container /div -->
-      </div>  <!-- Filler -->
+    </div>  <!-- Filler -->
 </template>
 
 <script>
-import Card from '@/components/Card.vue';
+//import Card from '@/components/Card.vue';
+import Spinner from '@/components/Spinner.vue'
+const Card = () => ({
+    component: import('@/components/Card.vue'),
+    loading: Spinner,
+    delay: 500
+})
 import Ask from '@/components/AskQuestion.vue';
+import Paginator from '@/components/Paginator.vue';
 
 export default {
-    name: "User",
+    name: "Code",
     components: {
-      Card,
-      Ask,
+        Card,
+        Ask,
+        Paginator
     },
     data() {
-      return {
-        carddata : '',
-        messages: '',
-        latested: true,
-        cardLists: [],
-      }
+        return {
+            asks:  [],
+            chunkSize: 5,
+            maxPage: 1,
+            curPage: 1,
+            loaded: false,
+        }
     },
-
-    mounted() {
-      this.$axios.get('tags').then(res=> {
-            console.log(res);
-
-        })
-        this.cardLists = [{
-                    id: '1',
-                    cardInfo:
-                        {
-                            Answer : '100',
-                            View : '1000',
-                            Helpful : '10000',
-                        },
-
-                    cardMain:
-                        {
-                            Title : 'Title Test - 1',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser:
-                        {
-                            Img : '',
-                            Name: 'Kim',
-                            Mail: 'aaa@test.test',
-                            Score: '2300',
-                            Answers: '23',
-                        }
-                },
-                {
-                    id: '2',
-                    cardInfo:
-                        {
-                            Answer : '0',
-                            View : '10',
-                            Helpful : '200',
-                        },
-
-                    cardMain:
-                        {
-                            Title : 'Title Test - 2',
-                            HashTags : 'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser:
-                        {
-                            Img : '',
-                            Name: '',
-                            Mail: '',
-                            Score: '',
-                            Answers: '',
-                        }
-
-                },
-                {
-                    id: '3',
-                    cardInfo:
-                        {
-                            Answer : '23',
-                            View : '230',
-                            Helpful : '-100',
-                        },
-
-                    cardMain:
-                        {
-                            Title : 'Title Test - 3',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser:
-                        {
-                            Img : '',
-                            Name: 'Lee',
-                            Mail: 'bbbb@test.test',
-                            Score: '135135',
-                            Answers: '123123',
-                        }
-
-                },
-                {
-                    id: '4',
-                    cardInfo:
-                        {
-                            Answer : '0',
-                            View : '230',
-                            Helpful : '-100',
-                        },
-
-                    cardMain:
-                        {
-                            Title : 'Title Test - 3',
-                            HashTags :'asd',
-                            Created_at : '2019.07.26',
-                            Updated_at : '2019.07.26',
-                            Answered_at : '2019.07.26',
-                        },
-
-                    answerUser:
-                        {
-                            Img : '',
-                            Name: 'Lee',
-                            Mail: 'bbbb@test.test',
-                            Score: '135135',
-                            Answers: '123123',
-                        }
-
-                }
-                ]
+    watch: {
+        $route: function(a, b) {
+            console.log('watched')
+            console.log(this.query('search_text'))
+            this.update();
+        }
     },
     methods: {
-      askQuestion : function() {
-      this.$router.push({name:'askquestion'});
-      this.askquestion = true;
-      },
-      parentsMethod: function(askquestion) {
-      this.askquestion = askquestion // 자식으로 부터받은 메시지를 사용
-      }
-    },
+        askQuestion : function() {
+            this.$router.push({name:'askquestion'});
+            this.askquestion = true;
+        },
+        update() {
+            this.$axios.get(`questions/search/${this.query('page')}?order_by=${this.query('order_by')}&search_text=${this.query('search_text')}`)
+                .then(res=>{
+                    if (res.data.status == "fail") {
+                        this.asks = [];
+                        return;
+                    }
+                    console.log(res.data);
+                    this.asks = res.data.data;
+                    this.maxPage = res.data.max_page
+                    this.curPage = this.query('page');
+                    this.loaded = true;
+                });
+        },
+        queryCheck(obj, key) {
+            return Object.keys(obj).includes(key);
+        },
+        contains(key) {
+            return this.queryCheck(this.$route.query, key);
 
+        },
+        query(key) {
+            return this.$route.query[key];
+        },
+        move(page) {
+            this.loaded = false;
+            this.$router.push({
+                name:'code',
+                query: {
+                    "page": page,
+                    "order_by": this.query('order_by'),
+                    "search_text": this.query('search_text')
+                }
+            })
+        },
+        sort(by) {
+            this.loaded = false;
+            this.$router.push({
+                name:"code",
+                query: {
+                    "page": 1,
+                    "order_by": by,
+                    "search_text": this.query('search_text')
+
+                }
+            })
+        },
+    },
     computed: {
-      currentRouteName() {
-        console.log(this.$route.name);
-        return this.$route.name;
-      },
+        currentRouteName() {
+            return this.$route.name;
+        },
+        inSearch() {
+            return this.queryCheck(this.$route.query, 'search_text')
+        }
+    },
+    mounted() {
+        console.log(this.$route.query);
+        if (!this.contains('page') || !this.contains('order_by')) {
+            this.$router.push(
+                {"name": "code",
+                    "query": {
+                        "order_by": "PK",
+                        "page": 1,
+                        "search_text": (this.contains('search_text') ? this.$route.query.search_text: "")
+                    }
+
+                }
+            )
+        } else {
+            this.update();
+
+        }
     }
 }
 
@@ -200,75 +153,114 @@ export default {
 <style scoped lang="scss">
 // Test End
 .filler {
-  height: 1000px;
-  width: auto;
-  background-color: var(--color-background);
+    width: auto;
+    background-color: var(--color-background);
 }
 
 .headline {
-  background-color: var(--color-surface);
-  padding: var(--space-xs);
-  width: 100%;
-  height: 75px;
-  font-size: var(--text-xxl);
-  text-transform: capitalize;
-}
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 75px;
 
-.pagenation {
-  display: flex;
-  justify-content: center;
-  background-color: var(--color-surface);
-  margin-top: var(--space-lg);
-  width: 100%;
-  height: 30px;
-  font-size: var(--text-lg)
-}
-
-.pagenation ul li{
-  display: inline;
-}
-
-.subnav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--color-surface);
-  width: 100%;
-  font-size: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
-
-    &__filter {
-      background-color: var(--color-surface);
-      color: var(--color-on-surface);
-    }
-    &__filter-seleted {
-      background-color: var(--color-primary);
-      color: var(--color-on-primary)
+    padding: var(--space-md);
+    &__title {
+        background-color: var(--color-surface);
+        font-size: var(--text-xxl);
+        text-transform: capitalize;
     }
 }
+
 
 .btn {
-  color: #ffffff;
-  background-color: var(--color-primary-dark);
-  margin: var(--space-xxs);
+    cursor: pointer;
+    width: 130px;
+    height: 45px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
 
 .btn:hover {
-  background-color: var(--color-primary-darker);
-  color: var(--color-on-primary-light);
+    background-color: var(--color-primary-darker);
+    color: var(--color-on-primary-light);
 }
 
 .shadow {
-  box-shadow: var(--shadow-sm);
-  width: 95%;
-  border: 1px solid var(--color-contrast-low);
-  margin-bottom: var(--space-md);
-}
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+    border: 1px solid var(--color-contrast-low);
+    margin-bottom: var(--space-sm); }
 
 .content {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+    width: 100%;
+}
+
+.Code {
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    height: auto;
+    background-color: var(--color-surface-light);
+    padding: var(--space-md);
+
+    &__filter {
+        display: flex;
+
+        &-btn {
+            cursor: pointer;
+            width: 130px;
+            height: 45px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: var(--text-md);
+            color: var(--color-contrast-high);
+
+            border-radius: var(--radius-sm);
+
+            background-color: var(--color-surface-dark);
+            margin-right: var(--space-sm);
+        }
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        position: relative;
+        top: -3px;
+
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-surface);
+
+        border-bottom-left-radius:  var(--radius-sm);
+        border-bottom-right-radius:  var(--radius-sm);
+        border-top: 3px solid var(--color-tertiary);
+
+        padding: var(--space-md);
+    }
+}
+
+.Code__filter .selected {
+
+    cursor: pointer;
+
+    border-top: 3px solid var(--color-tertiary);
+    border-left: 3px solid var(--color-tertiary);
+    border-right: 3px solid var(--color-tertiary);
+    color: var(--color-on-surface);
+    font-weight: bold;
+    background-color: var(--color-surface);
+
+    z-index: 1;
 }
 </style>
