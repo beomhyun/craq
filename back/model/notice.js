@@ -13,7 +13,7 @@ const initializeEndpoints = (app) => {
    *    post:
    *      tags:
    *      - notice
-   *      description: 알림을 추가한다.
+   *      description: 쪽지를 보낸다.
    *      parameters:
    *      - name: noticeInfo
    *        in: body
@@ -108,8 +108,12 @@ const initializeEndpoints = (app) => {
    *    put:
    *      tags:
    *      - notice
-   *      description: 모든 알림 정보를 가져옴.
+   *      description: 해당 알림을 읽음 처리
    *      parameters:
+   *      - name: pk
+   *        in: path
+   *        type: integer
+   *        description: notice pk를 전달
    *      - name: user_token
    *        in: header
    *        type: string
