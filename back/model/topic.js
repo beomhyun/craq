@@ -121,7 +121,8 @@ const initializeEndpoints = (app) => {
                                     FROM
                                       SUBSCRIBE
                                     GROUP BY TOPIC) AS S
-                        ON T.PK = S.TOPIC `;
+                        ON T.PK = S.TOPIC
+                    WHERE PK != 1 `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
