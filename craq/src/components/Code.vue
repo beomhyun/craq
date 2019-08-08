@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="filler" v-if="!askquestion">
+      <div class="filler">
 
           <!-- Headline -->
           <div class="headline">
@@ -17,31 +17,26 @@
               <div class="btn btn--sm">View</div>
             </div>
             <div class="filter__ask">
-              <div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div>
+              <router-link to="/askquestion"><div class="btn btn--md btn--primary" @click="askQuestion">Ask Question</div></router-link>
             </div>
           </div> <!-- Filter /div -->
 
 
           <div v-for="list in cardLists" class="content">
-            
+
             <card class="shadow" :list="list"/>
-            
+
           </div>
-          
-           
+
+
           <!-- Pagenation -->
           <div class="pagenation">
             <ul v-for="(i, index) in (1,11)">
               <li>{{index}}</li>
             </ul>
           </div>  <!-- pagenation -->
-        
+
         </div> <!-- Container /div -->
-
-        <div v-else>
-          <ask @childs-event="parentsMethod"/>
-        </div>
-
       </div>  <!-- Filler -->
 </template>
 
@@ -57,15 +52,18 @@ export default {
     },
     data() {
       return {
+        carddata : '',
         messages: '',
-        askquestion: false,
         latested: true,
         cardLists: [],
       }
     },
-    
+
     mounted() {
-      this.askquestion = false;
+      this.$axios.get('tags').then(res=> {
+            console.log(res);
+
+        })
         this.cardLists = [{
                     id: '1',
                     cardInfo:
@@ -84,7 +82,7 @@ export default {
                             Answered_at : '2019.07.26',
                         },
 
-                    answerUser: 
+                    answerUser:
                         {
                             Img : '',
                             Name: 'Kim',
@@ -95,14 +93,14 @@ export default {
                 },
                 {
                     id: '2',
-                    cardInfo: 
+                    cardInfo:
                         {
                             Answer : '0',
                             View : '10',
                             Helpful : '200',
                         },
 
-                    cardMain: 
+                    cardMain:
                         {
                             Title : 'Title Test - 2',
                             HashTags : 'asd',
@@ -111,7 +109,7 @@ export default {
                             Answered_at : '2019.07.26',
                         },
 
-                    answerUser: 
+                    answerUser:
                         {
                             Img : '',
                             Name: '',
@@ -123,14 +121,14 @@ export default {
                 },
                 {
                     id: '3',
-                    cardInfo: 
+                    cardInfo:
                         {
                             Answer : '23',
                             View : '230',
                             Helpful : '-100',
                         },
 
-                    cardMain: 
+                    cardMain:
                         {
                             Title : 'Title Test - 3',
                             HashTags :'asd',
@@ -139,7 +137,7 @@ export default {
                             Answered_at : '2019.07.26',
                         },
 
-                    answerUser: 
+                    answerUser:
                         {
                             Img : '',
                             Name: 'Lee',
@@ -151,14 +149,14 @@ export default {
                 },
                 {
                     id: '4',
-                    cardInfo: 
+                    cardInfo:
                         {
                             Answer : '0',
                             View : '230',
                             Helpful : '-100',
                         },
 
-                    cardMain: 
+                    cardMain:
                         {
                             Title : 'Title Test - 3',
                             HashTags :'asd',
@@ -167,7 +165,7 @@ export default {
                             Answered_at : '2019.07.26',
                         },
 
-                    answerUser: 
+                    answerUser:
                         {
                             Img : '',
                             Name: 'Lee',
@@ -188,6 +186,7 @@ export default {
       this.askquestion = askquestion // 자식으로 부터받은 메시지를 사용
       }
     },
+
     computed: {
       currentRouteName() {
         console.log(this.$route.name);
@@ -238,7 +237,7 @@ export default {
   font-size: 20px;
   padding-left: 20px;
   padding-right: 20px;
-  
+
     &__filter {
       background-color: var(--color-surface);
       color: var(--color-on-surface);
@@ -250,11 +249,13 @@ export default {
 }
 
 .btn {
-  margin-right: var(--space-xxs); 
+  color: #ffffff;
+  background-color: var(--color-primary-dark);
+  margin: var(--space-xxs);
 }
 
 .btn:hover {
-  background-color: var(--color-primary-light);
+  background-color: var(--color-primary-darker);
   color: var(--color-on-primary-light);
 }
 
@@ -263,10 +264,6 @@ export default {
   width: 95%;
   border: 1px solid var(--color-contrast-low);
   margin-bottom: var(--space-md);
-}
-
-.shadow:hover {
-  cursor: pointer;
 }
 
 .content {

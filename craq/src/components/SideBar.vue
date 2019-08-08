@@ -86,7 +86,7 @@ $--menu-item-padding: var(--space-xxs) var(--space-sm);
   }
 
   &__label {
-    text-transform: uppercase; 
+    text-transform: uppercase;
     font-size: 0.6em;
     letter-spacing: 0.1em;
     color: orangered;
@@ -101,6 +101,3 @@ $--menu-item-padding: var(--space-xxs) var(--space-sm);
 
 
 </style>
-
-
-

@@ -1,6 +1,6 @@
 <template>
     <div class="modal" :class="{'modal__none': !show}">
-        
+
         <div class="modal__box">
             <div class="adminInfo">
                 <img :src="this.config.selcetedAdmin.img" alt="" class="adminInfo__img">
@@ -22,11 +22,11 @@
             <form class='formbox'>
                 <input type="text" name="Title" class="formbox__title" placeholder="Title">
                 <textarea type="textarea" name="Content" class="formbox__content" placeholder="Content"></textarea>
-                
+
                 <input type="submit" class="submit btn btn--sm btn--primary" value="Submit" @click="clickEvent">
             </form>
         </div>
-        
+
         <!-- BackGround -->
         <div class="modal__background" @click="clickEvent"></div>
     </div>
@@ -97,7 +97,7 @@ export default {
     mounted() {
     },
     computed: {
-        
+
     }
 }
 
@@ -136,7 +136,7 @@ $--menu-item-padding: var(--space-xxxs) var(--space-xxs);
 .dropdowns-menu {
   position: relative;
   text-align: center;
-  width: 100%;  
+  width: 100%;
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s, opacity .2s linear;

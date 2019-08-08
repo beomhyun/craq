@@ -5,19 +5,19 @@
         <h1 class="section-features__header__text">Features</h1>
       </div>
       <div class="col-3">
-        <HeaderFeatureCard title="share your codes" iconName="bell" 
+        <HeaderFeatureCard title="share your codes" iconName="bell"
         content="testetsetsetsetsetsetstasdfsdfjksahdflkjshdjakflhsljdfkhsjadlkfjhskldfhjalksdfhjklsadfhjaklsdfhlksdf"/>
       </div>
       <div class="col-3">
-        <HeaderFeatureCard title="Question" iconName="bell" 
+        <HeaderFeatureCard title="Question" iconName="bell"
         content="lorem cwjeklqwjcelk cqwjeklcqwje cklqwjeck lqwjecklqw jceklqwe jclkqwjecklq wejckl qwcejklq wcjeklq wjcekl qwjkcle "/>
       </div>
       <div class="col-3">
-        <HeaderFeatureCard title="Answer" iconName="bell" 
+        <HeaderFeatureCard title="Answer" iconName="bell"
         content="testetsetsetsetsetsetstasdfsdfjksahdflkjshdjakflhsljdfkhsjadlkfjhskldfhjalksdfhjklsadfhjaklsdfhlksdf"/>
       </div>
       <div class="col-3">
-        <HeaderFeatureCard title="communicate" iconName="bell" 
+        <HeaderFeatureCard title="communicate" iconName="bell"
         content="testetsetsetsetsetsetstasdfsdfjksahdflkjshdjakflhsljdfkhsjadlkfjhskldfhjalksdfhjklsadfhjaklsdfhlksdf"/>
       </div>
     </div>

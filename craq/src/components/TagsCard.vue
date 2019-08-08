@@ -19,7 +19,7 @@
             <div class="margin-top-auto"><a href="#0" class="btn btn--primary btn--md width-100%">redirect</a></div>
         </div>
     </div>
-</template> 
+</template>
 
 <script>
 import VClamp from 'vue-clamp'

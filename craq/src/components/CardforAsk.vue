@@ -19,8 +19,8 @@
                 <div>{{list.cardMain.Content}}</div>
             </div>
        </div>
-        
-        
+
+
     </div>
 </template>
 <script>
@@ -31,16 +31,16 @@ export default {
     ],
     data() {
         return {
-   
+
         }
     },
-   
+
 }
 </script>
 
 <style  lang="scss" scoped>
 $--card-main-height: 120px;
-   
+
     .card {
         border-radius: calc(var(--radius, 0.25em));
         display: flex;
@@ -61,7 +61,7 @@ $--card-main-height: 120px;
         justify-content: space-between;
         width: 140px;
         padding: var(--space-md);
-        padding-right: var(--space-xxs); 
+        padding-right: var(--space-xxs);
 
             &__column-right {
                 display: flex;
@@ -88,13 +88,11 @@ $--card-main-height: 120px;
         align-items: flex-start;
 
         &__title {
-            font-size: calc(#{$--card-main-height} * 0.2);   
+            font-size: calc(#{$--card-main-height} * 0.2);
         }
         &__hashtag {
             width: 100%;
         }
-        
+
     }
 </style>
-
-

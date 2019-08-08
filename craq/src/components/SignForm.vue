@@ -121,6 +121,7 @@ export default {
             } else {
 
                 this.$axios.get("username-checking/" + checker).then(res=>{
+                    console.log(res.data);
                     this.username = (res.data.status == 'success');
 
                 }).
@@ -195,10 +196,12 @@ export default {
                     return alert('check email or password');
                 }
                 // console.log(res);
-                this.$store.state.loginPK = res.data.pk;
+                // this.$store.state.loginPK = res.data.pk;
                 //
                 this.$session.start();
                 this.$session.set('jwt', res.data.jwt);
+                this.$session.set('username', res.data.username);
+                this.$session.set('userPk', res.data.pk);
                 this.$axios.defaults.headers.common['user_token'] = res.data.jwt;
                 this.$router.push('/');
             }).catch(err => console.log(err));
@@ -272,6 +275,7 @@ export default {
 }
 @-webkit-keyframes pulse {
     from {
+
         -webkit-transform: scale3d(1, 1, 1);
         transform: scale3d(1, 1, 1);
     }

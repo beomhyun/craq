@@ -6,7 +6,7 @@
                     <h2>{{body}}</h2>
                 </div>
                 <div class="modal__btn btn btn--primary margin-bottom-sm" @click="clickEvent">
-                    <h3>{{btntext}}</h3> 
+                    <h3>{{btntext}}</h3>
                 </div>
             </div>
         </div>

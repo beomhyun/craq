@@ -17,69 +17,43 @@
             <div class="main__title"><h4> {{list.cardMain.Title}} </h4></div>
             <div class="main__hashtag">
                 <div class="btn btn--sm">{{list.cardMain.HashTags}}</div>
-  
+
             </div>
             <div>{{list.cardMain.Created_at}}| {{list.cardMain.Updated_at}} | {{list.cardMain.Answered_at}}</div>
         </div>
-        
-        <div :class="{'none' : list.cardInfo.Answer === '0'}">
-            <div class="user" >
-                <div class="user__top">
-                    <div class="user__image">
-                        <img :src="list.answerUser.img" alt="img">
-                    </div>
-                    <div  class="user__name">
-                        <h4>{{list.answerUser.Name}}</h4>
-                        <p>{{list.answerUser.Mail}}</p>
-                    </div>
-                </div>
-                
 
-                <div class="user__bottom">
-                    <div class="user__bottom-left">
-                        <p>Score</p>
-                        <p>Answers</p>
-                    </div>
-                    <div class="user__bottom__right">
-                        <p>{{list.answerUser.Score}}</p>
-                        <p>{{list.answerUser.Answers}}</p>
-                    </div>
-                </div>
-
-                <div class="user__card">
-                    <div class="user__card__title">
-                        No Answer
-                    </div>
-                    <div class="user__card__content">
-                        This question dosen`t have Answer.<br> please answer
-                    </div>
-                </div>
-            </div>
+        <div class="user" >
+            <UserCard/>
         </div>
     </div>
 </template>
 <script>
+import UserCard from '@/components/UserCard.vue';
 export default {
     name: 'Card',
+    components: {
+        UserCard,
+    },
     props: [
         'list'
     ],
     data() {
         return {
-   
+
         }
     },
-   
+
 }
 </script>
 
 <style  lang="scss" scoped>
 $--card-main-height: 120px;
     .badquestion {
+        user-select: none;
         width: 100%;
         height: 120px;
         color: alpha(var(--color-on-surface), 0.2) !important;
-        z-index: 10;
+
     }
     .badquestion p{
         color: alpha(var(--color-on-surface), 0.2) !important;
@@ -95,10 +69,11 @@ $--card-main-height: 120px;
         background-color: alpha(var(--color-tertiary), 0.4);
     }
     .card {
+        user-select: none;
         border-radius: calc(var(--radius, 0.25em));
         display: flex;
         justify-content: space-between;
-        background-color:var(--color-surface);
+        background-color:var(--color-surface-light);
         color:var(--color-on-surface);
         margin-top: var(--space-xxxs);
         width: 100%;
@@ -114,7 +89,7 @@ $--card-main-height: 120px;
         justify-content: space-between;
         width: 140px;
         padding: var(--space-md);
-        padding-right: var(--space-xxs); 
+        padding-right: var(--space-xxs);
 
             &__column-right {
                 display: flex;
@@ -142,15 +117,17 @@ $--card-main-height: 120px;
         align-items: flex-start;
 
         &__title {
-            font-size: calc(#{$--card-main-height} * 0.2);   
+            font-size: calc(#{$--card-main-height} * 0.2);
         }
-        
+
+        &__title:hover {
+            cursor: pointer;
+        }
+
     }
     .none .user {
-        width: 200px;
+        width: 300px;
         height: 100%;
-        padding: var(--space-xs);
-        background-color: alpha(var(--color-accent), 0.3);
 
             &__top {
                     display: none;
@@ -174,7 +151,7 @@ $--card-main-height: 120px;
             align-items: center;
 
             &__title{
-                font-size: calc(#{$--card-main-height} * 0.2);   
+                font-size: calc(#{$--card-main-height} * 0.2);
             }
             &__content {
                 text-align: center;
@@ -183,10 +160,8 @@ $--card-main-height: 120px;
     }
 
     .user {
-            width: 200px;
+            width: 300px;
             height: 100%;
-            padding: var(--space-xs);
-            background-color: alpha(var(--color-primary-light), 0.2);
                 &__top {
                     display: flex;
                     font-weight: bold;
@@ -233,5 +208,3 @@ $--card-main-height: 120px;
         color: var(--color-on-tertiary);
     }
 </style>
-
-

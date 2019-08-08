@@ -127,7 +127,7 @@ export default {
 }
 
 .btn {
-    margin-right: var(--space-xxs); 
+    margin-right: var(--space-xxs);
 }
 
 .btn:hover {

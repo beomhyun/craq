@@ -29,7 +29,7 @@ export default {
                         }
                     }
                 }
-            } 
+            }
             this.q = this.raw;
             this.hashtags.forEach((tag)=>{this.q = this.q.replace("[" + tag + "]","")});
             console.log(this.hashtags);
@@ -86,4 +86,3 @@ $--expandable-search-size: 1em;
     opacity: 0;
 }
 </style>
-

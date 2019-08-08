@@ -7,7 +7,7 @@
                 <div class="main-footer__colophon-nav" >
                     <span>&copy; myWebsite</span>
                     <span @click="openModal" class="contact">&nbsp; Contact Us</span>
-                    
+
                     <mailModal v-bind:show="showModal" @close="closeModal"></mailModal>
                 </div>
 
@@ -15,7 +15,7 @@
                 <div @click="toggle" class="dropdowns" :class="{'open' : config.open == true}">
                   SSAFY.Site &nbsp;
                   <ul class="dropdowns-menu" v-for="option in config.menus"  @mouseover="config.placeholder = option.title">
-                    <a :href="option.urls" target="_blank"> 
+                    <a :href="option.urls" target="_blank">
                       <li>
                         <img :src="option.imag" alt="ssafy" style="width:20px; display:inline;">&nbsp; {{option.title}}
                         </li>
@@ -26,7 +26,7 @@
               </div>
 
             </div>
-            
+
         </div>
     </footer>
 </template>
@@ -65,7 +65,7 @@ export default {
             imag:'https://assets.gitlab-static.net/uploads/-/system/group/avatar/9970/logo-extra-whitespace.png',
             urls:'https://lab.ssafy.com/'
           },
-          
+
         ],
         open: false,
       }
@@ -105,7 +105,7 @@ export default {
   border-radius: calc(var(--radius, 0.25em)/2);
   padding: var(--space-sm);
   border: 1px solid var(--color-surface-dark);
-  
+
 }
 
 .dropdowns:hover {

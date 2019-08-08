@@ -32,7 +32,7 @@ export default {
   word-break: break-all;
 
   &__icon {
-    
+
     font-size: 6rem;
     margin-bottom: var(--space-xxs);
     margin-top: var(--space-xxs);
