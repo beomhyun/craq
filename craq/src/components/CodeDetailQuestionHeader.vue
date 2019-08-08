@@ -6,7 +6,7 @@
             </a>
         </h1>
         <div class="ask-question">
-            <a class="btn btn--primary"href="">Ask Question</a>
+            <a class="btn btn--primary" @click.prevent="goAsk">Ask Question</a>
         </div>
     </div>
 
@@ -17,7 +17,15 @@ export default {
     name: "CodeDetailQuestionHeader",
     props: [
         "title"
-    ]
+    ],
+    methods: {
+        goAsk() {
+            this.$router.push({
+                'name': 'askquestion'
+            })
+        }
+
+    }
 }
 </script>
 
