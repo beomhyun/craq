@@ -225,7 +225,8 @@ const initializeEndpoints = (app) => {
       else {
         var sql =
         `
-        SELECT    TOPIC
+        SELECT    COUNT(*) COUNT
+                , TOPIC
                 , CREATEDUSER
         FROM      SUBSCRIBE
         WHERE     TOPIC  = ${req.params.topic}
@@ -233,7 +234,7 @@ const initializeEndpoints = (app) => {
         AND       IS_REMOVED = 0
         `;
         connection.query(sql, function(err, rows, fields) {
-          if (!err) {
+          if (!err&& rows[0].COUNT != 0) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.send({status: "success", data: rows});
           } else {
