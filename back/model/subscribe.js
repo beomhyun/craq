@@ -165,7 +165,7 @@ const initializeEndpoints = (app) => {
                       ,T.TOPIC AS TOPIC
                       ,(SELECT
                           COUNT(*) AS COUNT
-                        FROM 
+                        FROM
                           SUBSCRIBE
                         WHERE
                           TOPIC = S.TOPIC
@@ -223,16 +223,23 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "SELECT Topic,created_at,info FROM subscribe WHERE Topic = ? AND User = ?";
-        var params = [req.params.topic, req.params.user];
-        connection.query(sql, params, function(err, rows, fields) {
+        var sql =
+        `
+        SELECT    TOPIC
+                , CREATEDUSER
+        FROM      SUBSCRIBE
+        WHERE     TOPIC  = ${req.params.topic}
+        AND       USER   = ${req.params.user}
+        AND       IS_REMOVED = 0
+        `;
+        connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-            res.json(rows);
+            res.send({status: "success", data: rows});
           } else {
             // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            res.send(err);
+            res.send({status: "fail"});
           }
         });
       }
