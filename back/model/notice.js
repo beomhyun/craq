@@ -45,8 +45,8 @@ const initializeEndpoints = (app) => {
         var sql =
         `
           INSERT  INTO
-          NOTICE  (USER,TYPE,BODY,CREATEDUSER)
-          VALUES  (${i.user_id},4,'${i.body}',${decoded.pk})
+          NOTICE  (USER,TYPE,BODY,INFO,CREATEDUSER)
+          VALUES  (${i.user_id},4,'${decoded.pk}에게 쪽지가 왔습니다.','${i.body}',${decoded.pk})
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err){
@@ -108,7 +108,7 @@ const initializeEndpoints = (app) => {
    *    put:
    *      tags:
    *      - notice
-   *      description: 해당 알림을 읽음 처리
+   *      description: 알림을 확인처리함. (is_active 0 -> 1)
    *      parameters:
    *      - name: pk
    *        in: path
@@ -476,6 +476,69 @@ const initializeEndpoints = (app) => {
     });
   });
 
+  /**
+   * @swagger
+   *  /notices/ones/{pk}:
+   *    get:
+   *      tags:
+   *      - notice
+   *      description: 특정 알림 정보를 가져옴.(1)
+   *      parameters:
+   *      - name: pk
+   *        in: path
+   *        type: integer
+   *        description: notice의 pk값
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달
+   *      responses:
+   *        200:
+   */
+  app.get('/notices/ones/:pk', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+        error: 'invalid token'
+      });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }else {
+        var sql =
+        `
+        SELECT   PK
+          		 , USER
+          		 , (
+          		 	SELECT	USERNAME
+          		 	FROM 		USER
+          		 	WHERE 	PK = USER
+          		 ) USERNAME
+          		 , TYPE
+          		 , (
+          		 	SELECT	TYPE
+          		 	FROM 		TYPE AS T
+          		 	WHERE 	T.PK = N.TYPE
+          		 ) TYPENAME
+          		 , BODY
+          		 , ARTICLE
+          		 , CONTENT
+          		 , COMMENT
+          		 , CREATED_AT
+          		 , IS_ACTIVE
+         FROM 	 NOTICE N
+         WHERE 	 PK = ${req.params.pk}
+         `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err){
+            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+            res.send({status: "success", data:rows[0]});
+          }else{
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }
+        });
+      }
+    });
+  });
 
 };
 module.exports = initializeEndpoints;
