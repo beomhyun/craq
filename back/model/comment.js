@@ -71,7 +71,7 @@ const initializeEndpoints = (app) => {
             WHERE     PK = ${i.content_id}
             `;
             connection.query(sql, function(err, rows, fields) {
-              if(!err){
+              if(!err && i.user_id != rows[0].CREATEDUSER){
                 var msg = rows[0].TITLE+" 에 댓글이 달렸습니다.";
                 sql =
                 `
