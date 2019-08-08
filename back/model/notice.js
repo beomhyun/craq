@@ -519,15 +519,14 @@ const initializeEndpoints = (app) => {
           		 	WHERE 	T.PK = N.TYPE
           		 ) TYPENAME
           		 , BODY
-          		 , ARTICLE
-          		 , CONTENT
-          		 , COMMENT
           		 , CREATED_AT
-          		 , IS_ACTIVE
+               , IS_ACTIVE
+               ,INFO
          FROM 	 NOTICE N
          WHERE 	 PK = ${req.params.pk}
          `;
         connection.query(sql, function(err, rows, fields) {
+          console.log(this.sql);
           if (!err){
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.send({status: "success", data:rows[0]});

@@ -1223,18 +1223,18 @@ const initializeEndpoints = (app) => {
         if(req.query.search_text){
           str = req.query.search_text;
         }
-        str = replaceAll(str, '[', ' [');
-        str = replaceAll(str, ']', '] ');
-        var arr = str.split(' ');
+        str = replaceAll(str, '[', '金範賢[');
+        str = replaceAll(str, ']', ']金範賢');
+        var arr = str.split('金範賢');
         var tag = [];
         var nottag = [];
         for (var i in arr) {
-          arr[i] = replaceAll(arr[i], ' ', '');
+          arr[i] = replaceAll(arr[i], '金範賢', '');
           if (arr[i].charAt(0) == '') continue;
           if (arr[i].charAt(0) == '[') {
             tag.push(arr[i].replace('[', '').replace(']', ''));
           } else {
-            nottag.push(arr[i].replace(' ', ''));
+            nottag.push(arr[i].replace('金範賢', ''));
           }
         }
         // console.log(tag);
@@ -1390,18 +1390,18 @@ const initializeEndpoints = (app) => {
         if(req.query.search_text){
           str = req.query.search_text;
         }
-        str = replaceAll(str, '[', ' [');
-        str = replaceAll(str, ']', '] ');
-        var arr = str.split(' ');
+        str = replaceAll(str, '[', '金範賢[');
+        str = replaceAll(str, ']', ']金範賢');
+        var arr = str.split('金範賢');
         var tag = [];
         var nottag = [];
         for (var i in arr) {
-          arr[i] = replaceAll(arr[i], ' ', '');
+          arr[i] = replaceAll(arr[i], '金範賢', '');
           if (arr[i].charAt(0) == '') continue;
           if (arr[i].charAt(0) == '[') {
             tag.push(arr[i].replace('[', '').replace(']', ''));
           } else {
-            nottag.push(arr[i].replace(' ', ''));
+            nottag.push(arr[i].replace('金範賢', ''));
           }
         }
         // console.log(tag);

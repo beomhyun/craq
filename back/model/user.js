@@ -193,7 +193,7 @@ app.get('/email-checking/:email', function(req,res){
     var sql = " select count(*) as checking from user where email like ? ";
     var params = [req.params.email];
     connection.query(sql,params, function(err, rows, fields) {
-      console.log(this.sql);
+      // console.log(this.sql);
             if (!err){
               if(rows[0].checking == 0){
                 res.send({status: "success"});
@@ -765,19 +765,36 @@ app.get('/follows/:touser', function(req,res){
  *       200:
  */
 app.post('/profile/images', upload.single('image'), function(req, res) {
+  // console.log("hi~~~~~~~~~~~~~~~~~");
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err){
+      console.log("fail " + err);
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
     }
     else{
-      console.log(req.file);
+      // console.log(req.file);
       var filename = "default_profile.png";
       if(req.file){ // 이미지 파일이 첨부되었을 때
         filename = req.file.filename;
       }
-      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-      res.send({status: "success", data:req.file.filename});
+      var sql = 
+              `
+              UPDATE
+                PROFILE
+              SET
+                PROFILE_IMAGE = '${filename}'
+              WHERE USER = ${decoded.pk}
+              `;
+      connection.query(sql, function(err, rows, fields) {
+        if(!err){
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+          res.send({status: "success", data:req.file.filename});
+        } else{
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+          res.send({status: "fail",data:err});
+        }       
+      });
     }
   });
 });
@@ -887,7 +904,7 @@ app.get('/users/profile-image/:pk', function(req,res){
         if (!err){
           var img = '<img src="/'+rows[0].profile_image + '">';
           serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-          res.send(img);
+          res.send({sattus: "success",data: img});
         }else{
           serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
           res.send({status: "fail"});
