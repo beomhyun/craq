@@ -3,7 +3,14 @@
         <div class="backimg">
             <img src="@/assets/header.jpg" alt="" class="userBack">
             <div class="circle"></div>
-            <img src="@/assets/Admin-1.png" alt="" class="userImg">
+            <!-- userImage -->
+            <label for="PROFILEIMAGE">
+            <img :src="url" alt="" class="userImg">
+            </label>
+                <input type="file" accept=".gif,.jpg,.jpeg,.png" ref="profileImage" @change="uploadImage" id="PROFILEIMAGE" v-show="false">
+
+
+            <!-- end userImage -->
             <div class="rectangular"></div>
 
             <div class="userInfo">
@@ -21,7 +28,7 @@
 
         <div class="content">
             <div class="information" v-show="setInformation">
-                
+
                 <div class="information__profile">
                     <div class="information__title">
                         Profile
@@ -33,7 +40,7 @@
                                 <select class="editInput" v-show="toggleProfile" v-model="userData.ssafy_years">
                                     <option value="1" selected="selected">1</option>
                                     <option value="2">2</option>
-                               </select>
+                                </select>
                                 <span v-show="!toggleProfile">{{ userData.ssafy_years }} 기</span> &nbsp;
                             </div>
                         </div>
@@ -49,7 +56,7 @@
                             <div>
                                 <select class="editInput" v-show="toggleProfile" v-model="userData.grade">
                                     <option class="editOption" v-for="i in 10" :value="i" selected="selected">{{i}}</option>
-                               </select>
+                                </select>
                                 <span v-show="!toggleProfile">{{ userData.grade }} 반</span> &nbsp;
                             </div>
                         </div>
@@ -61,7 +68,7 @@
                                     <option class="editOption" value="서울" >서울</option>
                                     <option class="editOption" value="구미" >구미</option>
                                     <option class="editOption" value="광주" >광주</option>
-                               </select> 
+                                </select> 
                                 <span v-show="!toggleProfile">{{ userData.region }}</span> &nbsp;
                             </div>
                         </div>
@@ -83,13 +90,13 @@
                     </div>
                     <!-- <div class="information__content">
                         <div class="skill-icon" :key="skill" v-for="skill in skillIcon" v-show="toggleProfile">
-                            <input type="checkbox" :id="skill.title" :value="skill" v-model="checkedSkill">
-                            <label :for="skill.title"><img :src="skill.url" alt="" class="skill-icon-img"></label>
+                        <input type="checkbox" :id="skill.title" :value="skill" v-model="checkedSkill">
+                        <label :for="skill.title"><img :src="skill.url" alt="" class="skill-icon-img"></label>
                         </div>
                         <div class="skill-icon" :key="check" v-for="check in checkedSkill" v-show="!toggleProfile">
-                            <img :src="check.url" alt="" class="skill-icon-img">
+                        <img :src="check.url" alt="" class="skill-icon-img">
                         </div>
-                    </div> -->
+                        </div> -->
                 </div>
 
                 <div class="separator"></div>
@@ -109,7 +116,7 @@
                     <div class="btn btn--lg" v-show="toggleProfile" @click="toggleProfile = false">Cancle</div>
                 </div>
             </div>
-            
+
             <ProfileActivity v-if="setActivity" :userActivityData="userActivityData" :userData="userData.PK"/>
             <ProfileFollow class="follow" v-show="setFollow"/>
 
@@ -122,7 +129,7 @@
                 </template>
             </div>
         </div>
-</div>
+    </div>
 </template>
 <script>
 import Noty from '@/components/Noty.vue';
@@ -144,6 +151,8 @@ export default {
     },
     data() {
         return {
+            //image src
+            imageFile: "default_profile.png",
             // 내 프로필인지 확인
             MyProfile : false,
 
@@ -161,7 +170,7 @@ export default {
 
             // 팔로우 정보
             userFollowData : [],
-           
+
             // 수정 할 것인지 체크
             toggleProfile: false,
 
@@ -170,16 +179,16 @@ export default {
             setActivity : false,
             setFollow : false,
             setNotify : false,
-            
+
             // 프로필 데이터용
 
             // 전체 프로필 정보 목록
-             Profiles: {
-                    ssafyGrade : '',
-                    Major : '',
-                    SwGrade : '',
-                    Region : '',
-                    GitUrl : '',
+            Profiles: {
+                ssafyGrade : '',
+                Major : '',
+                SwGrade : '',
+                Region : '',
+                GitUrl : '',
             },
 
             // 자기소개
@@ -197,7 +206,7 @@ export default {
                 { Class: 8 },
                 { Class: 9 },
                 { Class: 10 },
-                ],
+            ],
 
             // Skill DATA
             skillIcon: [
@@ -228,22 +237,23 @@ export default {
         }
     },
     mounted() {
+        this.updateImage();
         this.$axios.get('users').then(res => {
             // console.log(res)
             this.allUserInfo = res.data
-                this.allUserInfo.forEach((data) => {
-                    if (data.USERNAME.toLowerCase() == this.$route.params.user_name.toLowerCase()) {
-                        this.$axios.get('users/profile/' + data.PK).then(response => {
-                            console.log(response)
-                            this.userData = response.data[0]
+            this.allUserInfo.forEach((data) => {
+                if (data.USERNAME.toLowerCase() == this.$route.params.user_name.toLowerCase()) {
+                    this.$axios.get('users/profile/' + data.PK).then(response => {
+                        console.log(response)
+                        this.userData = response.data[0]
                         this.$axios.get('users/writing/' + data.PK).then(res => {
                             this.userActivityData = res.data.data
                             console.log(this.userActivityData)
                         })
-                        })
-                    }
-                })
+                    })
+                }
             })
+        })
 
         this.username = this.$route.params.user_name
         console.log(this.username)
@@ -252,10 +262,31 @@ export default {
             // console.log("내프로필")
             this.MyProfile = true
         }
-        
+
 
     },
+    computed: {
+        url: function() {
+            return `http://192.168.31.58:10123/${this.imageFile}`
+        }
+    },
     methods: {
+        uploadImage() {
+            let form = new FormData();
+            let file = this.$refs.profileImage.files[0];
+            form.append('image', file);
+            this.$axios.post('profile/images', form).then(res=>{
+                console.log('image uploaded');
+                this.updateImage();
+            }).catch(err=>console.log(err));
+        },
+        updateImage() {
+            this.$axios.get(`users/profile-image/${this.$session.get('userPk')}`).then(
+                res=>{
+                    this.imageFile = res.data.data;
+                }
+            )
+        },
         editProfile() {
             const data = {
                 'User' : this.userData.User,
@@ -269,14 +300,14 @@ export default {
             }
             this.$axios.put('profile', data).then(res =>
                 console.log(res)
-                ).catch(err => console.log(err))
+            ).catch(err => console.log(err))
             this.$axios.get("users/profile/" + this.$session.get('userPk')).then(res=>{
-                    console.log(res.data[0])
-                })
+                console.log(res.data[0])
+            })
             this.toggleProfile = false
         },
         notyClose(id) {
-          this.noties = this.noties.filter(noty=>noty.id != id);
+            this.noties = this.noties.filter(noty=>noty.id != id);
         },
         notyGo(id) {
             let to = "/"
@@ -287,9 +318,9 @@ export default {
                     break;
                 }
             }
-                this.$router.push(to);
-                console.log('NavBar: notygo')
-                this.noties.sort((a, b) => b.active-a.active);
+            this.$router.push(to);
+            console.log('NavBar: notygo')
+            this.noties.sort((a, b) => b.active-a.active);
         },
         toggleInformation() {
             if (this.setInformation == false) {
@@ -308,9 +339,9 @@ export default {
         toggleFollow() {
             console.log(this.setFollow);
             if (this.setFollow == false) {
-                 this.setInformation = false
-                 this.setActivity = false
-                 this.setFollow = true
+                this.setInformation = false
+                this.setActivity = false
+                this.setFollow = true
             }
         }
 
@@ -440,7 +471,7 @@ $--menu-width: 22rem;
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        
+
         &-details {
             display: flex;
             justify-content: space-between;
@@ -479,7 +510,7 @@ $--menu-width: 22rem;
         margin-bottom: var(--space-md);
     }
 
-        &__description {
+    &__description {
         width: 100%;
         height: 300px;
         background-color: var(--color-surface);
