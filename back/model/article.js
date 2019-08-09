@@ -1491,20 +1491,14 @@ const initializeEndpoints = (app) => {
                                 WHERE
                                   A.ARTICLE != 0
                                   AND A.CREATEDUSER = U.PK),0) AS USER_ANSWER
-                              , IFNULL(((SELECT
-                                  COUNT(*)
-                                FROM
-                                  ARTICLE AS A
-                                WHERE
-                                  A.ARTICLE != 0
-                                  AND A.CREATEDUSER = U.PK
-                                  AND A.IS_ACTIVE = 1)/(SELECT
-                                  COUNT(*)
-                                FROM
-                                  ARTICLE AS A
-                                WHERE
-                                  A.ARTICLE != 0
-                                  AND A.CREATEDUSER = U.PK)),0) AS RELIABLE
+                              , IFNULL((SELECT
+                                COUNT(*)
+                              FROM
+                                ARTICLE AS A
+                              WHERE
+                                A.ARTICLE != 0
+                                AND A.CREATEDUSER = U.PK
+                                AND A.IS_ACTIVE = 1),0) AS RELIABLE
                           FROM
                             ARTICLE AS ASK
                                 LEFT OUTER JOIN CONTENT AS CON ON ASK.CONTENT = CON.PK
