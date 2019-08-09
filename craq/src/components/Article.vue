@@ -26,7 +26,7 @@ import ArticleComments from '@/components/ArticleComments.vue';
 export default {
     name: "Article",
     props: [
-        "article_pk"
+        "article_pk", "canSelected"
     ],
     data() {
         return {

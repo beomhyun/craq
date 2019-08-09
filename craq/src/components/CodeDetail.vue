@@ -11,12 +11,12 @@
                  ></CodeDetailQuestionHeaderBottom>
                 <div id="mainbar">
                     <div id="question" class="question">
-                        <Article v-if="loaded" :article_pk="QUESTION[0].PK"></Article>
+                        <Article v-if="loaded" :article_pk="QUESTION[0].PK" :canSelected="false"></Article>
                     </div>
                     <div id="answers">
                         <CodeDetailAnswerHeader :count="ANSWERS.length"v-if="loaded"></CodeDetailAnswerHeader>
                         <template v-if="loaded" v-for="answer in ANSWERS" v-key="answer.PK">
-                            <Article :article_pk="answer.PK"></Article>
+                            <Article :article_pk="answer.PK" :canSelected="!SELECTED"></Article>
                             <div class="separator"></div>
                         </template>
                     </div>
@@ -66,6 +66,7 @@ export default {
             QUESTION: [],
             VERSION: [0],
             loaded: false,
+            SELECTED: false,
         }
     },
     props: [
@@ -78,6 +79,7 @@ export default {
             this.QUESTION = data.QUESTION;
             this.VERSION = this.VERSION.concat(data.VERSION);
             this.loaded = true;
+            this.SELECTED = !!data.QUESTION[0].SELECTED;
         })
 
     }
