@@ -126,7 +126,6 @@ export default {
         },
         getNoties() {
             this.$axios.get(`notices/${this.$session.get('userPk')}`).then(res=> {
-                console.log(res.data);
                 this.noties = res.data.data;
             })
 
