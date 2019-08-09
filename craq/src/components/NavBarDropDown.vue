@@ -1,6 +1,6 @@
 <template>
     <div class="menu-wrapper js-menu-wrapper">
-        <font-awesome-icon @click.prevent="show = !show" icon="bell"></font-awesome-icon>
+        <font-awesome-icon @click.prevent="showToggler" icon="bell"></font-awesome-icon>
 
         <menu id="menu-example" class="menu js-menu" :class="{'menu--is-visible': show}">
             <router-link :to="{ name:'profile', params: {user_name : this.$session.get('username')}}">
