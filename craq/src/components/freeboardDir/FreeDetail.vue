@@ -41,7 +41,7 @@
           </tr>
           <tr>
             <td colspan="3"></td>
-            <td>
+            <td v-if="info.USERNAME === this.$session.get('username')">
               <button class="btn btn--primary btn-lg" style="margin:3px" @click="goEditPage">Edit</button>
               <button class="btn btn--primary btn-lg" style="margin:3px" @click="freeDelete">Delete</button>
             </td>
@@ -59,7 +59,7 @@
         <FreeComment :comment="comment"/>
       </div>
 
-      <form id="commentForm" @submit.prevent="sendComment" class="form-control width-100%">
+      <form id="commentForm" @submit.prevent="sendComment" class="width-100%">
         <span>
           <input type="text" name="comment" v-model="answer" class="form-control">
           <button type="submit" class="btn btn--accent btn--md">Send</button>

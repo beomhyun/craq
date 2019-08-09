@@ -23,7 +23,7 @@ import FreeHome from '@/components/freeboardDir/FreeHome.vue';
 import FreeBoardWrite from '@/components/freeboardDir/FreeBoardWrite.vue';
 import FreeDetail from '@/components/freeboardDir/FreeDetail.vue';
 
-import ShowDetail from '@/components/freeboardDir/ShowDetail.vue'
+// import ShowDetail from '@/components/freeboardDir/ShowDetail.vue'
 import FreeEdit from '@/components/freeboardDir/FreeEdit.vue'
 // import FreeDetail from '@/components/FreeDetail.vue'
 //end test

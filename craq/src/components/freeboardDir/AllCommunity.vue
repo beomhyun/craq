@@ -5,7 +5,8 @@
     <div class="column">
         <!-- <h3>Bubble Chart</h3> -->
 
-        <bar-chart class='barChart' :chart-data="datacollection" :allpks="allpks"></bar-chart>
+        <bar-chart class='barChart' :chart-data="datachart" :allpks="allpks"></bar-chart>
+        <!-- <bar-chart v-else class='barChart' :chart-data="data_dark" :allpks="allpks"></bar-chart> -->
       </div>
   </div>
 
@@ -14,8 +15,9 @@
 
 <script>
 // import axios from 'axios'
-import BarChart from '@/components/freeboardDir/BarChart.vue'
-var style = getComputedStyle(document.body);
+import BarChart from '@/components/freeboardDir/BarChart.vue';
+import { mapState } from 'vuex';
+// var style = getComputedStyle(document.body);
 
 export default {
   name : 'AllCommunity',
@@ -25,24 +27,20 @@ export default {
   data() {
     return {
       // topic : [],
-      datacollection : null,
+      datachart : null,
+      // data_default : null,
+      // data_dark : null,
       alltopics : [],
       allpks : [],
       myTheme : this.$store.state.theme
     }
   },
-  created() {
-    this.makeGraph()
-    console.log(this.style.getPropertyValue('--color-contrast-high'));
+  async mounted() {
+    await this.makeGraph()
+    // console.log(this.style.getPropertyValue('--color-contrast-high'));
   },
   methods : {
-    getToggleColor() {
-      if(this.$store.state.theme === 'default') {
-        return 'green'
-      }else {
-        return 'pink'
-      }
-    },
+
     makeGraph() {
       this.$axios
       .get(`topics`)
@@ -67,42 +65,40 @@ export default {
               this.allpks[i] = this.alltopics[i].PK;
             }
           }
-
-          // console.log(topics);
-          // console.log(users);
-          // console.log("myTheme = " + this.myTheme)
-          // console.log("state = " + this.$store.state.theme)
-          console.log(style.getPropertyValue('--color-contrast-high'));
-          this.datacollection = {
+          console.log("state = " + this.$store.state.theme)
+          // console.log(style.getPropertyValue('--color-contrast-high'));
+          var color = 'green'
+          // var fontC = "black"
+          if(this.$store.state.theme === 'default') {
+            // color = this.style.getPropertyValue('--color-primary')
+            color = 'hsl(156, 99%, 46%)';
+            // fontC = 'black';
+          }else {
+            // color = this.style.getPropertyValue('--color-primary-dark')
+            color = 'hsl(321, 83%, 61%)';
+            // fontC = 'white';
+          }
+          this.datachart = {
             labels: topics,
-            // pks : allpks,
             datasets: [
                 {
                   label: 'Subscribe',
-                  // backgroundColor: style.getPropertyValue('--color-on-background'),
-                  // pointBackgroundColor: 'black',
+                  backgroundColor: color,
                   borderWidth: 1,
-                  // pointBorderColor: '#22EE99',
                   data: users,
                 }
-              ]
+            ],
           };
       });
     },
-    graphColorChange() {
-      // var myTheme = this.$store.state.theme;
-      console.log("myTheme" + this.myTheme)
-      console.log("state" + this.$store.state.theme)
-      if(this.myTheme !== this.$store.state.theme) {
-        this.makeGraph()
-        this.myTheme = this.$store.state.theme;
-      }
-    }
   },
-  computed() {
-
-    this.graphColorChange()
-  }
+  computed: mapState(['theme']),
+  watch: {
+    theme(newValue, oldValue) {
+      console.log(`Updating from ${oldValue} to ${newValue}`);
+      this.makeGraph()
+    },
+  },
 }
 
 </script>

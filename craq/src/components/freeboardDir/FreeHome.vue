@@ -3,9 +3,10 @@
         <!-- <div v-if="freeState === 'freeboard'"> -->
           <div class="container max-width-lg" style="display: flex">
             <h3 style="display: inline; width:100%">{{topic}} 게시판</h3>
-
-            <button v-if="!isSubscribe" class="btn--subtle" @click="subscribe">Subscribe</button>
-            <button v-else class="btn--primary" @click="subscribe">Subscribe</button>
+            <div v-if="!isManager">
+              <button v-if="!isSubscribe" class="btn--subtle" @click="subscribe">Subscribe</button>
+              <button v-else class="btn--primary" @click="subscribe">Subscribe</button>
+            </div>
           </div>
           <div class="container">
             <div style="column-count: 2; column-rule: dotted 1px #222;">
@@ -18,10 +19,10 @@
                 </li>
               </ul>
             </div>
-            <div>
+            <!-- <div>
               <button class="btn btn--primary btn--md">최신순</button>
               <button class="btn btn--primary btn--md">조회순</button>
-            </div>
+            </div> -->
           </div>
           <FreeList :topic="this.$route.params.topic" :page='1' />
         <!-- </div> -->
@@ -30,19 +31,29 @@
 </template>
 
 <script>
-import FreeList from '@/components/freeboardDir/FreeList.vue'
+// import FreeList from '@/components/freeboardDir/FreeList.vue';
+import Spinner from '@/components/Spinner.vue';
+
+const FreeList = () => ({
+    component: import("@/components/freeboardDir/FreeList.vue"),
+    loading: Spinner,
+    delay: 500
+});
 
 export default {
   name : 'FreeHome',
   components : {
     FreeList
   },
-
+  // loading: Spinner,
+  // delay: 500,
   data() {
     return {
       topic : "",
       isSubscribe : true,
       all_tmp_data : [],
+      isManager : false,
+      loaded: false,
     }
   },
   created() {
@@ -57,26 +68,46 @@ export default {
       }else {
         this.isSubscribe = true;
       }
+      // this.loaded = true;
     });
 
     this.$axios
     .get('articles/new')
     .then((res) => {
       this.all_tmp_data = res.data
-    })
+      // this.loaded = true;
+    });
+
+    // this.$axios
+    // .get(`/subscribes/${this.$route.params.topic}/${this.$session.get("userPk")}`)
+    // .then((res) => {
+    //   console.log(res.data)
+    // })\
+    this.$axios
+    .get(`managers/${this.$route.params.topic}/${this.$session.get("userPk")}`)
+    .then((res) => {
+      console.log(res.data);
+
+      if(res.data.status === "fail") {
+        this.isManager = false;
+      }else {
+        this.isManager = true;
+      }
+      // this.loaded = true;
+    });
   },
   methods : {
     subscribe() {
       if(!this.isSubscribe) {
         this.$axios.post('subscribes', {
           topic : this.$route.params.topic,
-          user_id : this.$store.state.loginPK,
+          user_id : this.$session.get("userPk"),
         })
         .then((res) => {
           this.isSubscribe = true;
         });
       }else {
-        this.$axios.delete(`subscribes/${this.$route.params.topic}/${this.$store.state.loginPK}`)
+        this.$axios.delete(`subscribes/${this.$route.params.topic}/${this.$session.get("userPk")}`)
         .then((res) => {
           this.isSubscribe = false;
         });

@@ -4,10 +4,10 @@
 
     <form action="" method="post" id="_frmForm" name="frmForm" @submit.prevent="addfreeBoard" class="form-horizontal">
       <div class="form-control width-100%">
-        <select v-model="selected" class="form-control width-30%">
+        <select v-model="isNotice" class="form-control width-30%" v-if="isManager">
           <!-- inline object literal -->
-          <option v-bind:value="Notice">Notice</option>
-          <option v-bind:value="Chat">Chat</option>
+          <option v-bind:value="true">Notice</option>
+          <option v-bind:value="false">Chat</option>
         </select>
         <input type="text" name="title" v-model="title" class="form-control width-70%">
       </div>
@@ -35,10 +35,12 @@ export default {
     return {
       boardName : this.$route.params.topic,
       imageData: "",
-      selected : "",
+      isNotice : false,
       title : "",
       content : "",
-      imgDir : ""
+      imgDir : "",
+      isManager : false,
+      // isNotice : false
       // selectFile : null
       // filename : "",
     }
@@ -48,31 +50,54 @@ export default {
     .get(`topics/pk/${this.$route.params.topic}`)
     .then((res) => {
       var title = res.data;
-      // console.log(title.data[0]);
       this.boardName = title.data[0].TOPIC;
-      // if(title.data[0].IS_SUBSCRIBE == 0) {
-      //   this.isSubscribe = false;
-      // }else {
-      //   this.isSubscribe = true;
-      // }
     });
+
+    this.$axios
+    .get(`managers/${this.$route.params.topic}/${this.$session.get("userPk")}`)
+    .then((res) => {
+      // console.log(res.data);
+      if(res.data.status === "fail") {
+        this.isManager = false;
+      }else {
+        this.isManager = true;
+      }
+    })
   },
   methods : {
     addfreeBoard() {
-      this.$axios.post('contents', {
-        topic_id : this.$route.params.topic,
-        article_id : '0',
-        title : this.title,
-        body : this.content,
-        image : this.imageData,
-        // user_id : this.$store.state.loginPK,
-        user_id : `${this.$session.get("userPk")}`,
-        beforeContent : '0',
-        tags : " "
-      }).
-      then((response) => {
-        this.$router.go(-1);
-      })
+      if()
+      if(this.isNotice) {
+        this.$axios
+        .post('contents/notices', {
+          topic_id: this.$route.params.topic,
+          user_id: this.$session.get("userPk"),
+          title: this.title,
+          body: this.content,
+          image: this.imageData
+        })
+        .then((res) => {
+          console.log(res.data);
+          this.$router.go(-1);
+        })
+      }else {
+        this.$axios
+        .post('contents', {
+          topic_id : this.$route.params.topic,
+          article_id : '0',
+          title : this.title,
+          body : this.content,
+          image : this.imageData,
+          // user_id : this.$store.state.loginPK,
+          user_id : `${this.$session.get("userPk")}`,
+          beforeContent : '0',
+          tags : " "
+        }).
+        then((response) => {
+          this.$router.go(-1);
+        })
+      }
+
       // this.isAddBoard = false;
       // this.$emit('childs-event', this.isAddBoard)
     },

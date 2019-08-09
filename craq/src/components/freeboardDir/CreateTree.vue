@@ -1,10 +1,10 @@
 <template>
-  <div class="form-control">
+  <div>
     <br>
     <form id="myForm" @submit.prevent="createTree">
-      <input type="text" name="topic" v-model="topic" class="form-control width-100%"><br>
+      <input type="text" name="topic" v-model="topic" class="form-control width-100%" placeholder="게시판 제목"><br>
       <textarea name="body" v-model="body" class="form-control width-100%"></textarea><br>
-      <button class="btn--primary max-width-adaptive-md" style="margin : auto">Send</button>
+      <button class="btn btn--primary max-width-adaptive-md" style="margin : auto; align: right">Send</button>
     </form>
   </div>
 </template>
@@ -17,12 +17,17 @@ export default {
 
   data() {
     return {
-      topic: 'topic',
-      body: 'body',
+      topic: '',
+      body: '',
     }
   },
   methods: {
     createTree : function() {
+      if(this.topic.length < 1) {
+        alert("게시판 제목울 1글자 이상 입력해 주세요")
+        return;
+      }
+
       this.$axios.post('topics', {
         topic : this.topic,
       })

@@ -2,11 +2,10 @@
   <div>
 <!--    <h5> 인기글 </h5>-->
 
-    <div class="container" style="column-count: 2; column-rule: dotted 1px #222;">
-      <ul class="my-ul text-component width-100%" v-for="mycomm in mytopics">
-        <!-- <li class="text-component width-50%"><router-link :to="{ path: `/freeboard/${mycomm.topic}`, params: {topic : mycomm.topic} }">{{mycomm.topic}}</router-link></li> -->
-        <!-- <span>{{mycomm}}</span> -->
-        <li class="text-component width-50%"><router-link :to="`/freeboard/${mycomm.PK}`">{{mycomm.TOPIC}}</router-link></li>
+    <!-- <div class="container my-ul" style="column-count: 2;"> -->
+    <div class="container my-ul" style="column-count: 2;">
+      <ul class="list-group text-component width-100%" v-for="mycomm in mytopics">
+        <li class="text-component width-50%"><router-link :to="`/freeboard/${mycomm.PK}`"><h4>{{mycomm.TOPIC}}</h4></router-link></li>
       </ul>
     </div>
   </div>
@@ -44,11 +43,38 @@ export default {
 
 <style lang="scss">
 .my-ul {
-  // list-style: none;
-  margin: 5px;
-  padding: 5px;
+  box-sizing: border-box;
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 
-  max-width: 250px;
-  width: 100%;
+    li {
+      // border: 1px solid var(--color-surface);
+      margin-top: -1px;
+      padding: 12px;
+      font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
+      // border-bottom: 1px solid #ccc;
+      text-decoration: none;
+      // color: #000;
+      display: block;
+      width: 200px;
+
+      -webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
+      -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
+      -o-transition: font-size 0.3s ease, background-color 0.3s ease;
+      -ms-transition: font-size 0.3s ease, background-color 0.3s ease;
+      transition: font-size 0.3s ease, background-color 0.3s ease;
+    }
+
+    li:last-child {
+      border: none;
+    }
+
+    li:hover {
+      font-size: 30px;
+      // background: #f6f6f6;
+    }
+  }
 }
 </style>
