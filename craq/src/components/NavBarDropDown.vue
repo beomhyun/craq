@@ -1,6 +1,6 @@
 <template>
-    <div class="menu-wrapper js-menu-wrapper">
-        <font-awesome-icon @click.prevent="showToggler" icon="bell"></font-awesome-icon>
+    <div class="menu-wrapper js-menu-wrapper" ref="dropdownMenu">
+        <font-awesome-icon @click.prevent="showMe" icon="bell"></font-awesome-icon>
 
         <menu id="menu-example" class="menu js-menu" :class="{'menu--is-visible': show}">
             <router-link :to="{ name:'profile', params: {user_name : this.$session.get('username')}}">
@@ -41,6 +41,13 @@ export default {
         "noties"
     ],
     methods: {
+        closer(e) {
+            let el = this.$refs.dropdownMenu;
+            let target = e.target
+            if (el !== target && !el.contains(target)) {
+                this.noShow();
+            }
+        },
         onClose(id) {
             this.$emit('onClose', id);
         },
@@ -49,12 +56,27 @@ export default {
         },
         signOut() {
             this.$emit('signOut');
-        }
+        },
+        noShow() {
+            document.removeEventListener('click', this.closer)
+            this.show = false;
+        },
+        showMe() {
+            this.show = true;
+            document.addEventListener('click', this.closer);
+        },
     },
     data() {
         return {
             "show": false,
         }
+    },
+    created() {
+        console.log('dropdown created');
+
+    },
+    destroyed() {
+        console.log('goodbye');
     }
 }
 </script>
