@@ -6,7 +6,7 @@
         <div class="postcell post-layout--right">
             <ArticleContent v-if="loaded" :body="VERSION[current].BODY"></ArticleContent>
             <ArticleTagList :content_pk="VERSION[current].PK"></ArticleTagList>
-            <ArticleSignature @right="up" @left="down" :current="current" :creator="creator" :editor="editor" :created="created" :edited="edited" :article_pk="article_pk"></ArticleSignature>
+            <ArticleSignature @right="up" @left="down" :current="current" :creator="creator" :editor="editor" :created="created" :edited="edited" :article_pk="article_pk" @selectVersion="selectVersion"></ArticleSignature>
             <div style="grid-column: 1 / 3;"></div>
             <div class="post-layout--right">
                 <ArticleComments v-bind="$props" :content_id="VERSION[current].PK"></ArticleComments>
@@ -43,6 +43,15 @@ export default {
         }
     },
     methods: {
+        selectVersion(version) {
+            this.$axios.put(`questions/${this.article_pk}/content/${this.VERSION[version].PK}`)
+                .then(res=> {
+                    console.log(this.article_pk);
+                    console.log(version);
+                    console.log(res.data);
+                        alert('version selected')
+                })
+        },
         up: function() {
             if (this.current + 1 < this.VERSION.length) {
                 this.current++;
