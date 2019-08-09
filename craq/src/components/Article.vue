@@ -6,7 +6,7 @@
         <div class="postcell post-layout--right">
             <ArticleContent v-if="loaded" :body="VERSION[current].BODY"></ArticleContent>
             <ArticleTagList :content_pk="VERSION[current].PK"></ArticleTagList>
-            <ArticleSignature @right="up" @left="down" :current="current" :creator="creator" :editor="editor" :created="created" :edited="edited"></ArticleSignature>
+            <ArticleSignature @right="up" @left="down" :current="current" :creator="creator" :editor="editor" :created="created" :edited="edited" :article_pk="article_pk"></ArticleSignature>
             <div style="grid-column: 1 / 3;"></div>
             <div class="post-layout--right">
                 <ArticleComments v-bind="$props" :content_id="VERSION[current].PK"></ArticleComments>
