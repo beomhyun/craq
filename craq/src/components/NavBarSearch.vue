@@ -13,6 +13,7 @@ export default {
     ],
     methods: {
         onBlur() {
+            this.show = false;
             this.$emit('onBlur');
         },
         search() {

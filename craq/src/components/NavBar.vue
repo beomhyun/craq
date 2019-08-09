@@ -7,8 +7,6 @@
                         <p class="main-header__logo__text"><span class="main-header__logo__text--accent">C</span>RAQ</p>
                     </router-link>
                 </div>
-
-
                 <nav class="main-header__nav">
                     <ul class="main-header__nav-list">
                         <li class="main-header__nav-item" v-if="!onSearch">
@@ -19,19 +17,17 @@
                                 <div aria-hidden="true" class="switch__marker"></div>
                             </div>
                             <!-- end switch -->
-
-
                         </li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><div class="main-header__nav-link" @click.prevent="goSearch()" :class="{'main-header__nav-selected': currentRouteName == 'code'}" style="cursor: pointer;">Code</div></li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch"><div class="main-header__nav-link" @click.prevent="goSearch()" :class="{'main-header__nav-selected': currentRouteName == 'code'}" style="cursor: pointer;">Code</div></li>
+                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
                         <li class="main-header__nav-item main-header__nav-divider" v-if="!onSearch"></li>
-                        <li class="main-header__nav-item">
-                            <NavBarSearch @onBlur="searchToggle" :show="onSearch"></NavBarSearch>
+                        <li class="main-header__nav-item" v-if="onSearch">
+                            <NavBarSearch @onBlur="searchClose" :show="onSearch"></NavBarSearch>
                         </li>
                         <li class="main-header__nav-item" v-show="!onSearch">
-                            <label for="header-search" class="form-label" @click="searchToggle"><font-awesome-icon icon="search"/></label></li>
+                            <label for="header-search" class="form-label" @click="searchToggle" @show="onSearch"><font-awesome-icon icon="search"/></label></li>
                         <li class="main-header__nav-item">
                             <div style="position: relative;">
                                 <NavBarDropDown :noties="noties" @onClose="notyClose" @onGo="notyGo" @signOut="signOut"></NavBarDropDown>
@@ -100,6 +96,10 @@ export default {
         }
     },
     methods: {
+        searchClose() {
+            this.onSearch = false;
+
+        },
         searchToggle() {
             this.onSearch = !this.onSearch;
         },
