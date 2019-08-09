@@ -16,19 +16,20 @@
                 <div class="layout">
                 <div class="inputQuestion__form">
                     <label for="title"><strong>Title</strong> - 제목을 입력시 유사한 질문을 표시해 줍니다.</label>
-                    <input type="text" id="title" v-model="inputTitle" class="questionForm" placeholder="Enter a Title" :class="{'openSearchBox' : inputTitle}">
+                    <input type="text" id="title" v-model="inputTitle" class="questionForm" placeholder="제목을 입력해 주세요." v-on:blur="onBlur" :class="{'openSearchBox' : toggleTitle}">
                     
                     <div class="searchtitle" v-if="!questionData">
 
                         <div class="searchtitle__head">
                             <span>Similar Questions List</span>
+                            <!-- <span><font-awesome-icon icon="window-close"/></span> -->
                         </div>
                         
                         <div class="searchtitle__content">
-                            <div :key="idx" v-for="(list, idx) in cardLists" >
-                                <router-link to='/'>
-                                    <CardAsk :list="list" />
-                                </router-link>
+                            <div :key="list.PK" v-for="(list) in cardLists" >
+                                <div @click="goDetail(list.PK)">
+                                    <CardAsk :list="list"/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -37,7 +38,7 @@
                     <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
 
                     <label for="hashtag"><strong>TagSearch</strong> - 태그를 검색합니다.</label>
-                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : inputHashtag}"  @keydown.enter="createHashtags(inputHashtag)">
+                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" v-on:blur="onBlurTags" :class="{'openSearchHBox' : toggleTags}"  @keydown.enter="createHashtags(inputHashtag)">
 
                     <div class="searchHashtag">
                         
@@ -72,7 +73,7 @@
                             <div class="btn btn__submit btn--md" v-if="this.$route.params.askQuestion" @click="createQuestions()">Submit</div>
                         </div>
                         <div class="submit-edit" v-if="this.$route.params.editQuestion">
-                            <router-link to="/code"><div class="btn btn__edit btn--md" @click="editQuestions()">{{inputTags}}Edit</div></router-link>
+                            <div class="btn btn__edit btn--md" @click="editQuestions()">Edit</div>
                         </div>
                     </div>
                     
@@ -84,7 +85,7 @@
                 <div class="sub-Box">
                     <h3 class="sub-Box__title">Hot HashTags</h3>
                     <div :key="idx" v-for="(item, idx) in Hot" class="sub-Box__list">
-                        <div class="btn">{{item.TITLE}}</div>
+                        <div class="btn" @click="goSearch(item)">{{item.TITLE}}</div>
                     </div>
                 </div>
                 <div class="sub-Box">
@@ -120,6 +121,8 @@ export default {
     data() {
         return{
             cardLists: [],
+            toggleTitle: false,
+            toggleTags: false,
 
             // 모든 tag의 정보를 불러옵니다.
             tagLists: [],
@@ -151,11 +154,33 @@ export default {
                     initialized: function () {  
                     },
                 },
-                width: '800'
+                width: '800',
+                height : '500',
             },
         }
     },
     methods: {
+        onChange() {
+            console.log('change')
+        },
+        onBlur() {
+            setTimeout(() => {
+                this.toggleTitle=false;
+            }, 100);
+            
+        },
+        onBlurTags() {
+            setTimeout(() => {
+                this.toggleTags=false;
+            }, 90);
+
+        },
+        goDetail(id) {
+            this.$router.push({
+                name : 'Questions',
+                params : {question_pk : id}
+            })
+        },
         createQuestions() {
             if (this.inputTitle.length == 0) {
                 alert("제목은 반드시 작성하셔야 합니다.")
@@ -189,6 +214,7 @@ export default {
                 }
             } 
         },
+
         editQuestions() {
             if (this.inputTitle.length == 0) {
                 alert("제목은 반드시 작성하셔야 합니다.")
@@ -205,7 +231,7 @@ export default {
                         const editdata = {
                             "topic_id": 1,
                             "article_id": this.questionData.QUESTION[0].PK,
-                            "beforeContent": this.questionData.VERSION[this.questionData.current].VERSION,
+                            "beforeContent": this.questionData.VERSION[this.questionData.current].PK,
                             "title": this.inputTitle,
                             "body": this.inputContent,
                             "user_id": this.$session.get('userPk'),
@@ -217,58 +243,72 @@ export default {
                             console.log(editdata)
                             console.log(res.data)
                             this.$router.push({
-                                "name": "Questions",
-                                params : {
-                                    question_pk : this.questionData.QUESTION[0].PK
-                                }
+                               "name": "Questions",
+                               params : {
+                                   question_pk : this.questionData.QUESTION[0].PK
+                               }
                             })
                         })
                     }    
                 }
             }
         },
-    clickHashtags(clicktag) {
-                if (!(this.inputTags.includes(clicktag.pk))) {
-                    this.myTags.push({'pk':clicktag.pk, 'Title':clicktag.title})
-                    this.inputTags = this.inputTags + "," + clicktag.pk
-                } else {
-                    alert("이미 포함된 태그입니다.")
-                }
-            this.inputHashtag = ''
-            this.tags = [] 
-    },
-    createHashtags(item) {
-        if ( this.inputHashtag.length == 0) {
-            alert("최소 1글자 이상 입력하여야 합니다.")
-        } 
-        if ( this.inputHashtag.length > 0) {
-        const data = {
-            'title' : this.inputHashtag, 
-            'user_id' : this.$session.get('userPk'), 
-        }
-        this.$axios.post('tags',data).then(res => {
-            if (!(this.inputTags.includes(res.data.data))) {
-                    this.myTags.push({'pk':res.data.data, 'Title':item})
-                    this.inputTags = this.inputTags + "," + res.data.data
-                } else {
-                    alert("이미 포함된 태그입니다.")
-                }
+
+        clickHashtags(clicktag) {
+                    if (!(this.inputTags.includes(clicktag.PK))) {
+                        this.myTags.push({'pk':clicktag.PK, 'Title':clicktag.TITLE})
+                        this.inputTags = this.inputTags + "," + clicktag.PK
+                    } else {
+                        alert("이미 포함된 태그입니다.")
+                    }
                 this.inputHashtag = ''
-                this.tags = []   
+                this.tags = [] 
+        },
+
+        createHashtags(item) {
+            if ( this.inputHashtag.length == 0) {
+                alert("최소 1글자 이상 입력하여야 합니다.")
+            } 
+            if ( this.inputHashtag.length > 0) {
+            const data = {
+                'title' : this.inputHashtag, 
+                'user_id' : this.$session.get('userPk'), 
+            }
+            this.$axios.post('tags',data).then(res => {
+                if (!(this.inputTags.includes(res.data.data))) {
+                        this.myTags.push({'pk':res.data.data, 'Title':item})
+                        this.inputTags = this.inputTags + "," + res.data.data
+                    } else {
+                        alert("이미 포함된 태그입니다.")
+                    }
+                    this.inputHashtag = ''
+                    this.tags = []   
+                })
+            }
+        },
+    
+        deleteTag(tag) {
+            this.myTags.pop(tag)
+            this.inputTags = this.inputTags.replace(tag.pk, '')
+            this.inputTags = this.inputTags.replace(",", '')
+            console.log(this.inputTags)
+            },
+
+         goSearch: function(item) {
+            this.$router.push({
+                name:'code',
+                query: {
+                    'order_by': 'PK',
+                    'page': 1,
+                    'search_text': '['+ item.TITLE.trim() + ']'
+                }
             })
         }
     },
-    
-    deleteTag(tag) {
-        this.myTags.pop(tag)
-        this.inputTags = this.inputTags.replace(tag.pk, '')
-        this.inputTags = this.inputTags.replace(",", '')
-        console.log(this.inputTags)
-        }
-    },
     computed: {
+        
 
-         currentRouteName() {
+        currentRouteName() {
             return this.$route.name;
         },
         checkContent() {
@@ -302,18 +342,26 @@ export default {
      },
     watch: {
         
-        inputHashtag (a, b) {
+        inputHashtag (newVal, oldVal) {
             let temp = [];
-            this.tagLists.forEach((tag) => {
-                if (tag.title.toLowerCase().includes(a.toLowerCase())) {
-                    temp.push(tag);
-                }
+            this.toggleTags=true;
+            this.$axios.get('tags/search/1?search_text=' + newVal).then(res => {
+                console.log(res)
+                this.tags = res.data.data.slice(0,10)
+                // this.cardLists = res.data.data.slice(0,10)
             })
+
+            // let temp = [];
+            // this.tagLists.forEach((tag) => {
+            //     if (tag.title.toLowerCase().includes(a.toLowerCase())) {
+            //         temp.push(tag);
+            //     }
+            // })
         this.tags = temp;
         },
 
         inputTitle (newVal, oldVal) {
-            let temp = [];
+            this.toggleTitle=true;
             this.$axios.get('questions/search?search_text=' + newVal).then(res => {
                 this.cardLists = res.data.data.slice(0,10)
             })

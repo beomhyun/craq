@@ -13,12 +13,12 @@
                     <div class="Code__filter-btn" :class="{'selected':query('order_by') =='PK'}" @click.prevent="sort('PK')">Latest</div>
                     <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='RELIABLE'}" @click.prevent="sort('RELIABLE')">Reliable</div>
                     <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='HELPFUL'}" @click.prevent="sort('HELPFUL')">Helpful</div>
-                    <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='USER_ANSWER'}" @click.prevent="sort('USER_ANSWER')">Answer</div>
+                    <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='ANSWERS'}" @click.prevent="sort('ANSWERS')">Answer</div>
                     <div class="Code__filter-btn" :class="{'selected':$route.query.order_by =='VIEWS'}" @click.prevent="sort('VIEWS')">View</div>
                 </div>  <!-- Filter /div -->
 
                 <div class="Code__list" v-if="loaded">
-                    <div :key="idx" v-for="(ask, idx) in asks" class="content">
+                    <div :key="ask.PK" v-for="(ask) in asks" class="content">
                         <card class="shadow" :list="ask"/>
                     </div>
                 </div>
@@ -39,7 +39,7 @@ import Spinner from '@/components/Spinner.vue'
 const Card = () => ({
     component: import('@/components/Card.vue'),
     loading: Spinner,
-    delay: 500
+    delay: 2000
 })
 import Ask from '@/components/AskQuestion.vue';
 import Paginator from '@/components/Paginator.vue';
@@ -81,12 +81,12 @@ export default {
                         this.asks = [];
                         return;
                     }
-                    console.log(res.data);
                     this.asks = res.data.data;
+                    console.log('dddddsssaaa', this.asks);
                     this.maxPage = res.data.max_page
                     this.curPage = this.query('page');
-                    this.loaded = true;
-                });
+                    this.loaded = true;  
+                    });
         },
         queryCheck(obj, key) {
             return Object.keys(obj).includes(key);
