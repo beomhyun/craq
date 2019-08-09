@@ -1,5 +1,5 @@
 <template>
-    <div class="post-layout">
+    <div class="post-layout" :class="{'selected-answer': is_active}">
         <div class="votecell post-layout--left">
             <ArticleVote v-if="loaded" :vote="QUESTION[0].HELPFUL" :ward="QUESTION[0].WARDS" :question="!QUESTION[0].IS_ANSWER" v-bind="$props" :is_active="is_active"></ArticleVote>
         </div>
@@ -46,9 +46,6 @@ export default {
         selectVersion(version) {
             this.$axios.put(`questions/${this.article_pk}/content/${this.VERSION[version].PK}`)
                 .then(res=> {
-                    console.log(this.article_pk);
-                    console.log(version);
-                    console.log(res.data);
                         alert('version selected')
                 })
         },
@@ -120,5 +117,8 @@ export default {
         flex-shrink: 1;
     }
 }
+.selected-answer {
+    background-color: var(--color-contrast-low);
 
+}
 </style>
