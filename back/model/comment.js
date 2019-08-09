@@ -84,7 +84,7 @@ const initializeEndpoints = (app) => {
              		FROM 		ARTICLE 		AS A
              		JOIN 		CONTENT 		AS C
              		ON 		A.CONTENT = C.PK
-             		WHERE 	C.PK = 440
+             		WHERE 	C.PK = ${i.content_id}
              ) AS B
              `;
             // content_id를 갖는 article의 정보를 가져온다.
@@ -105,6 +105,7 @@ const initializeEndpoints = (app) => {
                 VALUES  (${rows[0].CREATEDUSER},2,'${msg}','${info}')
                 `;
                 connection.query(sql, function(err, rows, fields) {
+                  // console.log(this.sql);
                   if (!err){
                     serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                     res.send({status: "success"});
