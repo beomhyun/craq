@@ -1,9 +1,14 @@
 <template>
     <div class="container">
         <!-- Headline -->
-        <div class="headline">
+        <div class="headline" v-if="this.$route.params.askQuestion">
             Ask-Question
         </div> <!-- headline -->
+        <div class="headline" v-if="this.$route.params.editQuestion">
+            Edit Question
+        </div> <!-- headline -->
+
+
        <!-- Body -->
        <div class="mainContent">
            
@@ -13,7 +18,7 @@
                     <label for="title"><strong>Title</strong> - 제목을 입력시 유사한 질문을 표시해 줍니다.</label>
                     <input type="text" id="title" v-model="inputTitle" class="questionForm" placeholder="Enter a Title" :class="{'openSearchBox' : inputTitle}">
                     
-                    <div class="searchtitle">
+                    <div class="searchtitle" v-if="!questionData">
 
                         <div class="searchtitle__head">
                             <span>Similar Questions List</span>
@@ -64,10 +69,10 @@
                     
                     <div class="submit">
                         <div class="submit-create">
-                            <div class="btn btn__submit btn--md" @click="createQuestions()">Submit</div>
+                            <div class="btn btn__submit btn--md" v-if="this.$route.params.askQuestion" @click="createQuestions()">Submit</div>
                         </div>
                         <div class="submit-edit" v-if="this.$route.params.editQuestion">
-                            <router-link to="/code"><div class="btn btn__edit btn--md" @click="editQuestions()">Edit</div></router-link>
+                            <router-link to="/code"><div class="btn btn__edit btn--md" @click="editQuestions()">{{inputTags}}Edit</div></router-link>
                         </div>
                     </div>
                     
@@ -108,6 +113,10 @@ export default {
         TagsCard,
         VueSimplemde
     },
+    props : [
+        'editQuestion',
+        'questionData'
+    ],
     data() {
         return{
             cardLists: [],
@@ -140,7 +149,6 @@ export default {
             config: {
                 events: {
                     initialized: function () {  
-                        console.log('initialized')
                     },
                 },
                 width: '800'
@@ -158,24 +166,66 @@ export default {
             if (this.inputTags.length == 0) {
                 alert("태그는 1개 이상 작성하여야 합니다.")
             }
-            if (this.inputTags.length > 0 && this.inputTags.length > 0 && this.inputContent.length > 0) {
-            const data = {
-                "topic_id": 1,
-                "article_id": 0,
-                "beforeContent": 0,
-                "title": this.inputTitle,
-                "body": this.inputContent,
-                "user_id": this.$session.get('userPk'),
-                "tags": this.inputTags
+            if (this.inputTags.length > 0 ){
+                if(this.inputTags.length > 0) { 
+                    if(this.inputContent.length > 0) {
+                        const data = {
+                            "topic_id": 1,
+                            "article_id": 0,
+                            "beforeContent": 0,
+                            "title": this.inputTitle,
+                            "body": this.inputContent,
+                            "user_id": this.$session.get('userPk'),
+                            "tags": this.inputTags
+                            }
+                        this.$axios.post('contents', data).then(res=> {
+                            console.log(res.data)
+                            this.$router.push({
+                            "name": "code"
+                            })
+                        })
+            
+                    }
                 }
-            this.$axios.post('contents', data).then(res=> {
-                console.log(res.data)
-            })
-            this.$router.push({
-                "name": "code"
-            })
+            } 
+        },
+        editQuestions() {
+            if (this.inputTitle.length == 0) {
+                alert("제목은 반드시 작성하셔야 합니다.")
             }
-           
+            if (this.inputContent.length == 0) {
+                alert("내용은 반드시 작성하셔야 합니다.")
+            }
+            if (this.inputTags.length == 0) {
+                alert("태그는 1개 이상 작성하여야 합니다.")
+            }
+            if (this.inputTags.length > 0) {
+                if (this.inputTags.length > 0) {
+                    if (this.inputContent.length > 0) {
+                        const editdata = {
+                            "topic_id": 1,
+                            "article_id": this.questionData.QUESTION[0].PK,
+                            "beforeContent": this.questionData.VERSION[this.questionData.current].VERSION,
+                            "title": this.inputTitle,
+                            "body": this.inputContent,
+                            "user_id": this.$session.get('userPk'),
+                            "tags": this.inputTags
+                            }
+                            console.log(editdata.tags)
+                            console.log("뭐가문제냐고옴ㄴ어ㅗㅁ뉴라ㅈ듓ㅁ닉ㅇ루ㅂㄷ미ㅓㅠㄹ마ㅓ뉴")
+                        this.$axios.post('contents', editdata).then(res=> {
+                            console.log(editdata)
+                            console.log(res.data)
+                            this.$router.push({
+                                "name": "Questions",
+                                params : {
+                                    question_pk : this.questionData.QUESTION[0].PK
+                                }
+                            })
+                        })
+                    }    
+                }
+            }
         },
     clickHashtags(clicktag) {
                 if (!(this.inputTags.includes(clicktag.pk))) {
@@ -212,12 +262,13 @@ export default {
     deleteTag(tag) {
         this.myTags.pop(tag)
         this.inputTags = this.inputTags.replace(tag.pk, '')
+        this.inputTags = this.inputTags.replace(",", '')
+        console.log(this.inputTags)
         }
     },
     computed: {
 
          currentRouteName() {
-            console.log(this.$route.name);
             return this.$route.name;
         },
         checkContent() {
@@ -226,14 +277,28 @@ export default {
         
     },
      mounted() {
+        if (this.questionData) {
+            console.log(this.questionData)
+            const getData = this.questionData.VERSION[this.questionData.current]
+            this.inputTitle = getData.TITLE
+            this.inputContent = getData.BODY
+            this.$axios.get(`hashtags/contents/${getData.PK}`).then(res=> {
+                for (let el in res.data) {
+                    this.inputTags = this.inputTags + "," + res.data[el].PK
+                    console.log(this.inputTags)
+                    this.myTags.push({'pk':res.data[el].PK, 'Title':res.data[el].TITLE})
+                }
+                })
+        }
         this.$axios.get('tags/weekly/topten').then(res => {
             this.Hot = res.data.data
         })
         this.$axios.get('tags').then(res=> {
            this.tagLists = res.data;
         })
-
-        this.inputContent = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 시도한 코드를 작성하십시오. <br> 4. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명 <br> ```<br>이곳에 코드를 작성하십시오.<br>```"
+        if (!this.questionData) {
+            this.inputContent = "1. 문제가 생긴 부분에 대한 요약 <br> 2. 문제 해결을 위해 당신이 시도한 것 들에 대한 설명 <br> 3. 시도한 코드를 작성하십시오. <br> 4. 오류 메시지를 포함하여 예상 결과 및 실제 결과 설명 <br> ```<br>이곳에 코드를 작성하십시오.<br>```"
+        }
      },
     watch: {
         

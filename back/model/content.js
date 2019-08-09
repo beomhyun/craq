@@ -68,8 +68,8 @@ const initializeEndpoints = (app) => {
    *    post:
    *      tags:
    *      - content
-   *      description: content를 작성, 질문&작성글일 땐 topic = 1 이며 , 질문글을 작성할 때는 article_id = 0 , 답변글을 작성할 때
-   *                   답변을 달을 질문 article id값을 입력
+   *      description: content를 작성, 질문&작성글일 땐 topic = 1 이며 , 질문글을 작성할 때는 article_id = 0
+   *                   최초 작성일 떄는 beforeContent = 0
    *      parameters:
    *      - in: body
    *        name: contentsbody
@@ -110,7 +110,7 @@ const initializeEndpoints = (app) => {
       } else {
         if (i.beforeContent == 0) { // 이전에 작성한 content가 없는 최초의 article 작성일 때
           sql =
-            `
+          `
           INSERT    INTO
           CONTENT   (TITLE,BODY,IMAGE,CREATEDUSER,UPDATEDUSER)
           VALUES    ('${i.title}','${i.body}','${i.image}',${i.user_id},${i.user_id})
@@ -128,7 +128,7 @@ const initializeEndpoints = (app) => {
                 if (!err) {
                   var articleId = rows.insertId; // 방금 생성된 article의 id값
                   sql = // 방금 생성된 article의 id값으로 갱신시켜준다.
-                    `
+                  `
                   UPDATE  CONTENT
                   SET     ARTICLE = ${articleId}
                   WHERE   PK      = ${contentId}
@@ -164,97 +164,114 @@ const initializeEndpoints = (app) => {
                       }
                       toArray(i.tags, decoded.pk, contentId);
 
-
-                      if (i.topic_id == 1 && i.article_id != 0) { // 작성한 글이 어느 질문에 대한 답변일 때
+                      if (i.topic_id == 1 && i.article_id != 0) { // 작성한 aticle이 답변 형식일때
                         sql =
-                          `
-                          SELECT    A.CREATEDUSER
-                                  , C.TITLE
-                          FROM      ARTICLE AS A
-                          JOIN      CONTENT AS C
-                          ON        A.CONTENT = C.PK
-                          WHERE     A.PK = ${i.article_id}
-                        `;
-
+                        `
+                        SELECT	
+                                ,A.ARTICLE AS QUESTION_PK
+                          		 , (
+                            		 	SELECT 	CONTENT
+                            		 	FROM 		ARTICLE
+                            		 	WHERE 	PK = A.ARTICLE
+                          		 ) QUESTION_CONTENT
+                          		 , A.PK 		 AS ANSWER_PK
+                          		 , C.PK 		 AS ANSWER_CONTENT
+                          		 , C.TITLE
+                          		 , A.CREATEDUSER
+                          		 , (
+                            		 	SELECT	USERNAME
+                            		 	FROM 		USER
+                            		 	WHERE 	PK = A.CREATEDUSER
+                          		 ) USERNAME
+                        FROM 		ARTICLE A
+                        JOIN 		CONTENT C
+                        ON 		  A.CONTENT    = C.PK
+                        WHERE   A.PK         = ${i.article_id}
+                        `;  // 질문글의 작성자를 얻어옴
                         connection.query(sql, function(err, rows, fields) {
-                          var created_user = rows[0].CREATEDUSER;
-                          var title = rows[0].TITLE;
-                          var msg = `${title} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
-
-                          sql =
-                          `
-                          INSERT  INTO
-                          NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT)
-                          VALUES  (${created_user},1,'${msg}',${i.article_id},${contentId})
-                          `;
-                          connection.query(sql, function(err, rows, fields) {
-                            if (!err) {
-                              serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                              //res.send({status: "success2"});
-                            } else {
-                              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                              //res.send({status: "fail4"});
-                            }
-                          });
-
-                          sql = // 답변을 작성한 직후에 답변 article의 article 컬럼을 찾는다.
-                          `
-                          SELECT  COUNT(*) COUNT
-                          FROM    WARD
-                          WHERE   ARTICLE = ${i.article_id}
-                          AND     IS_REMOVED = 0
-                          `;
-                          connection.query(sql, function(err, rows, fields) {
-                            console.log("sum="+rows[0].COUNT);
-                            if (!err && rows[0].COUNT > 0) {
-                              sql =
-                              `
-                              SELECT  USER
-                              FROM    WARD
-                              WHERE   ARTICLE = ${i.article_id}
-                              AND     IS_REMOVED = 0
-                              `;
-                              connection.query(sql, function(err, rows, fields) {
-                                if (!err) {
-                                  for (var i = 0; i < rows.length; i++) { // 와드를 설정한 사용자들에게 알림을 보낸다.
-                                    sql =
-                                    `
-                                    INSERT  INTO
-                                    NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT)
-                                    VALUES  (${rows[i].USER},1,'${msg}',${i.article_id}, ${contentId})
-                                    `;
-                                    connection.query(sql, function(err, rows, fields) {
-                                      if (!err) {
-                                        serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                      } else {
-                                        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                                      }
+                          if(!rows){
+                            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                            res.send({status:"fail"});
+                          }else{
+                            var msg = `${rows[0].TITLE} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+                            var qst_pk = rows[0].QUESTION_PK;
+                            var qst_content = rows[0].QUESTION_CONTENT;
+                            var ans_pk = rows[0].ANSWER_PK;
+                            var ans_content = rows[0].ANSWER_CONTENT;
+                            var info = `{question_pk:${qst_pk}, question_content:${qst_content}, answer_pk:${ans_pk}, answer_content:${ans_content}}`;
+  
+                            sql =
+                            `
+                            INSERT  INTO
+                            NOTICE  (USER,TYPE,BODY,INFO)
+                            VALUES  (${rows[0].CREATEDUSER},1,'${msg}','${info}')
+                            `;
+                            connection.query(sql, function(err, rows, fields) {
+                              if (!err) {
+                                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                              } else {
+                                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                              }
+                            });
+                            sql = // 답변을 작성한 직후에 질문 article에 와드를 설정한 사용자들의 수를 구한다.
+                            `
+                            SELECT  COUNT(*) COUNT
+                            FROM    WARD
+                            WHERE   ARTICLE    = ${qst_pk}
+                            AND     IS_REMOVED = 0
+                            `;
+                            connection.query(sql, function(err, rows, fields) {
+                              // console.log(qst_pk);
+                              if (!err && rows[0].COUNT > 0) {
+                                sql =
+                                `
+                                SELECT  USER
+                                FROM    WARD
+                                WHERE   ARTICLE    = ${qst_pk}
+                                AND     IS_REMOVED = 0
+                                `;
+                                connection.query(sql, function(err, rows, fields) {
+                                  if (!err) {
+                                    for (var i = 0; i < rows.length; i++) { // 와드를 설정한 사용자들에게 알림을 보낸다.
+                                      sql =
+                                      `
+                                      INSERT  INTO
+                                      NOTICE  (USER,TYPE,BODY,INFO)
+                                      VALUES  (${rows[i].USER},1,'${msg}','${info}')
+                                      `;
+                                      connection.query(sql, function(err, rows, fields) {
+                                        if (!err) {
+                                          serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                        } else {
+                                          serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                        }
+                                      });
+                                    }
+                                    serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                    res.send({
+                                      status: "success",
+                                      msg: "insert notice2",
+                                    });
+                                  } else {
+                                    serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                    res.send({
+                                      status: "fail",
+                                      msg: "select user err"
                                     });
                                   }
-                                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                  res.send({
-                                    status: "success",
-                                    msg: "insert notice"
-                                  });
-                                } else {
-                                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                                  res.send({
-                                    status: "fail",
-                                    msg: "select user err"
-                                  });
-                                }
-                              });
-                            } else {
-                              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                              res.send({
-                                status: "fail",
-                                msg: "select count user err1"
-                              });
-                            }
-                          });
+                                });
+                              } else {
+                                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                res.send({
+                                  status: "fail",
+                                  msg: "select count user err1"
+                                });
+                              }
+                            });
+                          }
+                          
                         });
                       } else {
-                        // console.log("sucesssssssssssss\n"+rows);
                         serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
                         res.send({
                           status: "success"
@@ -280,7 +297,7 @@ const initializeEndpoints = (app) => {
               });
             }
           });
-        } else { // 이전에 작성한 content가 있고 기존의 article이 존재할 때
+        } else { // 이전에 작성한 article이 존재할 때
           var version = 1;
           sql =
             `
@@ -307,103 +324,151 @@ const initializeEndpoints = (app) => {
           VALUES    (${i.article_id},${i.beforeContent},'${i.title}','${i.body}','${i.image}',${i.user_id},${i.user_id},${version})
           `;
           connection.query(sql, function(err, rows, fields) {
-            var contentId = rows.insertId;
+            var contentId = rows.insertId;  // 방금 생성한 content의 pk값
             if (!err) { // 기존 article의 content 값을 최신 contetn id값으로 변경, updatedUser 수정
-              sql =
-                `
-              UPDATE    ARTICLE
-              SET       CONTENT       =   ${rows.insertId}
-                      , UPDATEDUSER   =   ${i.user_id}
-              WHERE     PK            =   ${i.article_id}
-              `;
+
+              async function replaceAll(str, searchStr, replaceStr) {
+                return await str.split(searchStr).join(replaceStr);
+              }
+              async function toArray(tags, createdUser, contentId) {
+                tags = await replaceAll(tags, '[', '');
+                tags = await replaceAll(tags, ']', '');
+                tags = await replaceAll(tags, ' ', '');
+                // console.log(tags);
+                var arr = await tags.split(',');
+                for (var i in arr) {
+                  var sql = await `
+                  INSERT  INTO
+                  HASHTAG  ( CONTENT, HASHTAG , CREATEDUSER, UPDATEDUSER )
+                  VALUES
+                  `;
+                  sql += await ` (${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
+                  await connection.query(sql, function(err, rows, fields) {
+                    // console.log(this.sql);
+                    if (!err) {
+                      console.log("tag add successs");
+                    } else {
+                      console.log("tag add fail");
+                    }
+                  });
+                }
+              }
+              toArray(i.tags, decoded.pk, contentId);
+
+              // sql =
+              //   `
+              // UPDATE    ARTICLE
+              // SET       CONTENT       =   ${contentId}
+              //         , UPDATEDUSER   =   ${i.user_id}
+              // WHERE     PK            =   ${i.article_id}
+              // `;
               connection.query(sql, function(err, rows, fields) {
                 if (!err) {
-                  if (i.topic_id == 1 && i.article_id != 0) { // 작성한 글이 어느 질문에 대한 답변일 때
-                    sql =
-                      `
-                    SELECT    A.CREATEDUSER
-                            , C.TITLE
-                    FROM      ARTICLE AS A
-                    JOIN      CONTENT AS C
-                    ON        A.CONTENT     =   C.PK
-                    WHERE     A.PK          =   ${i.article_id}
+                  if (i.topic_id == 1 && i.article_id != 0) { // 작성한 article이 답변형식일 때
+                    sql =   // 질문 article의 작성자와 제목을 구한다.
+                    `
+                    SELECT	
+                          ,A.ARTICLE AS QUESTION_PK
+                           , (
+                              SELECT 	CONTENT
+                              FROM 		ARTICLE
+                              WHERE 	PK = A.ARTICLE
+                           ) QUESTION_CONTENT
+                           , A.PK 		 AS ANSWER_PK
+                           , C.PK 		 AS ANSWER_CONTENT
+                           , C.TITLE
+                           , A.CREATEDUSER
+                           , (
+                              SELECT	USERNAME
+                              FROM 		USER
+                              WHERE 	PK = A.CREATEDUSER
+                           ) USERNAME
+                    FROM 		ARTICLE A
+                    JOIN 		CONTENT C
+                    ON 		  A.CONTENT    = C.PK
+                    WHERE   A.PK         = ${i.article_id}
                     `;
-
                     connection.query(sql, function(err, rows, fields) {
-                      var created_user = rows[0].CREATEDUSER;
-                      var title = rows[0].TITLE;
-                      var msg = `${title} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
-
-                      sql =
-                      `
-                      INSERT  INTO
-                      NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT)
-                      VALUES  (${created_user},1,'${msg}',${i.article_id},${contentId})
-                      `;
-                      connection.query(sql, function(err, rows, fields) {
-                        if (!err) {
-                          serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                          //res.send({status: "success2"});
-                        } else {
-                          serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                          //res.send({status: "fail4"});
-                        }
-                      });
-
-                      sql = // 답변을 작성한 직후에 답변 article의 article 컬럼을 찾는다.
-                      `
-                      SELECT  COUNT(*) COUNT
-                      FROM    WARD
-                      WHERE   ARTICLE     =   ${i.article_id}
-                      AND     IS_REMOVED  =   0
-                      `;
-                      connection.query(sql, function(err, rows, fields) {
-                        if (!err && rows[0].COUNT > 0) {
-                          sql =
-                          `
-                          SELECT  USER
-                          FROM    WARD
-                          WHERE   ARTICLE     =  ${i.article_id}
-                          AND     IS_REMOVED  =  0
-                          `;
-                          connection.query(sql, function(err, rows, fields) {
-                            if (!err) {
-                              for (var i = 0; i < rows.length; i++) {
-                                sql =
-                                `
-                                INSERT  INTO
-                                NOTICE  (USER,TYPE,BODY,ARTICLE,CONTENT)
-                                VALUES  (${rows[i].USER},1,'${msg}',${i.article_id},${contentId})
-                                `;
-                                connection.query(sql, function(err, rows, fields) {
-                                  if (!err) {
-                                    serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                  } else {
-                                    serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                                  }
+                      if(!rows){
+                        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                        res.send({status:"fail"});
+                      }else{
+                        var msg = `${rows[0].TITLE} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+                        var qst_pk = rows[0].QUESTION_PK;
+                        var qst_content = rows[0].QUESTION_CONTENT;
+                        var ans_pk = rows[0].ANSWER_PK;
+                        var ans_content = rows[0].ANSWER_CONTENT;
+                        var info = `{question_pk:${qst_pk}, question_content:${qst_content}, answer_pk:${ans_pk}, answer_content:${ans_content}}`;
+                        sql =
+                        `
+                        INSERT  INTO
+                        NOTICE  (USER,TYPE,BODY,INFO)
+                        VALUES  (${rows[0].CREATEDUSER},1,'${msg}','${info}')
+                        `;
+                        connection.query(sql, function(err, rows, fields) {
+                          if (!err) {
+                            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                          } else {
+                            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                          }
+                        });
+  
+                        sql = // 답변을 작성한 직후에 와드를 설정한 사용자들의 수를 구한다.
+                        `
+                        SELECT  COUNT(*) COUNT
+                        FROM    WARD
+                        WHERE   ARTICLE     =   ${qst_pk}
+                        AND     IS_REMOVED  =   0
+                        `;
+                        connection.query(sql, function(err, rows, fields) {
+                          if (!err && rows[0].COUNT > 0) {
+                            sql =
+                            `
+                            SELECT  USER
+                            FROM    WARD
+                            WHERE   ARTICLE     =  ${qst_pk}
+                            AND     IS_REMOVED  =  0
+                            `;
+                            connection.query(sql, function(err, rows, fields) {
+                              if (!err) {
+                                for (var i = 0; i < rows.length; i++) {
+                                  sql =
+                                  `
+                                  INSERT  INTO
+                                  NOTICE  (USER,TYPE,BODY,INFO)
+                                  VALUES  (${rows[i].USER},1,'${msg}','${info}')
+                                  `;
+                                  connection.query(sql, function(err, rows, fields) {
+                                    if (!err) {
+                                      serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                    } else {
+                                      serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                    }
+                                  });
+                                }
+                                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                res.send({
+                                  status: "success",
+                                  msg: "insert notice"
+                                });
+                              } else {
+                                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                res.send({
+                                  status: "fail",
+                                  msg: "select user err"
                                 });
                               }
-                              serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                              res.send({
-                                status: "success",
-                                msg: "insert notice"
-                              });
-                            } else {
-                              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                              res.send({
-                                status: "fail",
-                                msg: "select user err"
-                              });
-                            }
-                          });
-                        } else {
-                          serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                          res.send({
-                            status: "fail",
-                            msg: "select count user err"
-                          });
-                        }
-                      });
+                            });
+                          } else {
+                            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                            res.send({
+                              status: "fail",
+                              msg: "select count user err"
+                            });
+                          }
+                        });
+                      }
+                      
                     });
                   } else {
                     // console.log("sucesssssssssssss\n"+rows);
@@ -507,6 +572,14 @@ const initializeEndpoints = (app) => {
         var sql =
           `
                     SELECT	PK
+                          ,(
+                            SELECT
+                              U.USERNAME
+                            FROM
+                              USER AS U
+                            WHERE
+                              C.CREATEDUSER = U.PK
+                          ) AS USERNAME
                           , TITLE
                     		  , BODY
                     	    , CONCAT("http://192.168.31.58:10123/",IMAGE) AS IMAGE
@@ -872,6 +945,7 @@ const initializeEndpoints = (app) => {
 
   app.post('/contents/notices', function(req, res) {
     var i = req.body;
+    console.log(i);
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -887,6 +961,7 @@ const initializeEndpoints = (app) => {
            AND      USER  = ${i.user_id}
          `;
         connection.query(sql, function(err, rows, fields) {
+          console.log(this.sql);
           if (!err && rows[0].TMP == 1) { // 해당 게시판의 관리자일 때
             sql =
               `
@@ -895,11 +970,49 @@ const initializeEndpoints = (app) => {
                VALUES   ('${i.title}','${i.body}','${i.image}',${i.user_id})
              `;
             connection.query(sql, function(err, rows, fields) {
+              console.log(this.sql);
+
               if (!err) {
-                // 해당 게시판을 구독중인 사용자들에게 알림처리
-                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                res.send({
-                  status: "success"
+                var contentId = rows.insertId; // 방금 생성된 content의 id값
+                sql =
+                `
+                INSERT    INTO
+                ARTICLE   (TOPIC,ARTICLE,CONTENT,CREATEDUSER,UPDATEDUSER,IS_ACTIVE)
+                VALUES    (${i.topic_id},0,${contentId},${i.user_id},${i.user_id},1)
+                `;
+                connection.query(sql, function(err, rows, fields) {
+                  console.log(this.sql);
+
+                  if(!err){
+                    var articleId = rows.insertId; // 방금 생성된 article의 id값
+                    console.log(rows);
+                    sql = // 방금 생성된 article의 id값으로 갱신시켜준다.
+                      `
+                    UPDATE  CONTENT
+                    SET     ARTICLE = ${articleId}
+                    WHERE   PK      = ${contentId}
+                    `;
+                    connection.query(sql, function(err, rows, fields) {
+                      console.log(this.sql);
+
+                      if(!err){
+                        serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                        res.send({
+                          status: "success"
+                        });
+                      }else{
+                        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                        res.send({
+                          status: "fail"
+                        });
+                      }
+                    });
+                  }else{
+                    serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                    res.send({
+                      status: "fail"
+                    });
+                  }
                 });
               } else {
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
