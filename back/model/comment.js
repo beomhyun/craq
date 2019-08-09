@@ -58,40 +58,47 @@ const initializeEndpoints = (app) => {
         connection.query(sql, function(err, rows, fields) {
           var commentId = rows.insertId;  // 방금 생성한 comment의 id값
           if (!err) { // content 작성자에게도 알림이 가도록 한다.
-            sql =
-            `
-            SELECT	A.ARTICLE AS QUESTION_PK
-              		 , (
-                		 	SELECT 	CONTENT
-                		 	FROM 		ARTICLE
-                		 	WHERE 	PK = A.ARTICLE
-              		 ) QUESTION_CONTENT
-              		 , A.PK 		 AS ANSWER_PK
-              		 , C.PK 		 AS ANSWER_CONTENT
-              		 , C.TITLE
-              		 , A.CREATEDUSER
-              		 , (
-                		 	SELECT	USERNAME
-                		 	FROM 		USER
-                		 	WHERE 	PK = A.CREATEDUSER
-              		 ) USERNAME
-            FROM 		ARTICLE A
-            JOIN 		CONTENT C
-            ON 	  	A.CONTENT = C.PK
-            WHERE 	C.PK = 298
-            WHERE 	C.PK = ${i.content_id}
-            `;
+             sql =
+             `
+             SELECT	IFNULL(QST_PK,-1) 		QST_PK
+             		 , IFNULL(QST_CONTENT,-1)  QST_CONTENT
+             		 , B.ANS_PK
+             		 , B.ANS_CONTENT
+             		 , B.CREATEDUSER
+             		 , B.TITLE
+             FROM(
+             		SELECT	(
+             					SELECT	PK
+             					FROM 		ARTICLE
+             					WHERE 	PK = A.ARTICLE
+             				 ) QST_PK
+             			    , (
+             			 		SELECT	CONTENT
+             			 		FROM 		ARTICLE
+             			 		WHERE 	PK = A.ARTICLE
+             			 	 ) QST_CONTENT
+             			 	 , A.PK 			AS ANS_PK
+             			 	 , A.CONTENT 	AS ANS_CONTENT
+             			 	 , A.CREATEDUSER
+             			 	 , C.TITLE
+             		FROM 		ARTICLE 		AS A
+             		JOIN 		CONTENT 		AS C
+             		ON 		A.CONTENT = C.PK
+             		WHERE 	C.PK = 440
+             ) AS B
+             `;
+            // content_id를 갖는 article의 정보를 가져온다.
+            // 가져온 article이 질문일 때는 QST_PK, QST_CONTENT가 -1로 나타남
             connection.query(sql, function(err, rows, fields) {
               var msg = rows[0].TITLE+" 에 댓글이 달렸습니다.";
-              var qst_pk = rows[0].QUESTION_PK;
-              var qst_content = rows[0].QUESTION_CONTENT;
-              var ans_pk = rows[0].ANSWER_PK;
-              var ans_content = rows[0].ANSWER_CONTENT;
-              var info = `{question_pk:${qst_pk}, question_content:${qst_content}, answer_pk:${ans_pk}, answer_content:${ans_content}}`;
+              var qst_pk = rows[0].QST_PK;
+              if(qst_pk == -1){
+                qst_pk = rows[0].ANS_PK;
+              }
+              var info = `{question_pk:${qst_pk}, comment_pk:${commentId}}`;
 
               if(!err && i.user_id != rows[0].CREATEDUSER){
                 sql =
-
                 `
                 INSERT  INTO
                 NOTICE  (USER,TYPE,BODY,INFO)
