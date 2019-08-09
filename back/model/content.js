@@ -189,7 +189,7 @@ const initializeEndpoints = (app) => {
                             var msg = `${rows[0].TITLE} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
                             var qst_pk = rows[0].QUESTION_PK;
                             var qst_content = rows[0].QUESTION_CONTENT;
-                            var info = `{question_pk:${qst_pk}, question_content:${qst_content}, answer_pk:${articleId}, answer_content:${contentId}}`;
+                            var info = `{'question_pk':${qst_pk}, 'question_content':${qst_content}, 'answer_pk':${articleId}, 'answer_content':${contentId}}`;
 
                             sql =
                             `
@@ -364,7 +364,7 @@ const initializeEndpoints = (app) => {
                       var qst_pk = rows[0].QUESTION_PK;
                       var qst_content = rows[0].QUESTION_CONTENT;
                       var ans_pk = rows[0].ANS_PK;
-                      var info = `{question_pk:${qst_pk}, question_content:${qst_content}, answer_pk:${ans_pk}, answer_content:${contentId}}`;
+                      var info = `{'question_pk':${qst_pk}, 'question_content':${qst_content}, 'answer_pk':${ans_pk}, 'answer_content':${contentId}}`;
                       sql =
                       `
                       INSERT  INTO

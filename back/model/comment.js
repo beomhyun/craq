@@ -95,7 +95,7 @@ const initializeEndpoints = (app) => {
               if(qst_pk == -1){
                 qst_pk = rows[0].ANS_PK;
               }
-              var info = `{question_pk:${qst_pk}, comment_pk:${commentId}}`;
+              var info = `{'question_pk':${qst_pk}, 'comment_pk':${commentId}}`;
 
               if(!err && i.user_id != rows[0].CREATEDUSER){
                 sql =
@@ -105,7 +105,6 @@ const initializeEndpoints = (app) => {
                 VALUES  (${rows[0].CREATEDUSER},2,'${msg}','${info}')
                 `;
                 connection.query(sql, function(err, rows, fields) {
-                  // console.log(this.sql);
                   if (!err){
                     serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                     res.send({status: "success"});
