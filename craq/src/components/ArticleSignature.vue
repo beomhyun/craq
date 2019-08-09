@@ -10,7 +10,7 @@
                     <span style="visibility: hidden;">|</span>
                     <a @click.prevent="left"><</a>
                     <span style="visibility: hidden;">|</span>
-                    <a @click.prevent class="none">{{current-2}}</a>
+                    <a @click.prevent="selectVersion" class="none">{{current-2}}</a>
                     <span style="visibility: hidden;">|</span>
                     <a @click.prevent="right">></a>
 
@@ -34,6 +34,10 @@ export default {
         ArticleSignatureCard
     },
     methods: {
+        selectVersion: function() {
+            this.$emit('selectVersion', this.current);
+
+        },
         right: function() {
             this.$emit('right');
         },

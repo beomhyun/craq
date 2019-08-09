@@ -1,12 +1,12 @@
 <template>
-    <div class="post-layout">
+    <div class="post-layout" :class="{'selected-answer': is_active}">
         <div class="votecell post-layout--left">
             <ArticleVote v-if="loaded" :vote="QUESTION[0].HELPFUL" :ward="QUESTION[0].WARDS" :question="!QUESTION[0].IS_ANSWER" v-bind="$props" :is_active="is_active"></ArticleVote>
         </div>
         <div class="postcell post-layout--right">
             <ArticleContent v-if="loaded" :body="VERSION[current].BODY"></ArticleContent>
             <ArticleTagList :content_pk="VERSION[current].PK"></ArticleTagList>
-            <ArticleSignature @right="up" @left="down" :current="current" :creator="creator" :editor="editor" :created="created" :edited="edited" :article_pk="article_pk"></ArticleSignature>
+            <ArticleSignature @right="up" @left="down" :current="current" :creator="creator" :editor="editor" :created="created" :edited="edited" :article_pk="article_pk" @selectVersion="selectVersion"></ArticleSignature>
             <div style="grid-column: 1 / 3;"></div>
             <div class="post-layout--right">
                 <ArticleComments v-bind="$props" :content_id="VERSION[current].PK"></ArticleComments>
@@ -43,6 +43,12 @@ export default {
         }
     },
     methods: {
+        selectVersion(version) {
+            this.$axios.put(`questions/${this.article_pk}/content/${this.VERSION[version].PK}`)
+                .then(res=> {
+                        alert('version selected')
+                })
+        },
         up: function() {
             if (this.current + 1 < this.VERSION.length) {
                 this.current++;
@@ -111,5 +117,8 @@ export default {
         flex-shrink: 1;
     }
 }
+.selected-answer {
+    background-color: var(--color-contrast-low);
 
+}
 </style>
