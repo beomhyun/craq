@@ -50,27 +50,32 @@ const initializeEndpoints = (app) => {
                 WHERE    TITLE LIKE '${i.title}'
               `;
         connection.query(sql, function(err, rows1, fields) {
-          if( rows1[0].COUNT == 0 ){ // 작성된 topic이 없다면
-            // console.log(rows[0].COUNT);
-            sql =
-            `
-              INSERT  INTO
-              TAG     ( TITLE, BODY, CREATEDUSER, UPDATEDUSER )
-              VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${decoded.pk}, ${decoded.pk} )
-            `;
-            connection.query(sql, function(err, rows2, fields) {
-              if(!err){
-                // console.log(rows2.insertId);
-                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                res.send({status: "success",data: rows2.insertId});
-              }else{
-                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                res.send({status: "fail"});
-              }
-            });
-          }else{
+          if(!rows1){
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            res.send({status: "fail", data: rows1[0].PK});
+            res.send({status: "fail"});
+          }else{
+            if( rows1[0].COUNT == 0 ){ // 작성된 topic이 없다면
+              // console.log(rows[0].COUNT);
+              sql =
+              `
+                INSERT  INTO
+                TAG     ( TITLE, BODY, CREATEDUSER, UPDATEDUSER )
+                VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${decoded.pk}, ${decoded.pk} )
+              `;
+              connection.query(sql, function(err, rows2, fields) {
+                if(!err){
+                  // console.log(rows2.insertId);
+                  serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                  res.send({status: "success",data: rows2.insertId});
+                }else{
+                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                  res.send({status: "fail"});
+                }
+              });
+            }else{
+              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+              res.send({status: "fail", data: rows1[0].PK});
+            }
           }
         });
       }
