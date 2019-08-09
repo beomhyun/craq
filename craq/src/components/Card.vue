@@ -19,7 +19,7 @@
             <div class="main__hashtag">
                 
                 
-                <span :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
+                <span :key="tag" v-for="(tag) in list.HASHTAG.split(',')">
                     <span  class="btn btn--sm btn--tag taglist" @click="goSearch(tag)">
                         {{tag}}
                     </span>
@@ -57,7 +57,7 @@ export default {
         VClamp
     },
     props: [
-        'list'
+        'list',
     ],
     data() {
         return {

@@ -1,7 +1,7 @@
 <template>
     <div class="answerMain">
         <div class="defalutQuestion">
-            <ArticleContent :body="body"></ArticleContent>
+            <ArticleContent v-if="loaded" :body="body"></ArticleContent>
         </div>
         <div class="answerForm">
             <label for="content"><strong>content</strong> - 문제 해결을 위해 시도한 것들을 상세하게 작성해주십시오.</label>
@@ -11,7 +11,15 @@
     </div>
 </template>
 <script>
-import ArticleContent from "@/components/ArticleContent.vue";
+// import ArticleContent from "@/components/ArticleContent.vue";
+import Spinner from "@/components/Spinner.vue";
+
+const ArticleContent = () => ({
+    component: import("@/components/ArticleContent.vue"),
+    loading: Spinner,
+    delay: 500
+});
+
 import VueFroala from 'vue-froala-wysiwyg';
 
 export default {
@@ -31,14 +39,15 @@ export default {
                     initialized: function () {  
                     },
                 },
-                width: '800'
+                width: '800',
+                height: '500',
+                placeholderText : '질문자를 위해 훌륭한 답변을 제시해 주세요!'
             },
-            inputContent : ''
+            inputContent : '',
+            loaded : false
         }
     },
     mounted() {
-        this.inputContent =  "이곳에 답변을 작성해 주십시오."
-        console.log(this.article_pk)
     },
     methods: {
         createAnswer() {

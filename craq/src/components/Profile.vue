@@ -16,7 +16,6 @@
             <div class="userInfo">
                 <div class="userInfo__name">
                     {{username}}
-                    {{user_pk}}
                 </div>
                 <div class="userInfo__list">
                     <div class="userInfo__list__btn" @click="toggleInformation"><span>Information</span></div>
@@ -245,6 +244,7 @@ export default {
                 if (data.USERNAME.toLowerCase() == this.$route.params.user_name.toLowerCase()) {
                     this.$axios.get('users/profile/' + data.PK).then(response => {
                         console.log(response)
+                        this.user_pk = data.PK
                         this.userData = response.data[0]
                         this.$axios.get('users/writing/' + data.PK).then(res => {
                             this.userActivityData = res.data.data
@@ -281,11 +281,20 @@ export default {
             }).catch(err=>console.log(err));
         },
         updateImage() {
-            this.$axios.get(`users/profile-image/${this.$session.get('userPk')}`).then(
-                res=>{
-                    this.imageFile = res.data.data;
-                }
-            )
+            if (this.$route.params.user_pk) {
+                this.$axios.get("users/profile-image/" + this.$route.params.user_pk).then(
+                    res=>{
+                        this.imageFile = res.data.data;
+                    }
+                )
+            }
+            if (!(this.$route.params.user_pk)){
+                this.$axios.get("users/profile-image/" + this.$session.get('userPk')).then(
+                    res=>{
+                        this.imageFile = res.data.data;
+                    }
+                )
+            }
         },
         editProfile() {
             const data = {
