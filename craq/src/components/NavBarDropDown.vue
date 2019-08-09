@@ -12,9 +12,9 @@
             <li class="menu__separator" role="separator"></li>
 
             <li class="menu__label-wrapper"><span class="menu__label">Noty</span></li>
-            <template v-for="noty in noties" v-key="noty.id">
+            <template v-for="noty in noties" v-key="noty.pk">
                 <li class="menu__item js-menu__item" role="menuitem">
-                    <Noty :noty="noty" @onClose="onClose(noty.pk)" @onGo="onGo(noty.id)"></Noty>
+                    <Noty :noty="noty" @onClose="onClose(noty.pk)" @onGo="onGo(noty.pk)"></Noty>
                 </li>
             </template>
 
@@ -51,8 +51,8 @@ export default {
         onClose(id) {
             this.$emit('onClose', id);
         },
-        onGo(id) {
-            this.$emit('onGo', id);
+        onGo(pk) {
+            this.$emit('onGo', pk);
         },
         signOut() {
             this.$emit('signOut');
