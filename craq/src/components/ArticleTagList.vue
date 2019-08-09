@@ -2,7 +2,7 @@
     <div class="post-taglist flex flex-column flex-gap-xs">
         <div class="d-block ps-relative">
             <template v-for="hashtag in hashtags">
-                <a class="post-tag" href="" rel="tag">
+                <a class="post-tag" href="" rel="tag" @click.prevent="goSearch(hashtag.TITLE)">
                     {{hashtag.TITLE}}
                 </a>
             </template>
@@ -31,6 +31,16 @@ export default {
         update: function() {
             this.$axios.get(`hashtags/contents/${this.content_pk}`).then(res=> {
                 this.hashtags = res.data; 
+            })
+        },
+        goSearch(tag) {
+            this.$router.push({
+                name: 'code',
+                query: {
+                    search_text: '[' + tag + ']',
+                    page: 1,
+                    order_by: 'PK'
+                }
             })
         }
     },

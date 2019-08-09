@@ -5,7 +5,6 @@
         <Landing v-if="!isLogin"/>
         <div class="transparent">{{isLogin}}</div>
         <Footer/>
-            <Tester></Tester>
     </div>
 </template>
 
@@ -17,7 +16,6 @@ import Default from '@/layouts/Default.vue';
 //end layouts
 import Landing from '@/views/Landing.vue';
 import Footer from '@/components/Footer.vue';
-import Tester from '@/components/tester.vue';
 
 export default {
     components: {
@@ -25,7 +23,6 @@ export default {
         Footer,
         Default,
         Landing,
-        Tester
     },
     data() {
         return {

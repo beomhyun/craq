@@ -2,7 +2,7 @@
     <div class="post-signature">
         <div class="user-info">
             <div class="user-action-time">
-                <a href="" title="show all edits">{{ primary ? 'edited' : 'created' }}
+                <a title="show all edits">{{ primary ? 'edited' : 'created' }}
                     <span title="2019-1-1">{{primary ? edited: created | formatDate}}</span>
                 </a>
             </div>
@@ -13,7 +13,7 @@
                 </a>
             </div>
             <div class="user-details">
-                <a href="">{{userName}}</a>
+                <a @click="goProfile">{{userName}}</a>
                 <div class="-flair">
                     <span class="reputation-score" title="reputation score">9,000</span>
                     <span title="helloworld">
@@ -42,27 +42,32 @@ export default {
         }
     },
     watch:{
-edited: function(val, oldVal) {
-this.update()
-}
+        edited: function(val, oldVal) {
+            this.update()
+        }
     },
     methods: {
         update() {
             if (this.primary) {
                 this.$axios.get(`users/${this.editor}`).then(res=>{
-                    this.userName = res.data[0].username;
-                    console.log(this.editor)
+                    this.userName = res.data.data[0].USERNAME;
                 })
             } else {
+                console.log('secondary')
                 this.$axios.get(`users/${this.creator}`).then(res=>{
-                    this.userName = res.data[0].username;
-                    console.log(this.creator)
+                    this.userName = res.data.data[0].USERNAME;
                 })
             }
+        },
+        goProfile() {
+            this.$router.push({
+                path: '/profile/' + this.userName
+            })
+
         }
     },
     mounted() {
-        this.update()
+        this.update();
     }
 }
 

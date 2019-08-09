@@ -1,6 +1,6 @@
 <template>
-    <form class="expandable-search" action="" :class="{'noShow': !show}" @submit.prevent="search">
-        <input class="form-control" type="search" name="q" id="header-search" @blur="onBlur" :class="{'noShow' : !show}" v-model="raw">
+    <form class="expandable-search" action="" :class="{'noShow': !show}" @submit.prevent="nothing">
+        <input class="form-control" type="search" name="q" id="header-search" @blur="onBlur" :class="{'noShow' : !show}" v-model="raw" @keyup.enter.prevent="search">
     </form>
 
 </template>
@@ -13,27 +13,21 @@ export default {
     ],
     methods: {
         onBlur() {
+            this.show = false;
             this.$emit('onBlur');
         },
         search() {
-            this.hashtags = [];
-            for(let i = 0; i < this.raw.length ; i++) {
-                if (this.raw[i] == "[") {
-                    let tag = "";
-                    for (let j = i+1; j < this.raw.length; j++) {
-                        if (this.raw[j] == "]") {
-                            this.hashtags.push(tag);
-                            break;
-                        } else {
-                            tag += this.raw[j];
-                        }
-                    }
+            this.$router.push({
+                name:"code",
+                query: {
+                    page: 1,
+                    order_by: "PK",
+                    search_text: this.raw
                 }
-            } 
-            this.q = this.raw;
-            this.hashtags.forEach((tag)=>{this.q = this.q.replace("[" + tag + "]","")});
-            console.log(this.hashtags);
-console.log(this.q);
+            })
+        },
+        nothing() {
+
         }
     },
     data() {

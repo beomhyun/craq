@@ -6,7 +6,7 @@
             </a>
         </h1>
         <div class="ask-question">
-            <a class="btn btn--primary"href="">Ask Question</a>
+            <a class="btn btn--primary" @click.prevent="goAsk">답변추가</a>
         </div>
     </div>
 
@@ -16,8 +16,31 @@
 export default {
     name: "CodeDetailQuestionHeader",
     props: [
-        "title"
-    ]
+        "title",
+        "article_pk"
+    ],
+    data() {
+        return {
+            current : 0,
+            VERSION: [{BODY:"loading"},{BODY:"loading"},{BODY:"loading"}],
+        }
+    },
+    methods: {
+        goAsk() {
+            this.$router.push({
+                'name': 'Answer',
+                params : { body : this.VERSION[this.current].BODY, article_pk : this.article_pk}
+            })
+        }
+
+    },
+    mounted() {
+        this.$axios.get(`questions/detail/${this.article_pk}`).then(res=>{
+            const data = res.data.data;
+            this.VERSION = this.VERSION.concat(data.VERSION);
+            this.current = this.QUESTION[0].VERSION+2;
+        })
+    },
 }
 </script>
 

@@ -7,8 +7,6 @@
                         <p class="main-header__logo__text"><span class="main-header__logo__text--accent">C</span>RAQ</p>
                     </router-link>
                 </div>
-
-
                 <nav class="main-header__nav">
                     <ul class="main-header__nav-list">
                         <li class="main-header__nav-item" v-if="!onSearch">
@@ -19,19 +17,17 @@
                                 <div aria-hidden="true" class="switch__marker"></div>
                             </div>
                             <!-- end switch -->
-
-
                         </li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/code" :class="{'main-header__nav-selected': currentRouteName == 'code'}">Code</router-link></li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
-                        <li class="main-header__nav-item" v-if="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch"><div class="main-header__nav-link" @click.prevent="goSearch()" :class="{'main-header__nav-selected': currentRouteName == 'code'}" style="cursor: pointer;">Code</div></li>
+                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
                         <li class="main-header__nav-item main-header__nav-divider" v-if="!onSearch"></li>
-                        <li class="main-header__nav-item">
-                            <NavBarSearch @onBlur="searchToggle" :show="onSearch"></NavBarSearch>
+                        <li class="main-header__nav-item" v-if="onSearch">
+                            <NavBarSearch @onBlur="searchClose" :show="onSearch"></NavBarSearch>
                         </li>
                         <li class="main-header__nav-item" v-show="!onSearch">
-                            <label for="header-search" class="form-label" @click="searchToggle"><font-awesome-icon icon="search"/></label></li>
+                            <label for="header-search" class="form-label" @click="searchToggle" @show="onSearch"><font-awesome-icon icon="search"/></label></li>
                         <li class="main-header__nav-item">
                             <div style="position: relative;">
                                 <NavBarDropDown :noties="noties" @onClose="notyClose" @onGo="notyGo" @signOut="signOut"></NavBarDropDown>
@@ -61,45 +57,49 @@ export default {
             onSearch: false,
             searchInput: '',
             noties: [
-                {
-                    id: 1,
-                    type: "Noty",
-                    title:"TITLE111",
-                    body: "bodies here",
-                    author: "user11",
-                    to: {name: 'home'},
-                    active: true
-                },
-                {
-                    id: 2,
-                    type: "Code",
-                    title:"titlenoty",
-                    body: "bodies here",
-                    author: "user22",
-                    to: {name: 'code'},
-                    active: true
-                },
-                {
-                    id: 3,
-                    type: "user",
-                    title:"TITLE",
-                    body: "bodies here",
-                    author: "user33",
-                    to: {name: 'freeboard'},
-                    active: true
-                },
-                {
-                    id: 4,
-                    title:"defaultType",
-                    body: "bodies here",
-                    author: "user44",
-                    to: {name: 'createtree'},
-                    active: false
-                },
+//                {
+//                    id: 1,
+//                    type: "Noty",
+//                    title:"TITLE111",
+//                    body: "bodies here",
+//                    author: "user11",
+//                    to: {name: 'home'},
+//                    active: true
+//                },
+//                {
+//                    id: 2,
+//                    type: "Code",
+//                    title:"titlenoty",
+//                    body: "bodies here",
+//                    author: "user22",
+//                    to: {name: 'code'},
+//                    active: true
+//                },
+//                {
+//                    id: 3,
+//                    type: "user",
+//                    title:"TITLE",
+//                    body: "bodies here",
+//                    author: "user33",
+//                    to: {name: 'freeboard'},
+//                    active: true
+//                },
+//                {
+//                    id: 4,
+//                    title:"defaultType",
+//                    body: "bodies here",
+//                    author: "user44",
+//                    to: {name: 'createtree'},
+//                    active: false
+//                },
             ]
         }
     },
     methods: {
+        searchClose() {
+            this.onSearch = false;
+
+        },
         searchToggle() {
             this.onSearch = !this.onSearch;
         },
@@ -109,6 +109,7 @@ export default {
         },
         notyClose(id) {
             this.noties = this.noties.filter(noty=>noty.id != id);
+            this.$axios.delete(`notices/${id}`).then(()=>this.getNoties())
         },
         notyGo(id) {
             let to = "/"
@@ -122,7 +123,26 @@ export default {
             this.$router.push(to);
             console.log('NavBar: notygo')
             this.noties.sort((a, b) => b.active-a.active);
+        },
+        getNoties() {
+            this.$axios.get(`notices/${this.$session.get('userPk')}`).then(res=> {
+                this.noties = res.data.data;
+            })
+
+        },
+        goSearch() {
+            this.$router.push({
+                name: "code",
+                query: {
+                    'order_by': 'PK',
+                    'search_text': "",
+                    'page': 1
+                }
+            })
         }
+    },
+    mounted() {
+        setInterval(this.getNoties, 3000);
     },
     computed: {
         currentRouteName() {
@@ -130,9 +150,9 @@ export default {
             return this.$route.name;
         },
         notiesLength() {
-            return this.noties.filter(noty=>noty.active).length;
+            return this.noties.filter(noty=>!noty.is_active).length;
         }
-    }
+    },
 }
 
 

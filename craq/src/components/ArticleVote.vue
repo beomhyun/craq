@@ -20,6 +20,11 @@
                 <font-awesome-icon :icon="['fas', 'check']" ></font-awesome-icon>
             </div>
         </button>
+        <button class="reset" v-if="canSelected" @click.prevent="selectThis">
+            <div class="btn-check--small-contrast">
+                <font-awesome-icon :icon="['far', 'check-circle']" ></font-awesome-icon>
+            </div>
+        </button>
     </div>
 </template>
 
@@ -27,7 +32,7 @@
 export default {
     name: "ArticleVote",
     props: [
-        "vote", "ward", "question", "selected", "article_pk", "is_active"
+        "vote", "ward", "question", "selected", "article_pk", "is_active", "canSelected",
     ],
     data() {
         return {
@@ -36,6 +41,12 @@ export default {
         }
     },
     methods: {
+        selectThis() {
+            this.$axios.put(`questions/${this.$route.params.question_pk}/answers/${this.article_pk}`).then(res=>{
+                this.$root.$emit('question_selected', this.article_pk);
+                alert("you've selected an answer")
+            })
+        },
         wardIt() {
             let data = {
                 "article_id": this.article_pk,
@@ -89,6 +100,16 @@ export default {
         this.$axios.get(`votes/${this.article_pk}/${this.$session.get('userPk')}`).then(res=>{
             this.voteStatus = res.data.data;
         })
+
+        this.$root.$on('question_selected', e=> {
+            if (e == this.article_pk) {
+                this.is_active = true; 
+            } else {
+                this.is_active = false;
+            }
+            this.canSelected = false;
+        })
+
     }
 }
 </script>
@@ -109,7 +130,12 @@ export default {
 .btn-check {
     &--small{
         font-size: 1.5rem;
-        color: var(--color-primary-dark)
+        color: var(--color-primary-dark);
+
+        &-contrast {
+            font-size: 1.5rem;
+            color: var(--color-contrast-medium);
+        }
     }
 }
 

@@ -5,12 +5,12 @@
                 <div class="post-menu">
                     <a href="">share</a>
                     <span style="visibility: hidden;">|</span>
-                    <a href="">improve this question</a>
+                    <span class="improve_btn" @click="codeImprove">improve this question</span>
                     <span style="visibility: hidden;">|</span>
                     <span style="visibility: hidden;">|</span>
                     <a @click.prevent="left"><</a>
                     <span style="visibility: hidden;">|</span>
-                    <a @click.prevent class="none">{{current-2}}</a>
+                    <a @click.prevent="selectVersion" class="none">{{current-2}}</a>
                     <span style="visibility: hidden;">|</span>
                     <a @click.prevent="right">></a>
 
@@ -28,17 +28,28 @@ import ArticleSignatureCard from '@/components/ArticleSignatureCard.vue';
 export default {
     name: "ArticleSignature",
     props: [
-        "current", "creator","created", "editor", "edited"
+        "current", "creator","created", "editor", "edited", "article_pk"
     ],
     components: {
         ArticleSignatureCard
     },
     methods: {
+        selectVersion: function() {
+            this.$emit('selectVersion', this.current);
+
+        },
         right: function() {
             this.$emit('right');
         },
         left: function() {
             this.$emit('left');
+        },
+        codeImprove() {
+            console.log("?")
+            this.$router.push({
+                "name": "Improve",
+                params : { question_pk : this.article_pk, editQuestion : true,}
+            })
         }
     }
 }
@@ -61,5 +72,10 @@ a {
 }
 .none {
     cursor: unset;
+}
+
+.improve_btn {
+    user-select: none;
+    cursor: pointer;
 }
 </style>
