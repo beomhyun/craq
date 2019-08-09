@@ -7,7 +7,7 @@
                 <p>Helpful</p>
             </div>
             <div class="info__column-right">
-                <p>{{0 + list.USER_ANSWER}}</p>
+                <p>{{0 + list.ANSWERS}}</p>
                 <p>{{0 + list.VIEWS}}</p>
                 <p>{{0 + list.HELPFUL}}</p>
             </div>

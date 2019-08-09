@@ -3,17 +3,15 @@
         <div class="profile">
             <div class="profile__content">
                 <figure class="profile__shape">
-                    <img src="@/assets/profile.jpg" alt="profile image" class="reset profile__img">
-                    <figcaption class="profile__caption">Hana Song</figcaption>
+                    <img :src="getSrc(fileName)" alt="profile image" class="reset profile__img">
+                    <figcaption class="profile__caption">{{fullName}}</figcaption>
                 </figure>
                 <div class="profile__text">
-                    <p class="profile__text-heading">D.VA: Nerf This!</p>
-                    <p class="profile__text-sub">Front-End</p>
+                    <p class="profile__text-heading">{{title}}</p>
+                    <p class="profile__text-sub">{{subTitle}}</p>
                     <p class="profile__text-icon">
-                    <font-awesome-icon :icon="['fab', 'html5']"></font-awesome-icon>
-                    <font-awesome-icon :icon="['fab', 'js-square']"></font-awesome-icon>
-                    <font-awesome-icon :icon="['fab', 'css3']"></font-awesome-icon>
-                    <font-awesome-icon :icon="['fab', 'node']"></font-awesome-icon>
+                    <template v-for="skill in skills">
+                    <font-awesome-icon :icon="skill"></font-awesome-icon></template>
                     </p>
                 </div>
 
@@ -27,8 +25,16 @@
 export default {
     name: "HeaderProfileCard",
     props: [
-        "img", "fullname", "icons", "body"
-    ]
+        "fileName", "fullName", "title", "subTitle", "skills"
+    ],
+    methods: {
+        getSrc(fileName) {
+            return require('../assets/' + fileName);
+        }
+
+    },
+    mounted() {
+    }
 }
 
 </script>
@@ -68,7 +74,7 @@ export default {
         top: 50%;
         left: 50%;
         height: 100%;
-        transform: translate(-50%, -50%) scale(1.4);
+        transform: translate(-50%, -50%) scale(1.7);
         transition: all .5s;
         backface-visibility: hidden;
     }
@@ -112,7 +118,7 @@ export default {
     }
 
     &:hover &__img {
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(1.4);
         filter: brightness(80%) blur(3px);
     }
 

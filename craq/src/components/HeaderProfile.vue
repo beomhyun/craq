@@ -5,19 +5,85 @@
         </div>
         <div class="grid">
             <div class="col12">
-                <HeaderProfileCard></HeaderProfileCard>
+                <HeaderProfileCard 
+                :fullName="'Hello World!'" 
+                :fileName="'ksg.jpg'" 
+                :title="'D.va~~~~~'"
+                :subTitle="'FRONT-END'"
+                :skills="[
+                ['fab', 'cuttlefish'],
+                ['fab', 'aws'],
+                ['fab', 'vuejs'],
+                ['fab', 'node-js'],
+                ['fab', 'js-square'],
+                ['fab', 'python'],
+                ['fab', 'html5'],
+                ['fab', 'css3-alt'],
+                ]"
+                ></HeaderProfileCard>
             </div>
             <div class="col12">
-                <HeaderProfileCard></HeaderProfileCard>
+                <HeaderProfileCard 
+                :fullName="'DJ. Koo'" 
+                :fileName="'kgh.jpg'"
+                :title="'NERF~~~~'"
+                 :subTitle="'HEAD / FRONT-END'"
+                 :skills="[
+                ['fab', 'aws'], 
+                ['fab', 'android']
+                ['fab', 'node-js'],
+                ['fab', 'vuejs'],
+                ['fab', 'cuttlefish'],
+                ['fab', 'js-square'],
+                ['fab', 'python'],
+                ['fab', 'html5'],
+                ['fab', 'css3-alt'],
+                 ]">
+                </HeaderProfileCard>
             </div>
             <div class="col12">
-                <HeaderProfileCard></HeaderProfileCard>
+                <HeaderProfileCard 
+                :fullName="'Jang The Secretary'" 
+                :fileName="'jsj.jpg'"
+                :title="'This'"
+                :subTitle="'BACK-END'"
+                 :skills="[
+                ['fab', 'google'],
+                ['fas', 'sticky-note'],
+                ['fas', 'palette'],
+                ['fas', 'teeth-open'],
+                ['fas', 'calculator']
+                 ]"></HeaderProfileCard>
             </div>
             <div class="col12">
-                <HeaderProfileCard></HeaderProfileCard>
+                <HeaderProfileCard 
+                :fullName="'KB'" 
+                :fileName="'kbh.jpg'"
+                :title="'Meka'"
+                :subTitle="'BACK-END'"
+                :skills="[
+                 ['fas', 'bed']
+                 ]"></HeaderProfileCard>
             </div>
             <div class="col12">
-                <HeaderProfileCard></HeaderProfileCard>
+                <HeaderProfileCard 
+                :fullName="'JJHJJ'" 
+                :fileName="'jjh.jpg'"
+                :title="'hello'"
+                :subTitle="'FRONT-END'"
+                :skills="[
+                ['fab', 'android'],
+                ['fab', 'java'],
+                ['fab', 'cuttlefish'],
+                ['fab', 'node-js'],
+                ['fab', 'js-square'],
+                ['fab', 'vuejs'],
+                ['fab', 'raspberry-pi'],
+                ['fab', 'php'],
+                ['fab', 'html5'],
+                ['fab', 'css3-alt'],
+                 ]"
+                ></HeaderProfileCard>
             </div>
         </div>
         
