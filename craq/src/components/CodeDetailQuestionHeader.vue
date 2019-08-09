@@ -22,7 +22,7 @@ export default {
     data() {
         return {
             current : 0,
-            VERSION: [],
+            VERSION: [{BODY:"loading"},{BODY:"loading"},{BODY:"loading"}],
         }
     },
     methods: {

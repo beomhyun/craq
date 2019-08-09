@@ -69,7 +69,9 @@ export default {
     },
     methods: {
         askQuestion : function() {
-            this.$router.push({name:'askquestion'});
+            this.$router.push({
+                name:'askquestion',
+                params : { askQuestion : true}});
             this.askquestion = true;
         },
         update() {
