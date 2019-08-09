@@ -96,6 +96,16 @@ export default {
         }
     },
     methods: {
+        sortNoty() {
+            let temp = [];
+            for (let i = this.noties.length-1; i >= 0; i--) {
+                if (this.noties[i].is_active) {
+                    temp.push(this.noties[i]);
+                    this.noties.splice(i, 1);
+                }
+            }
+            this.noties.push(...temp);
+        },
         searchClose() {
             this.onSearch = false;
 
@@ -113,20 +123,25 @@ export default {
         },
         notyGo(id) {
             let to = "/"
-            for (let i = 0; i < this.noties.length; i++) {
-                if (this.noties[i].id == id) {
-                    this.noties[i].active = false;
-                    to = this.noties[i].to
+            let targetNoty = null;
+            let i = 0
+            for (i = 0; i < this.noties.length; i++) {
+                if (this.noties[i].pk == id) {
+                    targetNoty = this.noties[i];
+                    //this.noties[i].is_active = 1;
+                    //to = this.noties[i].to
                     break;
                 }
             }
-            this.$router.push(to);
-            console.log('NavBar: notygo')
-            this.noties.sort((a, b) => b.active-a.active);
+            this.$axios.put(`notices/checks/${id}`).then(()=> {
+                this.noties[i].is_active = 1;
+                this.$router.push(`/code/${JSON.parse(targetNoty.info).question_pk}`);
+            })
         },
         getNoties() {
             this.$axios.get(`notices/${this.$session.get('userPk')}`).then(res=> {
                 this.noties = res.data.data;
+                this.sortNoty();
             })
 
         },
