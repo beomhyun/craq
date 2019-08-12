@@ -107,6 +107,203 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
+   *  /articles/questions/{user_id}/{page}:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 프로필화면에서 유저가 작성한 질문글중에서 page위치에 해당하는 질문글들을 보여준다.
+   *      parameters:
+   *      - name: user_id
+   *        in: path
+   *        type: integer
+   *        description: user의 id값
+   *      - name: page
+   *        in: path
+   *        type: integer
+   *        description: 보여줄 위치의 page값
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/articles/questions/:user_id/:page', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        sql =
+        `
+        SELECT    COUNT(*) COUNT
+        FROM      ARTICLE A
+        JOIN      CONTENT C
+        ON        A.CONTENT       =   C.PK
+        WHERE     A.IS_REMOVED    =   0
+        AND       A.ARTICLE       =   0
+        AND       A.CREATEDUSER   =   ${req.params.user_id}
+        `;
+        connection.query(sql, function(err, rows, fields) {
+          if(!err){
+            const QST_PER_PAGE = 5;
+            var totalArticle = rows[0].COUNT;
+            var totalPage = parseInt(totalArticle/QST_PER_PAGE);
+            if(totalArticle > totalPage * QST_PER_PAGE){
+              totalPage++;
+            }
+            if(totalArticle > 0){
+              sql =
+              `
+              SELECT	A.PK,
+                      C.PK,
+                      C.TITLE,
+                      (
+                        SELECT	COUNT(*)
+                        FROM 		VIEW
+                        WHERE 	ARTICLE = A.PK
+                      ) VIEW,
+                      IFNULL
+                      (
+                        (
+                          SELECT	SUM(GOOD)
+                          FROM 		VOTE
+                          WHERE 	ARTICLE = A.PK
+                        ), 0
+                      ) VOTE
+              FROM 		ARTICLE A
+              JOIN 		CONTENT C
+              ON 		  A.CONTENT       =   C.PK
+              WHERE   A.IS_REMOVED    =   0
+              AND     A.ARTICLE       =   0
+              AND     A.CREATEDUSER   =   ${req.params.user_id}
+              LIMIT   ${(req.params.page-1)*QST_PER_PAGE}, ${QST_PER_PAGE}
+              `;
+              connection.query(sql, function(err, rows, fields) {
+                if (!err) {
+                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                  res.send({status: "success",data:rows, maxPage:totalPage});
+                } else {
+                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                  res.send({status: "fail"});
+                }
+              });
+            }else{  // 데이터가 없을 때
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({status: "fail", msg: "do not exist data"});
+            }
+          }else{
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }
+        });
+      }
+    });
+  });
+
+  /**
+   * @swagger
+   *  /articles/answers/{user_id}/{page}:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: 프로필화면에서 유저가 작성한 답변글중에서 page위치에 해당하는 답변글들을 보여준다.
+   *      parameters:
+   *      - name: user_id
+   *        in: path
+   *        type: integer
+   *        description: user의 id값
+   *      - name: page
+   *        in: path
+   *        type: integer
+   *        description: 보여줄 위치의 page값
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/articles/answers/:user_id/:page', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        sql =
+        `
+        SELECT    COUNT(*) COUNT
+        FROM      ARTICLE A
+        JOIN      CONTENT C
+        ON        A.CONTENT       =   C.PK
+        WHERE     A.IS_REMOVED    =   0
+        AND       A.ARTICLE       !=   0
+        AND       A.CREATEDUSER   =   ${req.params.user_id}
+        `;
+        connection.query(sql, function(err, rows, fields) {
+          if(!err){
+            const QST_PER_PAGE = 5;
+            var totalArticle = rows[0].COUNT;
+            var totalPage = parseInt(totalArticle/QST_PER_PAGE);
+            if(totalArticle > totalPage * QST_PER_PAGE){
+              totalPage++;
+            }
+            if(totalArticle > 0){
+              sql =
+              `
+              SELECT	A.PK,
+                      C.PK,
+                      C.TITLE,
+                      (
+                        SELECT	COUNT(*)
+                        FROM 		VIEW
+                        WHERE 	ARTICLE = A.PK
+                      ) VIEW,
+                      IFNULL
+                      (
+                        (
+                          SELECT	SUM(GOOD)
+                          FROM 		VOTE
+                          WHERE 	ARTICLE = A.PK
+                        ), 0
+                      ) VOTE
+              FROM 		ARTICLE A
+              JOIN 		CONTENT C
+              ON 		  A.CONTENT       =   C.PK
+              WHERE   A.IS_REMOVED    =   0
+              AND     A.ARTICLE       !=   0
+              AND     A.CREATEDUSER   =   ${req.params.user_id}
+              LIMIT   ${(req.params.page-1)*QST_PER_PAGE}, ${QST_PER_PAGE}
+              `;
+              connection.query(sql, function(err, rows, fields) {
+                if (!err) {
+                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                  res.send({status: "success",data:rows, maxPage:totalPage});
+                } else {
+                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                  res.send({status: "fail"});
+                }
+              });
+            }else{  // 데이터가 없을 때
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({status: "fail", msg: "do not exist data"});
+            }
+          }else{
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }
+        });
+      }
+    });
+  });
+
+
+  /**
+   * @swagger
    *  /articles/answers:
    *    get:
    *      tags:
@@ -1408,14 +1605,14 @@ const initializeEndpoints = (app) => {
               res.send({
                 status: "fail",
                 data: "nowpage > maxpage"
-              });            
+              });
             }
             else{
               var page = (nowpage - 1) * perpage;
               var json= {};
               json.nowpage = nowpage;
               json.max_page = max_page;
-              sql = 
+              sql =
                     `
                     SELECT
                             *
@@ -1495,8 +1692,8 @@ const initializeEndpoints = (app) => {
                   sql +=  ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `;
                 }
                 sql +=  `ORDER BY ${req.query.order_by} DESC LIMIT ${page}, ${perpage}`;
-                        
-                          
+
+
               connection.query(sql, function(err, rows2, fields) {
                 if (!err) {
                   serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
@@ -1515,7 +1712,7 @@ const initializeEndpoints = (app) => {
               });
             }
             }
-            
+
 
           } else {
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
@@ -1614,14 +1811,14 @@ const initializeEndpoints = (app) => {
             A.ANSWER
           FROM
             ARTICLE AS A
-          WHERE 
+          WHERE
             A.PK = ${req.params.questionId}
           `;
         connection.query(sql, function(err, preanswer, fields) {
           if (!err) {
             sql =
                   `
-                  UPDATE 
+                  UPDATE
                     ARTICLE
                   SET
                     IS_ACTIVE = 0
@@ -1632,7 +1829,7 @@ const initializeEndpoints = (app) => {
               if(!err){
                 sql =
                       `
-                      UPDATE 
+                      UPDATE
                         ARTICLE
                       SET
                         ANSWER = ${req.params.answerId}
@@ -1643,7 +1840,7 @@ const initializeEndpoints = (app) => {
                     if(!err){
                       sql =
                           `
-                          UPDATE 
+                          UPDATE
                             ARTICLE
                           SET
                             IS_ACTIVE = 1
@@ -1723,9 +1920,9 @@ const initializeEndpoints = (app) => {
               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
               res.send({status: "fail", data: "received the wrong data "});
             }else{
-              sql = 
+              sql =
                     `
-                    UPDATE 
+                    UPDATE
                       ARTICLE AS A
                     SET
                       A.CONTENT = ${req.params.contentId}
@@ -1861,7 +2058,7 @@ const initializeEndpoints = (app) => {
             JOIN      CONTENT AS C
             ON        A.CONTENT = C.PK
             WHERE     A.IS_REMOVED = 0
-                      AND A.TOPIC = ${req.query.topic_id} 
+                      AND A.TOPIC = ${req.query.topic_id}
             `;
             sql+=keyword;
             sql+= `LIMIT ${(i.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}`;
@@ -1911,7 +2108,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var sql = 
+        var sql =
                   `
                   SELECT      ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
                                 ROWNUM
