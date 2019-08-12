@@ -1,6 +1,7 @@
 <template>
   <div class="free-detail">
     <div class="header">
+      <h1 style="text-align: center;">{{topicTitle}} 게시판</h1>
       <h2>{{info.TITLE}}</h2>
       <!-- <p>{{info.CREATED_AT}}</p> -->
       <p>Posted by {{info.USERNAME}}, <time itemprop=info.CREATED_AT datetime=info.CREATED_AT>{{info.CREATED_AT|formatDate}}</time></p>
@@ -86,9 +87,18 @@ export default {
       answer : "",
       articleID : this.id,
       voteStatus: 0,
+      topicTitle: '',
     }
   },
   created() {
+    this.$axios
+    .get(`topics/pk/${this.topic}`)
+    .then((res) => {
+      var title = res.data;
+      // console.log(title.data[0]);
+      this.topicTitle = title.data[0].TOPIC;
+      // this.loaded = true;
+    });
 
     this.$axios
     .get(`contents/articles/${this.articleID}`)
