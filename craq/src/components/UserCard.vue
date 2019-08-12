@@ -92,7 +92,6 @@ export default {
             }
         },
         goProfile() {
-            console.log("왜안가니")
             this.$router.push({
                 'name': 'profile',
                 params : {user_name : this.userdata.USERNAME, user_pk : this.userdata.PK}

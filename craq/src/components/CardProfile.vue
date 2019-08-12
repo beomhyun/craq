@@ -27,7 +27,7 @@
 import VClamp from 'vue-clamp'
 
 export default {
-    name: 'Card',
+    name: 'CardProfile',
     components: {
         VClamp
     },
@@ -39,6 +39,8 @@ export default {
    
         }
     },
+    mounted() {
+    }
    
 }
 </script>

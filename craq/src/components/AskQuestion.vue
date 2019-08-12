@@ -205,9 +205,7 @@ export default {
                 this.$axios.post('contents', data).then(res=> {
                     this.$router.push({
                         "name": "Questions",
-                        params : {
-                            question_pk : this.questionData.QUESTION[0].PK
-                        }
+                        params : {question_pk : res.data.PK}
                     })
                 })
             } 
@@ -234,12 +232,18 @@ export default {
                     "tags": this.inputTags
                     }
                 this.$axios.post('contents', editdata).then(res=> {
-                    this.$router.push({
-                        "name": "Questions",
-                        params : {
-                            question_pk : this.questionData.QUESTION[0].PK
-                        }
+                    console.log(this.questionData.QUESTION[0].PK)
+                    console.log(this.questionData.VERSION[this.questionData.current].PK)
+                    this.$axios.put(`questions/${this.questionData.QUESTION[0].PK}/content/${this.questionData.VERSION[this.questionData.current].PK}`).then(res => {
+                        console.log("res",res)
+                        this.$router.push({
+                            "name": "Questions",
+                            params : {
+                                question_pk : this.questionData.QUESTION[0].PK
+                            }
+                        })
                     })
+                    
                 })
             }
         },
@@ -280,10 +284,9 @@ export default {
         },
     
         deleteTag(tag) {
-            this.myTags.pop(tag)
+            this.myTags = this.myTags.filter((el)=>el!=tag)
             this.inputTags = this.inputTags.replace(tag.pk, '')
             this.inputTags = this.inputTags.replace(",", '')
-            console.log(this.inputTags)
             },
 
          goSearch: function(item) {
@@ -310,14 +313,12 @@ export default {
     },
      mounted() {
         if (this.questionData) {
-            console.log(this.questionData)
             const getData = this.questionData.VERSION[this.questionData.current]
             this.inputTitle = getData.TITLE
             this.inputContent = getData.BODY
             this.$axios.get(`hashtags/contents/${getData.PK}`).then(res=> {
                 for (let el in res.data) {
                     this.inputTags = this.inputTags + "," + res.data[el].PK
-                    console.log(this.inputTags)
                     this.myTags.push({'pk':res.data[el].PK, 'Title':res.data[el].TITLE})
                 }
                 })
@@ -338,7 +339,6 @@ export default {
             let temp = [];
             if (newVal.length > 0) { this.toggleTags=true; }
             this.$axios.get('tags/search/1?search_text=' + newVal).then(res => {
-                console.log(res)
                 this.tags = res.data.data.slice(0,10)
                 // this.cardLists = res.data.data.slice(0,10)
             })

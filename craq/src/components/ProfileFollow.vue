@@ -6,13 +6,13 @@
             <div class="follow__filter-btn" @click="toggleFollower" :class="{'selected' : setFollower}">Follower</div>
         </div>
 
-        <div class="follow__list following" v-show="setFollowing">
+        <div class="follow__list following" v-if="setFollowing">
             <div :key="following.PK" v-for="following in followings" class="cardlist">
                 <UserCard :following="following.PK"/>
             </div>
         </div>
 
-        <div class="follow__list follower"  v-show="setFollower">
+        <div class="follow__list follower"  v-if="setFollower">
             <div :key="follower.PK" v-for="follower in followers" class="cardlist">
                 <UserCard :follower="follower.PK"/>
             </div>
