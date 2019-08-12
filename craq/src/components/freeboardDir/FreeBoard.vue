@@ -12,13 +12,7 @@ export default {
   components : {
     FreeHome
   },
-  created() {
-    // var id = this.$route.params.id
-    //get All FreeBoard
-    // axios.get('http://192.168.31.58:10123/api-docs/', {
-    //
-    // })
-  },
+  created() {},
 }
 
 </script>

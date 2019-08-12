@@ -56,11 +56,6 @@
                         <div class="information__content-details">
                             <strong>Region</strong>
                             <div>
-<!-- <<<<<<< HEAD -->
-                                <input class="editInput" v-show="Toggle.editRegion" v-model="Profiles.Region" @keydown.enter="Toggle.editRegion = !Toggle.editRegion">
-                                <span v-show="!Toggle.editRegion">{{ Profiles.Region }}</span> &nbsp;
-                                <font-awesome-icon icon="edit" class="editBtn" @click="Toggle.editRegion = !Toggle.editRegion"></font-awesome-icon>
-<!-- ======= -->
                                 <select class="editInput" v-show="toggleProfile" v-model="userData.region">
                                     <option class="editOption" value="대전" selected="selected">대전</option>
                                     <option class="editOption" value="서울" >서울</option>
@@ -68,7 +63,6 @@
                                     <option class="editOption" value="광주" >광주</option>
                                </select>
                                 <span v-show="!toggleProfile">{{ userData.region }}</span> &nbsp;
-<!-- >>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b -->
                             </div>
                         </div>
                         <div class="information__content-github">
@@ -109,12 +103,6 @@
                         <textarea class="selfintroduce__form" v-model="userData.intro" v-show="toggleProfile" autofocus></textarea>
                     </div>
                 </div>
-<<<<<<< HEAD
-
-            </div>
-
-            <ProfileActivity v-show="setActivity"/>
-=======
                 <div class="editAndSubmit" v-if="MyProfile">
                     <div class="btn btn--primary btn--lg" v-show="!toggleProfile" @click="toggleProfile = true">Edit</div>
                     <div class="btn btn--primary btn--lg" v-show="toggleProfile" @click="editProfile">Save</div>
@@ -123,7 +111,6 @@
             </div>
 
             <ProfileActivity v-if="setActivity" :userActivityData="userActivityData" :userData="userData.PK"/>
->>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
             <ProfileFollow class="follow" v-show="setFollow"/>
 
             <div class="Notify" v-show="setNotify">
@@ -238,31 +225,6 @@ export default {
                     active: true
                 },
             ],
-<<<<<<< HEAD
-            setInformation : true,
-            setActivity : false,
-            setFollow : false,
-            setNotify : false,
-            Profiles: {
-                    ssafyGrade : '',
-                    Major : '',
-                    SwGrade : '',
-                    Region : '',
-                    GitUrl : '',
-            },
-            Toggle: {
-                editSsafyGrade: false,
-                editMajor: false,
-                editSwGrade: false,
-                editRegion: false,
-                editGitUrl: false,
-                editSkill: false,
-                editIntroduce: false
-            }
-
-
-=======
->>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
         }
     },
     mounted() {
@@ -588,13 +550,9 @@ $--menu-width: 22rem;
 .selfintroduce {
     width: 100%;
     height: 200px;
-<<<<<<< HEAD
-    border: 1px solid var(--color-contrast-low);
-=======
     border: 1px solid var(--color-contrast-low);
     padding: var(--space-sm);
     font-size: var(--text-lg);
->>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
 
     &__form {
         width: 100%;

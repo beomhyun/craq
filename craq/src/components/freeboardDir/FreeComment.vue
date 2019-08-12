@@ -6,7 +6,7 @@
         <tr>
           <th scope="col" style="text-align : center;">{{comment.USERNAME}}</th>
           <th scope="col" >{{comment.BODY}}</th>
-          <th scope="col" style="text-align : center;">{{comment.CREATED_AT}}</th>
+          <th scope="col" style="text-align : center;"><time itemprop=comment.CREATED_AT datetime=comment.CREATED_AT>{{comment.CREATED_AT|formatDate}}</time></th>
         </tr>
       </thead>
     </table>

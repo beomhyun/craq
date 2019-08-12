@@ -8,8 +8,8 @@
               <button v-else class="btn--primary" @click="subscribe">Subscribe</button>
             </div>
           </div>
-          <div class="container">
-            <div style="column-count: 2; column-rule: dotted 1px #222;">
+          <div class="container my-ul">
+            <div>
               <ul v-for="allpost in all_tmp_data">
                 <li>
                   ({{allpost.TOPIC}})
@@ -19,13 +19,8 @@
                 </li>
               </ul>
             </div>
-            <!-- <div>
-              <button class="btn btn--primary btn--md">최신순</button>
-              <button class="btn btn--primary btn--md">조회순</button>
-            </div> -->
           </div>
           <FreeList :topic="this.$route.params.topic" :page='1' />
-        <!-- </div> -->
     </div>
 
 </template>
@@ -119,18 +114,6 @@ export default {
        this.$router.push({name: 'freedetail' , params: { id: data.PK, topic : this.$route.params.topic, page : 1}});
       // this.$router.push({name: 'freedetail' , params: { id: data.id, info : data}});
     },
-    newest: function(arr) {
-      // Set slice() to avoid to generate an infinite loop!
-      return arr.slice().sort(function(a, b) {
-        return a.position - b.position;
-      });
-    },
-    viewSort: function(arr) {
-      // Set slice() to avoid to generate an infinite loop!
-      return arr.slice().sort(function(a, b) {
-        return a.position - b.position;
-      });
-    }
   }
 }
 
@@ -207,5 +190,43 @@ $--card-main-height: 120px;
         background-color: var(--color-tertiary);
         margin: var(--space-xxxs);
         color: var(--color-on-tertiary);
+    }
+
+    .my-ul {
+      box-sizing: border-box;
+      column-count: 2;
+      column-rule: dotted 1px var(--color-parimary);
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          // border: 1px solid var(--color-surface);
+          margin-top: -1px;
+          padding: 12px;
+          font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
+          // border-bottom: 1px solid #ccc;
+          text-decoration: none;
+          // color: #000;
+          display: block;
+          width: 200px;
+
+          -webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
+          -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
+          -o-transition: font-size 0.3s ease, background-color 0.3s ease;
+          -ms-transition: font-size 0.3s ease, background-color 0.3s ease;
+          transition: font-size 0.3s ease, background-color 0.3s ease;
+        }
+
+        li:last-child {
+          border: none;
+        }
+
+        li:hover {
+          font-size: 30px;
+          // background: #f6f6f6;
+        }
+      }
     }
 </style>

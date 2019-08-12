@@ -101,7 +101,7 @@ export default {
     },
 
     mounted() {
-        
+
         this.userActivityData.QUESTION.forEach((el) => {
             this.$axios.get('questions/detail/' + el.PK).then(res => {
                 this.askData.push(res.data.data)
@@ -112,8 +112,8 @@ export default {
                 this.answerData.push(res.data.data)
             })
         });
-            
-        
+
+
         this.cardLists = [{
                     id: '1',
                     cardInfo:
@@ -158,11 +158,7 @@ export default {
             justify-content: center;
             align-items: center;
             font-size: var(--text-md);
-<<<<<<< HEAD
-            color: var(--color-contrast-low);
-=======
-            color: var(--color-contrast-high);            
->>>>>>> 08d8a080a82521ae8a33f1aa4fc05d73e4b47f8b
+            color: var(--color-contrast-high);
 
             border-radius: var(--radius-sm);
 

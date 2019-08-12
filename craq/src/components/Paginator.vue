@@ -9,7 +9,7 @@
             </li>
             <template v-for="i in renderSize" v-key="i+starter">
                 <li>
-                    <a href="#0" class="pagination__item" aria-label="Go to page 1" @click.prevent="$emit('clicked', i+starter)" :class="{'pagination__item--selected': i==curPage}">{{i + starter}}</a>
+                    <a href="#0" class="pagination__item" aria-label="Go to page 1" @click.prevent="$emit('clicked', i+starter)" :class="{'pagination__item--selected': i+starter==curPage}">{{i + starter}}</a>
                 </li>
             </template>
 

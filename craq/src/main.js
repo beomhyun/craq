@@ -17,13 +17,14 @@ Vue.use(VueFroala)
 //end Froala
 
 // font-awesome
+// font-awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret, faAddressCard, faSearch, faBell, faGlobe, faCheck, faExclamation} from '@fortawesome/free-solid-svg-icons'
-import { faBell as farBell } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-// import axios from 'axios';
+import { fas} from '@fortawesome/free-solid-svg-icons'
+import { far} from '@fortawesome/free-regular-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faUserSecret, faAddressCard, faSearch, faBell, faGlobe, farBell, faCheck, faExclamation);
+library.add(fas, far, fab);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 //end font awesome
 
@@ -31,6 +32,7 @@ Vue.component('font-awesome-icon', FontAwesomeIcon);
 //font awesome tester i tag  to svg
 import {dom} from '@fortawesome/fontawesome-svg-core';
 dom.watch()
+
 //font awesome tester
 
 //markdown View

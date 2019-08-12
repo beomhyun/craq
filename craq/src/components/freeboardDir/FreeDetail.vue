@@ -1,76 +1,62 @@
 <template>
-  <div>
-    <!-- <h1>Free Detail</h1> -->
-    <!-- <div class="board"> -->
+  <div class="free-detail">
+    <div class="header">
+      <h2>{{info.TITLE}}</h2>
+      <!-- <p>{{info.CREATED_AT}}</p> -->
+      <p>Posted by {{info.USERNAME}}, <time itemprop=info.CREATED_AT datetime=info.CREATED_AT>{{info.CREATED_AT|formatDate}}</time></p>
+    </div>
+    <div class="row">
+      <div class="column side">
+          <div class="voting-container">
+              <button class="reset btn-vote" @click="recommendBoard(1)" :class="{'color-primary': voteStatus == 1}">
+                  <font-awesome-icon :icon="{prefix: 'fas', iconName: 'chevron-up'}"></font-awesome-icon>
+              </button>
+              <div v-if="info.VOTE != null" class="vote-count" itemprop="upvoteCount" data-value=info.VOTE>
+                  {{info.VOTE}}
+              </div>
+              <div v-else class="vote-count" itemprop="upvoteCount" data-value=info.VOTE>
+                  0
+              </div>
+              <button class="reset btn-vote" @click="recommendBoard(-1)" :class="{'color-primary': voteStatus == -1}">
+                  <font-awesome-icon :icon="{prefix: 'fas', iconName: 'chevron-down'}"></font-awesome-icon>
+              </button>
+          </div>
+        <!-- </div> -->
+      </div>
 
-      <table class="table width-100%" cellpadding="0" cellspacing="0">
-        <thead style="text-align:left">
-          <tr>
-            <th class="th" scope="col" colspan="4">{{info.USERNAME}}</th>
-          </tr>
-          <tr>
-            <th scope="col" colspan="3">{{info.TITLE}}</th>
-            <th>
-              <!-- <tr> -->
-                <div class="voteBtn">
-                  <button id="_upvote" name="upVote" class="btn btn--primary up" @click="myVote = 1">^</button>
-                  <div v-if="info.VOTE > 0">{{info.VOTE}}</div>
-                  <div v-else>0</div>
-                  <button id="_downvote" name="downVote" class="btn btn--primary down" @click="myVote = -1">v</button>
-                </div>
-              <!-- </tr> -->
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="detail">
-            <th scope="row">DATE</th>
-            <td>{{info.CREATED_AT}}</td>
-            <th scope="row">VIEW</th>
-            <td>{{info.VIEW}}</td>
-          </tr>
-          <!-- <tr>
-            <th scope="col" colspan="4" class="hide"></th>
-          </tr> -->
-          <tr>
-            <td class="body" colspan="4">{{info.BODY}}</td>
-          </tr>
-          <tr v-if="info.IMAGE !== 'default_profile.png'">
-            <td colspan="4"><img class="preview" :src="info.IMAGE"></td>
-            <!-- <td colspan="4">{{imgData}}</td> -->
-          </tr>
-          <tr>
-            <td colspan="3"></td>
-            <td v-if="info.USERNAME === this.$session.get('username')">
-              <button class="btn btn--primary btn-lg" style="margin:3px" @click="goEditPage">Edit</button>
-              <button class="btn btn--primary btn-lg" style="margin:3px" @click="freeDelete">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    <!-- </div> -->
-    <!-- <h3>{{info.title}}</h3> -->
-    <!-- <router-view></router-view> -->
+      <div class="column middle">
+        <p v-if="info.IMAGE !== 'default_profile.png'" style="text-align : center;">
+          <img class="preview" :src="info.IMAGE" style="max-height : 500px;" align="center">
+        </p>
+        <p>{{info.BODY}}</p>
+      </div>
+    </div>
 
-    <!-- </div> -->
+    <div class="footer">
+      <p v-if="info.USERNAME === this.$session.get('username')">
+        <button class="btn btn--primary btn-lg" style="margin:3px" @click="goEditPage">Edit</button>
+        <button class="btn btn--primary btn-lg" style="margin:3px" @click="freeDelete">Delete</button>
+      </p>
+    </div>
+
     <div style="text-align : center">
       <h5 class="h5">Comments</h5>
       <div v-for="comment in comments">
         <FreeComment :comment="comment"/>
       </div>
-
       <form id="commentForm" @submit.prevent="sendComment" class="width-100%">
         <span>
           <input type="text" name="comment" v-model="answer" class="form-control">
           <button type="submit" class="btn btn--accent btn--md">Send</button>
         </span>
       </form>
-      <!-- <input type="text" name="answer" v-model="answer" class="form-control width-90%"/> -->
-      <!-- <button type="button" name="regist" class="btn btn--accent btn--md" @click="commentRegist">등록</button> -->
       <FreeList :topic="this.topic" :page='this.page'/>
     </div>
   </div>
 </template>
+<!-- 대댓글 -->
+<!-- <input type="text" name="answer" v-model="answer" class="form-control width-90%"/> -->
+<!-- <button type="button" name="regist" class="btn btn--accent btn--md" @click="commentRegist">등록</button> -->
 
 <script>
 import FreeComment from '@/components/freeboardDir/FreeComment.vue'
@@ -99,7 +85,7 @@ export default {
       comments : [],
       answer : "",
       articleID : this.id,
-      myVote : 0,
+      voteStatus: 0,
     }
   },
   created() {
@@ -112,6 +98,11 @@ export default {
     });
 
     this.listComments();
+
+    this.$axios.get(`votes/${this.articleID}/${this.$session.get('userPk')}`).then(res=>{
+        this.voteStatus = res.data.data;
+        console.log(this.voteStatus)
+    })
   },
   methods : {
     goEditPage() {
@@ -124,8 +115,23 @@ export default {
         this.$router.go(-1);
       })
     },
-    recommendBoard() {
-      console.log("recommendBoard")
+    recommendBoard(num) {
+      console.log("recommendBoard");
+      if (this.voteStatus) return alert('not allowed');
+      let data = {
+          article_id: this.articleID,
+          user_id : this.$session.get('userPk'),
+          good: num
+      }
+      this.$axios.post('votes', data).then((res) => {
+          if (num ==1) {
+              this.info.VOTE++;
+              this.voteStatus = 1;
+          } else {
+              this.info.VOTE--;
+              this.voteStatus = -1;
+          }
+      })
     },
     sendComment() {
       this.$axios
@@ -137,6 +143,7 @@ export default {
       })
       .then((res) => {
         this.listComments()
+        this.answer = ""
       })
     },
     listComments() {
@@ -146,42 +153,74 @@ export default {
         this.comments = res.data.data
         console.log(this.comments[0])
       });
-    }
-  }
+    },
+  },
+
 }
 
 
 </script>
 
 <style lang="scss" scoped>
-// .freedetail {
-//     border-collapse: collapse;
-//     text-align: left;
-//     line-height: 1.5;
-//     border-top: 1px solid #ccc;
-//     border-left: 3px solid #369;
-//     margin : 20px 10px;
-//
-//     &__th {
-//         width: 147px;
-//         padding: 10px;
-//         font-weight: bold;
-//         vertical-align: top;
-//         // color: #153d73;
-//         border-top: 1px solid #ccc;
-//         /* border-right: 1px solid #ccc; */
-//         /* border-bottom: 1px solid #ccc; */
-//
-//     }
-//     &__td {
-//         width: 349px;
-//         padding: 10px;
-//         vertical-align: top;
-//         border-top: 1px solid #ccc;
-//         /* border-right: 1px solid #ccc; */
-//         border-bottom: 1px solid #ccc;
-//     }
-// }
+.free-detail {
+  box-sizing: border-box;
+  margin: 0;
+
+  .header {
+    // background-color: #f1f1f1;
+    padding: 20px;
+    // text-align: center;
+  }
+
+  .column {
+    float: left;
+    padding: 10px;
+
+    .side {
+      width: 10%;
+      // float: left;
+
+      .voting-container {
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          text-align: center;
+      }
+      .btn-vote {
+          font-size: 1.5rem;
+          &--small {
+              font-size: 1.2rem;
+          }
+      }
+      .btn-check {
+          &--small{
+              font-size: 1.5rem;
+              color: var(--color-primary-dark)
+          }
+      }
+    }
+  }
+
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  @media screen and (max-width: 600px) {
+    .column.side, .column.middle {
+      width: 100%;
+    }
+  }
+
+  .footer {
+    // background-color: #f1f1f1;
+    padding: 10px;
+    text-align: center;
+  }
+
+}
+
 
 
 </style>

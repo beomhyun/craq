@@ -20,30 +20,26 @@
         <td v-html="notice.TITLE" @click="showDetail(notice)"></td>
         <!-- <td v-html="notice.title"><router-link :to="{ name: 'freedetail', params: {id : notice.id} }"></router-link></td> -->
         <td v-html="notice.USERNAME"></td>
-        <td v-html="notice.CREATED_AT"></td>
+        <td><time itemprop=notice.CREATED_AT datetime=notice.CREATED_AT>{{notice.CREATED_AT|formatDate}}</time></td>
         <td v-html="notice.VIEW"></td>
-        <td v-html="notice.VOTE"></td>
+        <td v-if="notice.VOTE != null" v-html="notice.VOTE"></td>
+        <td v-else>0</td>
       </tr>
-      <tr v-for="(board, idx) in sortedData">
+      <tr v-for="(board, idx) in topic_articles">
         <td v-if="isManager"><button class="btn btn--primary btn-lg" style="margin:3px" @click="postDelete(board.PK)">Delete</button></th>
         <td v-html="board.PK"></td>
         <td v-html="board.TITLE" @click="showDetail(board)"></td>
         <!-- <td v-html="board.title"><router-link :to="{ name: 'freedetail', params: {id : board.id} }"></router-link></td> -->
         <td v-html="board.USERNAME"></td>
-        <td v-html="board.CREATED_AT"></td>
+        <td><time itemprop=board.CREATED_AT datetime=board.CREATED_AT>{{board.CREATED_AT|formatDate}}</time></td>
         <td v-html="board.VIEW"></td>
-        <td v-html="board.VOTE"></td>
+        <td v-if="board.VOTE != null" v-html="board.VOTE"></td>
+        <td v-else>0</td>
       </tr>
       </tbody>
     </table>
     <div>
       <div class="pagination">
-            <!-- <button type="button" name="button" v-if="startPage > 0" @click="startPage = startPage - 10"><</button>
-
-            <ul v-for="index in totalpage">
-                <li v-html='index + startPage' @click='showPage(index + startPage)'></li>
-            </ul>
-            <button type="button" name="button" v-if="startPage < endPage/10" @click="startPage = startPage + 10">></button> -->
             <Paginator :chunkSize="5" :maxPage="endPage" :curPage="page" @clicked="showPage"></Paginator>
       </div>
     </div>
@@ -104,22 +100,7 @@ export default {
     // }
     created() {
       // alert(this.topic);
-      this.$axios
-      .get(`articles/${this.topic}/${this.page}`)
-      .then((res) => {
-        this.topic_articles = res.data.data;
-        this.endPage = res.data.maxPage
-        // if(this.startPage + this.pageSize < res.data.maxPage) {
-        //   this.startPage = parseInt((this.page / 10)) * 10
-        //   console.log(this.startPage)
-        //   this.totalpage = this.pageSize;
-        //   this.isMore = true;
-        // }else {
-        //   this.totalpage = res.data.maxPage % (this.pageSize+1);
-        //   this.isMore = false
-        // }
-        console.log(this.topic_articles)
-      });
+      this.freelistCall();
 
       this.$axios
       .get(`articles/notices/topics/${this.topic}`)
@@ -139,26 +120,30 @@ export default {
       });
     },
     methods : {
+      freelistCall() {
+        this.$axios
+        .get(`articles/${this.topic}/${(this.page)}`)
+        .then((res) => {
+          if(res.data.maxPage > 0) {
+            this.topic_articles = res.data.data;
+            this.endPage = res.data.maxPage;
+            console.log(this.topic_articles)
+          }
+        });
+      },
       boardwrite() {
         this.$router.push({name:'freewrite'});
         // this.$router.push({name:"write"});
       },
       showDetail(board) {
-        // this.$router.push({path: `detail/${board.PK}`, params: { id: `${board.PK}`, topic : `${this.topic}`}});
-        // console.log(this.$route.name);
-        if(this.$route.name !== "freedetail") {
-          this.$router.push({name: 'freedetail' , params: { id: `${board.PK}`, topic : `${this.topic}`, page : this.page}});
-        }else {
-          // console.log(this.$route.name)
-          this.$router.replace({name: 'freedetail' , params: { id: `${board.PK}`, topic : `${this.topic}`, page : this.page}});
-          // this.$router.go(1);
-        }
+        this.$router.push({name: 'freedetail' , params: { id: `${board.PK}`, topic : `${this.topic}`, page : this.page}});
       },
       postDelete(postPK) {
         this.$axios
         .delete(`articles/${postPK}`)
         .then((res) => {
-          this.$router.reload();
+          // this.$router.reload();
+          this.freelistCall();
           // this.loaded: true,
         })
       },
@@ -166,7 +151,12 @@ export default {
         this.$axios
         .get(`articles/searches?topic_id=${this.topic}&type_id=${this.selected}&word=${this.searcharticle}&page=1`)
         .then((res) => {
-          this.topic_articles = res.data.data;
+          if(res.data.data != null) {
+            this.topic_articles = res.data.data;
+          }else {
+            alert("검색 결과가 없습니다.!!")
+          }
+
         })
       },
       showPage(index) {
@@ -178,54 +168,10 @@ export default {
           this.page = index;
         })
       },
-      newest: function() {
-        // Set slice() to avoid to generate an infinite loop!
-        // alert("newest")
-        this.isNew = true
-        if(this.newtoggle) {
-            this.newtoggle = false;
-        }else {
-          this.newtoggle = true;
-        }
-      },
-      viewSort: function() {
-        this.isNew = false;
-        if(this.viewtoggle) {
-          this.viewtoggle = false;
-        }else {
-          this.viewtoggle = true;
-        }
-      },
       notice() {
         this.noticeToggle = !this.noticeToggle;
       }
     },
-    computed: {
-      sortedData : function() {
-        return this.topic_articles.sort((a,b) => {
-
-          if(this.isNew) {
-            if(this.newtoggle) {
-              return a.ROWNUM - b.ROWNUM
-            }else {
-              return b.ROWNUM - a.ROWNUM
-            }
-          }else {
-            if(this.viewtoggle) {
-              return a.VIEW - b.VIEW
-            }else {
-              return b.VIEW - a.VIEW
-            }
-          }
-        });
-      },
-      // this.showPage(this.page)
-    },
-    watch: {
-      newest() {},
-      viewSort() {},
-    }
-
 }
 </script>
 

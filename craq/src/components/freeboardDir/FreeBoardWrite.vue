@@ -15,7 +15,7 @@
       <div>
         <!-- <input type="text" name="filename" v-model="filename" readonly=true/> -->
         <div v-if="imageData.length > 0">
-          <img class="preview" :src="imgDir">
+          <img class="preview" :src="imgDir" style="max-height : 500px;">
         </div>
         <input type="file" @change="previewImage" accept="image/*" class="form-control" />
       </div>
@@ -66,7 +66,14 @@ export default {
   },
   methods : {
     addfreeBoard() {
-      if()
+      if(this.title.length < 1) {
+        alert("제목을 입력해 주세요~!")
+        return;
+      }
+      if(this.content.length < 1) {
+        alert("내용을 입력해 주세요~!")
+        return;
+      }
       if(this.isNotice) {
         this.$axios
         .post('contents/notices', {
