@@ -494,7 +494,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
@@ -541,7 +540,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
@@ -584,7 +582,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
@@ -679,7 +676,6 @@ const initializeEndpoints = (app) => {
                       AND ASK.ARTICLE = 0
                         AND ASK.TOPIC = 1
                      `;
-            // console.log(sql);
             connection.query(sql, function(err, rows, fields) {
               if (!err) {
                 serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
@@ -689,7 +685,6 @@ const initializeEndpoints = (app) => {
                 });
               } else {
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                // console.log('article insert err ', err);
                 res.send({
                   status: "fail",
                   data: err
@@ -733,7 +728,6 @@ const initializeEndpoints = (app) => {
       } else {
         var perpage = 20;
         var nowpage = req.params.now_page;
-        // console.log(page);
         var sql = `  SELECT
                         COUNT(*) AS TOTAL
                       FROM
@@ -745,12 +739,10 @@ const initializeEndpoints = (app) => {
         connection.query(sql, function(err, rows2, fields) {
           if (!err) {
             var max_page = parseInt(rows2[0].TOTAL / perpage) + 1;
-            // console.log(max_page);
             if (nowpage > max_page) {
               nowpage = max_page;
             }
             var page = (nowpage - 1) * perpage;
-            console.log(page);
             sql = ` SELECT
                         ASK.PK
                         ,CON.TITLE
@@ -816,7 +808,6 @@ const initializeEndpoints = (app) => {
                         AND ASK.TOPIC = 1
                     ORDER BY ${req.query.order_by} DESC
                     LIMIT ${page}, ${perpage} `;
-            // console.log(sql);
             connection.query(sql, function(err, rows, fields) {
               if (!err) {
                 serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
@@ -828,7 +819,6 @@ const initializeEndpoints = (app) => {
                 });
               } else {
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                // console.log('article insert err ', err);
                 res.send({
                   status: "fail",
                   data: err
@@ -877,7 +867,6 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, 0, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        // console.log("user pk   : " + decoded.pk);
         var json = {};
         var sql = `SELECT
                           A.PK
@@ -1016,7 +1005,6 @@ const initializeEndpoints = (app) => {
 
 
                   } else {
-                    // console.log('article  err ', err);
                     serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                     res.send({
                       status: "fail",
@@ -1025,7 +1013,6 @@ const initializeEndpoints = (app) => {
                   }
                 });
               } else {
-                // console.log('article  err ', err);
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                 res.send({
                   status: "fail",
@@ -1034,7 +1021,6 @@ const initializeEndpoints = (app) => {
               }
             });
           } else {
-            // console.log('article  err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({
               status: "fail",
@@ -1107,7 +1093,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('article  err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({
               status: "fail",
@@ -1238,17 +1223,13 @@ const initializeEndpoints = (app) => {
             nottag.push(arr[i].replace('金範賢', ''));
           }
         }
-        // console.log(tag);
-        // console.log(nottag);
         for (var i in tag) {
           sql += ` AND TAB.HASHTAG LIKE '${tag[i]}' `
         }
         for (var i in nottag) {
           sql += ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `
         }
-        // console.log(sql);
         connection.query(sql, function(err, rows, fields) {
-          console.log(this.sql);
           if (!err) {
             sql = `select count(*) as total from article where topic = 1`
             connection.query(sql, function(err, rows2, fields) {
@@ -1267,7 +1248,6 @@ const initializeEndpoints = (app) => {
               }
             });
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({
               status: "fail",
@@ -1405,18 +1385,14 @@ const initializeEndpoints = (app) => {
             nottag.push(arr[i].replace('金範賢', ''));
           }
         }
-        // console.log(tag);
-        // console.log(nottag);
         for (var i in tag) {
           sql += ` AND TAB.HASHTAG LIKE '%${tag[i]}%' `
         }
         for (var i in nottag) {
           sql += ` AND ((TAB.TITLE LIKE '%${nottag[i]}%') OR (TAB.BODY LIKE '%${nottag[i]}%')) `
         }
-        // console.log(sql);
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            // console.log(rows[0].TOTAL);
             if(rows[0].CHECKING == 0){
               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
               res.send({
@@ -1520,14 +1496,12 @@ const initializeEndpoints = (app) => {
                 }
                 sql +=  `ORDER BY ${req.query.order_by} DESC LIMIT ${page}, ${perpage}`;
                         
-              // setTimeout(function() {
-              //   //console.log(sql);
-              // }, 100);
                           
               connection.query(sql, function(err, rows2, fields) {
-                console.log(this.sql);
                 if (!err) {
                   serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                  json.SEARCH_TAGS = tag;
+                  json.SEARCH_TEXT = nottag;
                   json.data = rows2;
                   json.status = "success";
                   res.send(json);
@@ -1544,7 +1518,6 @@ const initializeEndpoints = (app) => {
             
 
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({
               status: "fail",
@@ -1818,16 +1791,20 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
     } else {
       var keyword = '';
+      var word = '';
+      if(i.word) {
+        word = i.word;
+      }
       switch(parseInt(i.type_id)){
         case 0:
           //keyword = "AND C.TITLE LIKE '%"+req.params.word+"%'";
-          keyword = `AND  C.TITLE LIKE '%${i.word}%'` ;
+          keyword = `AND  C.TITLE LIKE '%${word}%'` ;
           break;
         case 1:
-          keyword = `AND  C.BODY  LIKE '%${i.word}%'` ;
+          keyword = `AND  C.BODY  LIKE '%${word}%'` ;
           break;
         case 2:
-          keyword = `AND (C.TITLE LIKE '%${i.word}%' OR C.BODY LIKE '%${i.word}%')` ;
+          keyword = `AND (C.TITLE LIKE '%${word}%' OR C.BODY LIKE '%${word}%')` ;
           break;
       }
       var sql =
@@ -1837,16 +1814,22 @@ const initializeEndpoints = (app) => {
       JOIN    CONTENT  C
       ON      A.CONTENT     = C.PK
       WHERE   A.IS_REMOVED  = 0
+              AND A.TOPIC = ${req.query.topic_id}
       `;
       sql +=keyword;
       connection.query(sql, function(err, rows, fields) {
         if (!err) {
+          console.log(this.sql);
+          console.log(rows);
           var totalArticle = rows[0].COUNT;     // 검색 후 나온 article의 갯수
+          console.log(totalArticle);
           var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
           if(totalArticle > totalPage * ARTICLE_PER_PAGE){
             totalPage++;  // article이 20개씩 나올 페이지의 갯수
           }
           if(i.page > totalPage){
+            console.log(i.page);
+            console.log(totalPage);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({status: "fail"});
           }else{
@@ -1878,6 +1861,7 @@ const initializeEndpoints = (app) => {
             JOIN      CONTENT AS C
             ON        A.CONTENT = C.PK
             WHERE     A.IS_REMOVED = 0
+                      AND A.TOPIC = ${req.query.topic_id} 
             `;
             sql+=keyword;
             sql+= `LIMIT ${(i.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}`;
@@ -1965,7 +1949,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.send({status:"success",data: rows});
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({status:"fail"});
           }
