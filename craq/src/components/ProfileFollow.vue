@@ -6,17 +6,17 @@
             <div class="follow__filter-btn" @click="toggleFollower" :class="{'selected' : setFollower}">Follower</div>
         </div>
 
-        <!-- <div class="follow__list following" v-show="setFollowing">
-            <div :key="a" v-for="a in 10" class="cardlist">
-                <UserCard/>
+        <div class="follow__list following" v-show="setFollowing">
+            <div :key="following.PK" v-for="following in followings" class="cardlist">
+                <UserCard :following="following.PK"/>
             </div>
         </div>
 
         <div class="follow__list follower"  v-show="setFollower">
-            <div :key="a" v-for="a in 10" class="cardlist">
-                <UserCard/>
+            <div :key="follower.PK" v-for="follower in followers" class="cardlist">
+                <UserCard :follower="follower.PK"/>
             </div>
-        </div> -->
+        </div> 
 
     </div>
 </template>
@@ -28,6 +28,9 @@ export default {
     components: {
         UserCard,
     },
+    props: [
+        'followings', 'followers'
+    ],
     data() {
         return {
             followingList: [],
