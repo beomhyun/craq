@@ -18,17 +18,17 @@
                             </div>
                             <!-- end switch -->
                         </li>
-                        <li class="main-header__nav-item" v-show="!onSearch"><div class="main-header__nav-link" @click.prevent="goSearch()" :class="{'main-header__nav-selected': currentRouteName == 'code'}" style="cursor: pointer;">Code</div></li>
-                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
-                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
-                        <li class="main-header__nav-item" v-show="!onSearch"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
-                        <li class="main-header__nav-item main-header__nav-divider" v-if="!onSearch"></li>
-                        <li class="main-header__nav-item" v-if="onSearch">
+                        <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><div class="main-header__nav-link" @click.prevent="goSearch()" :class="{'main-header__nav-selected': currentRouteName == 'code'}" style="cursor: pointer;">Code</div></li>
+                        <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
+                        <li class="main-header__nav-item main-header__nav-divider" v-if="!onSearch && $session.exists()"></li>
+                        <li class="main-header__nav-item" v-if="onSearch && $session.exists()">
                             <NavBarSearch @onBlur="searchClose" :show="onSearch"></NavBarSearch>
                         </li>
-                        <li class="main-header__nav-item" v-show="!onSearch">
-                            <label for="header-search" class="form-label" @click="searchToggle" @show="onSearch"><font-awesome-icon icon="search"/></label></li>
-                        <li class="main-header__nav-item">
+                        <li class="main-header__nav-item" v-show="!onSearch && $session.exists()">
+                            <label for="header-search" class="form-label" @click="searchToggle" @show="onSearch && $session.exists()"><font-awesome-icon icon="search"/></label></li>
+                        <li class="main-header__nav-item" v-if="$session.exists()">
                             <div style="position: relative;">
                                 <NavBarDropDown :noties="noties" @onClose="notyClose" @onGo="notyGo" @signOut="signOut"></NavBarDropDown>
                                 <span class="counter counter--primary counter--docked" v-if="notiesLength">
