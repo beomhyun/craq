@@ -1,7 +1,7 @@
 <template>
     <div class="answerMain">
         <div class="defalutQuestion">
-            <ArticleContent v-if="loaded" :body="body"></ArticleContent>
+            <ArticleContent v-if="loaded" :body="this.VERSION[this.current].BODY"></ArticleContent>
         </div>
         <div class="answerForm">
             <label for="content"><strong>content</strong> - 문제 해결을 위해 시도한 것들을 상세하게 작성해주십시오.</label>
@@ -25,14 +25,16 @@ import VueFroala from 'vue-froala-wysiwyg';
 export default {
     name: 'CodeAnswer',
     props: [
-        'body',
-        'article_pk'
+        'question_pk'
     ],
     components: {
         ArticleContent
     },
     data() {
         return{
+            current : 0,
+            VERSION: [],
+
              // Text Editor Config
             config: {
                 events: {
@@ -48,22 +50,31 @@ export default {
         }
     },
     mounted() {
+        this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
+            const data = res.data.data;
+            this.VERSION = data.VERSION;
+            this.current = data.VERSION.length-1;
+            this.loaded = true
+        })
     },
     methods: {
         createAnswer() {
             const data = {
                 'topic_id' : 1,
-                'article_id' : this.article_pk,
+                'article_id' : this.question_pk,
                 "beforeContent": 0,
                 "user_id": this.$session.get('userPk'),
                 'body' : this.inputContent,
             }
+            console.log("푸시 전")
+            console.log(this.question_pk)
             this.$axios.post('contents' , data).then(res => {
+                console.log(res)
                 this.$router.push({
-                    'name': 'Questions',
-                    params : { question_pk : this.article_pk }
+                    name: 'Questions',
+                    params : { question_pk : this.question_pk }
                 })
-            })
+            }). ca
             
         }
     }

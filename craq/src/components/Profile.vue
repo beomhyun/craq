@@ -54,9 +54,9 @@
                             <strong>SW Grade</strong>
                             <div>
                                 <select class="editInput" v-show="toggleProfile" v-model="userData.grade">
-                                    <option class="editOption" v-for="i in 10" :value="i" selected="selected">{{i}}</option>
+                                    <option class="editOption" v-for="grade in grades" :value="grade" selected="selected">{{grade}}</option>
                                 </select>
-                                <span v-show="!toggleProfile">{{ userData.grade }} 반</span> &nbsp;
+                                <span v-show="!toggleProfile">{{ userData.grade }}</span> &nbsp;
                             </div>
                         </div>
                         <div class="information__content-details">
@@ -117,7 +117,7 @@
             </div>
 
             <ProfileActivity v-if="setActivity" :userActivityData="userActivityData" :userData="userData.PK"/>
-            <ProfileFollow class="follow" v-show="setFollow"/>
+            <ProfileFollow v-if="setFollow" :followers="followers" :followings="followings"/>
 
             <div class="Notify" v-show="setNotify">
                 Notify
@@ -132,14 +132,22 @@
 </template>
 <script>
 import Noty from '@/components/Noty.vue';
-//import ProfileActivity from '@/components/ProfileActivity.vue';
 import Spinner from '@/components/Spinner.vue';
+
+//import ProfileActivity from '@/components/ProfileActivity.vue';
 const ProfileActivity= () => ({
     component: import("@/components/ProfileActivity.vue"),
     loading: Spinner,
     delay: 500
 })
+
 import ProfileFollow from '@/components/ProfileFollow.vue';
+// const ProfileFollow= () => ({
+//     component: import("@/components/ProfileFollow.vue"),
+//     loading: Spinner,
+//     delay: 500
+// })
+
 
 export default {
     name: 'profile',
@@ -168,7 +176,8 @@ export default {
             userActivityData : [],
 
             // 팔로우 정보
-            userFollowData : [],
+            followings : [],
+            followers : [],
 
             // 수정 할 것인지 체크
             toggleProfile: false,
@@ -195,17 +204,8 @@ export default {
 
             // 반 DropDown
             grades: [
-                { Class: 1 },
-                { Class: 2 },
-                { Class: 3 },
-                { Class: 4 },
-                { Class: 5 },
-                { Class: 6 },
-                { Class: 7 },
-                { Class: 8 },
-                { Class: 9 },
-                { Class: 10 },
-            ],
+                "IM", "A","A+", "B","C",
+                ],
 
             // Skill DATA
             skillIcon: [
@@ -236,34 +236,9 @@ export default {
         }
     },
     mounted() {
+        this.MyProfile = false
         this.updateImage();
-        this.$axios.get('users').then(res => {
-            // console.log(res)
-            this.allUserInfo = res.data
-            this.allUserInfo.forEach((data) => {
-                if (data.USERNAME.toLowerCase() == this.$route.params.user_name.toLowerCase()) {
-                    this.$axios.get('users/profile/' + data.PK).then(response => {
-                        console.log(response)
-                        this.user_pk = data.PK
-                        this.userData = response.data[0]
-                        this.$axios.get('users/writing/' + data.PK).then(res => {
-                            this.userActivityData = res.data.data
-                            console.log(this.userActivityData)
-                        })
-                    })
-                }
-            })
-        })
-
-        this.username = this.$route.params.user_name
-        console.log(this.username)
-
-        if(this.$session.get('username').toLowerCase() == this.$route.params.user_name.toLowerCase()) {
-            // console.log("내프로필")
-            this.MyProfile = true
-        }
-
-
+        this.updateUser();
     },
     computed: {
         url: function() {
@@ -271,12 +246,41 @@ export default {
         }
     },
     methods: {
+        updateUser() {
+            this.MyProfile = false
+            this.$axios.get('users').then(res => {
+                this.allUserInfo = res.data
+                this.allUserInfo.forEach((data) => {
+                    if (data.USERNAME.toLowerCase() == this.$route.params.user_name.toLowerCase()) {
+                        this.$axios.get('users/profile/' + data.PK).then(response => {
+                            this.user_pk = data.PK
+                            this.userData = response.data[0]
+                            this.$axios.get('users/writing/' + data.PK).then(res => {
+                                this.userActivityData = res.data.data
+                            })
+                            this.$axios.get('follows/' + data.PK).then(res => {
+                                this.followers = res.data.data
+                            })
+                            this.$axios.get('followings/' + data.PK).then(res => {
+                                this.followings = res.data.data
+
+                            })
+                            this.username = this.$route.params.user_name
+
+                            if(this.$session.get('username').toLowerCase() == this.$route.params.user_name.toLowerCase()) {
+                                this.MyProfile = true
+                            }
+                        })
+                    }
+                })
+            })
+
+        },
         uploadImage() {
             let form = new FormData();
             let file = this.$refs.profileImage.files[0];
             form.append('image', file);
             this.$axios.post('profile/images', form).then(res=>{
-                console.log('image uploaded');
                 this.updateImage();
             }).catch(err=>console.log(err));
         },
@@ -307,11 +311,8 @@ export default {
                 'gitUrl': this.userData.gitUrl,
                 'profile_image': this.userData.profile_image,
             }
-            this.$axios.put('profile', data).then(res =>
-                console.log(res)
-            ).catch(err => console.log(err))
+            this.$axios.put('profile', data).catch(err => console.log(err))
             this.$axios.get("users/profile/" + this.$session.get('userPk')).then(res=>{
-                console.log(res.data[0])
             })
             this.toggleProfile = false
         },
@@ -328,7 +329,6 @@ export default {
                 }
             }
             this.$router.push(to);
-            console.log('NavBar: notygo')
             this.noties.sort((a, b) => b.active-a.active);
         },
         toggleInformation() {
@@ -346,15 +346,19 @@ export default {
             }
         },
         toggleFollow() {
-            console.log(this.setFollow);
             if (this.setFollow == false) {
                 this.setInformation = false
                 this.setActivity = false
                 this.setFollow = true
             }
         }
-
     },
+    watch: {
+        $route () {
+            this.updateImage();
+            this.updateUser();
+        }
+    }
 }
 </script>
 
@@ -454,7 +458,6 @@ $--menu-width: 22rem;
 }
 
 .content {
-    height: 1000px;
     padding: var(--space-md) var(--space-xl);
     background-color: var(--color-background);
 }

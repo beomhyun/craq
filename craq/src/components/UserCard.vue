@@ -12,7 +12,7 @@
         <div class="userInfo">
             <div class="userInfo__Top">
                 <div class="userInfo__Top-name" @click="goProfile">
-                    {{userdata.USERNAME}} {{userdata.PK}}
+                    {{userdata.USERNAME}}
                 </div>
                 <div class="userInfo__Top-mail">
                     {{userdata.EMAIL}}
@@ -36,7 +36,7 @@
 export default {
     name: 'UserCard',
     props: [
-        "list",
+        "list", 'follower', 'following'
     ],
     data() {
         return {
@@ -47,11 +47,17 @@ export default {
     watch: {
         'list': function() {
             this.update();
+        },
+        'follower': function() {
+            this.update();
+        },
+        'following': function() {
+            this.update();
         }
     },
     methods: {
         update() {
-            if (this.list.ANSWER_USERPK) {
+            if (this.list) {
                 this.$axios.get(`users/${this.list.ANSWER_USERPK}`).then(res => {
                     this.userdata = res.data.data[0];
                     }
@@ -62,8 +68,31 @@ export default {
                     }
                 )                       
             }
+            if (this.follower) {
+                this.$axios.get(`users/${this.follower}`).then(res => {
+                    this.userdata = res.data.data[0];
+                    }
+                )
+                this.$axios.get(`users/profile-image/${this.follower}`).then(
+                    response=>{
+                        this.imageFile = `http://192.168.31.58:10123/${response.data.data}`;
+                    }
+                )                       
+            }
+            if (this.following) {
+                this.$axios.get(`users/${this.following}`).then(res => {
+                    this.userdata = res.data.data[0];
+                    }
+                )
+                this.$axios.get(`users/profile-image/${this.following}`).then(
+                    response=>{
+                        this.imageFile = `http://192.168.31.58:10123/${response.data.data}`;
+                    }
+                )                       
+            }
         },
         goProfile() {
+            console.log("왜안가니")
             this.$router.push({
                 'name': 'profile',
                 params : {user_name : this.userdata.USERNAME, user_pk : this.userdata.PK}
@@ -90,7 +119,7 @@ export default {
 }
 .userImg img{
     width: 120px;
-    height: 120px;
+    height: 118px;
 }
 
 .userInfo {

@@ -6,7 +6,7 @@
             </a>
         </h1>
         <div class="ask-question">
-            <a class="btn btn--primary" @click.prevent="goAsk">답변추가</a>
+            <a class="btn btn--primary" @click.prevent="goAsk">답변달기</a>
         </div>
     </div>
 
@@ -29,7 +29,7 @@ export default {
         goAsk() {
             this.$router.push({
                 'name': 'Answer',
-                params : { body : this.VERSION[this.current].BODY, article_pk : this.article_pk}
+                params : { question_pk : this.article_pk}
             })
         }
 

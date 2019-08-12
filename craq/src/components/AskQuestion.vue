@@ -38,7 +38,7 @@
                     <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
 
                     <label for="hashtag"><strong>TagSearch</strong> - 태그를 검색합니다.</label>
-                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" v-on:blur="onBlurTags" :class="{'openSearchHBox' : toggleTags}"  @keydown.enter="createHashtags(inputHashtag)">
+                    <input type="text" id="hashtag" class="questionForm" v-model="inputHashtag" :class="{'openSearchHBox' : toggleTags}"  @keydown.enter="createHashtags(inputHashtag)">
 
                     <div class="searchHashtag">
                         
@@ -106,6 +106,7 @@ import TagsCard from '@/components/TagsCard.vue';
 import VueFroala from 'vue-froala-wysiwyg';
 import VueSimplemde from 'vue-simplemde';
 import Paginator from '@/components/Paginator.vue';
+import swal from 'sweetalert';
 
 export default {
     name: 'AskQuestion',
@@ -169,12 +170,12 @@ export default {
             }, 100);
             
         },
-        onBlurTags() {
-            setTimeout(() => {
-                this.toggleTags=false;
-            }, 90);
+        // onBlurTags() {
+        //     setTimeout(() => {
+        //         this.toggleTags=false;
+        //     }, 200);
 
-        },
+        // },
         goDetail(id) {
             this.$router.push({
                 name : 'Questions',
@@ -183,74 +184,63 @@ export default {
         },
         createQuestions() {
             if (this.inputTitle.length == 0) {
-                alert("제목은 반드시 작성하셔야 합니다.")
+                swal("제목을 잊으셨어요!","제목은 반드시 작성해 주세요!", "error")
             }
             if (this.inputContent.length == 0) {
-                alert("내용은 반드시 작성하셔야 합니다.")
+                swal("질문 하려는 내용이 없어요!","묻고 싶은 것을 작성해 주세요!","error")
             }
             if (this.inputTags.length == 0) {
-                alert("태그는 1개 이상 작성하여야 합니다.")
+                swal("어떤 기술이 사용되었나요?","한 글자 이상의 태그를 한 개 이상 입력해 주세요!","error")
             }
-            if (this.inputTags.length > 0 ){
-                if(this.inputTags.length > 0) { 
-                    if(this.inputContent.length > 0) {
-                        const data = {
-                            "topic_id": 1,
-                            "article_id": 0,
-                            "beforeContent": 0,
-                            "title": this.inputTitle,
-                            "body": this.inputContent,
-                            "user_id": this.$session.get('userPk'),
-                            "tags": this.inputTags
-                            }
-                        this.$axios.post('contents', data).then(res=> {
-                            console.log(res.data)
-                            this.$router.push({
-                            "name": "code"
-                            })
-                        })
-            
+            if (this.inputTags.length > 0 && this.inputTitle.length > 0 && this.inputContent.length > 0){
+                const data = {
+                    "topic_id": 1,
+                    "article_id": 0,
+                    "beforeContent": 0,
+                    "title": this.inputTitle,
+                    "body": this.inputContent,
+                    "user_id": this.$session.get('userPk'),
+                    "tags": this.inputTags
                     }
-                }
+                this.$axios.post('contents', data).then(res=> {
+                    this.$router.push({
+                        "name": "Questions",
+                        params : {
+                            question_pk : this.questionData.QUESTION[0].PK
+                        }
+                    })
+                })
             } 
         },
 
         editQuestions() {
             if (this.inputTitle.length == 0) {
-                alert("제목은 반드시 작성하셔야 합니다.")
+                swal("제목을 잊으셨어요!","제목은 반드시 작성해 주세요!", "error")
             }
             if (this.inputContent.length == 0) {
-                alert("내용은 반드시 작성하셔야 합니다.")
+                swal("질문 하려는 내용이 없어요!","묻고 싶은 것을 작성해 주세요!","error")
             }
             if (this.inputTags.length == 0) {
-                alert("태그는 1개 이상 작성하여야 합니다.")
+                swal("어떤 기술이 사용되었나요?","한 글자 이상의 태그를 한 개 이상 입력해 주세요!","error")
             }
-            if (this.inputTags.length > 0) {
-                if (this.inputTags.length > 0) {
-                    if (this.inputContent.length > 0) {
-                        const editdata = {
-                            "topic_id": 1,
-                            "article_id": this.questionData.QUESTION[0].PK,
-                            "beforeContent": this.questionData.VERSION[this.questionData.current].PK,
-                            "title": this.inputTitle,
-                            "body": this.inputContent,
-                            "user_id": this.$session.get('userPk'),
-                            "tags": this.inputTags
-                            }
-                            console.log(editdata.tags)
-                            console.log("뭐가문제냐고옴ㄴ어ㅗㅁ뉴라ㅈ듓ㅁ닉ㅇ루ㅂㄷ미ㅓㅠㄹ마ㅓ뉴")
-                        this.$axios.post('contents', editdata).then(res=> {
-                            console.log(editdata)
-                            console.log(res.data)
-                            this.$router.push({
-                               "name": "Questions",
-                               params : {
-                                   question_pk : this.questionData.QUESTION[0].PK
-                               }
-                            })
-                        })
-                    }    
-                }
+            if (this.inputTags.length > 0 && this.inputTitle.length > 0 && this.inputContent.length > 0) {
+                const editdata = {
+                    "topic_id": 1,
+                    "article_id": this.questionData.QUESTION[0].PK,
+                    "beforeContent": this.questionData.VERSION[this.questionData.current].PK,
+                    "title": this.inputTitle,
+                    "body": this.inputContent,
+                    "user_id": this.$session.get('userPk'),
+                    "tags": this.inputTags
+                    }
+                this.$axios.post('contents', editdata).then(res=> {
+                    this.$router.push({
+                        "name": "Questions",
+                        params : {
+                            question_pk : this.questionData.QUESTION[0].PK
+                        }
+                    })
+                })
             }
         },
 
@@ -259,15 +249,16 @@ export default {
                         this.myTags.push({'pk':clicktag.PK, 'Title':clicktag.TITLE})
                         this.inputTags = this.inputTags + "," + clicktag.PK
                     } else {
-                        alert("이미 포함된 태그입니다.")
+                        swal("이 태그는 이미 있어요!","태그는 중복될 수 없어요!", "error")
                     }
                 this.inputHashtag = ''
                 this.tags = [] 
+                this.toggleTags = false
         },
 
         createHashtags(item) {
             if ( this.inputHashtag.length == 0) {
-                alert("최소 1글자 이상 입력하여야 합니다.")
+                swal("태그는 한 글자 이상!","장난으로 마구 입력하면 안되요!","error")
             } 
             if ( this.inputHashtag.length > 0) {
             const data = {
@@ -279,10 +270,11 @@ export default {
                         this.myTags.push({'pk':res.data.data, 'Title':item})
                         this.inputTags = this.inputTags + "," + res.data.data
                     } else {
-                        alert("이미 포함된 태그입니다.")
+                        swal("이 태그는 이미 있어요!","태그는 중복될 수 없어요!", "error")
                     }
                     this.inputHashtag = ''
-                    this.tags = []   
+                    this.tags = [] 
+                    this.toggleTags = false
                 })
             }
         },
@@ -344,7 +336,7 @@ export default {
         
         inputHashtag (newVal, oldVal) {
             let temp = [];
-            this.toggleTags=true;
+            if (newVal.length > 0) { this.toggleTags=true; }
             this.$axios.get('tags/search/1?search_text=' + newVal).then(res => {
                 console.log(res)
                 this.tags = res.data.data.slice(0,10)
