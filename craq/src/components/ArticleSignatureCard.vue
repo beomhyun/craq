@@ -9,16 +9,16 @@
             <div class="user-gravatar32">
                 <a href="">
                     <span class="anonymous-gravatar" style="display:none;"></span>
-                    <img src="../assets/3232placeholder.png" alt="" width="32" height="32">
+                    <img :src="url" alt="" width="32" height="32">
                 </a>
             </div>
             <div class="user-details">
                 <a @click="goProfile">{{userName}}</a>
                 <div class="-flair">
-                    <span class="reputation-score" title="reputation score">9,000</span>
+                    <span class="reputation-score" title="reputation score">{{score}}</span>
                     <span title="helloworld">
                         <span class="badge"><font-awesome-icon :icon="['far', 'copyright']"></font-awesome-icon></span>
-                        <span class="badgecount">20</span>
+                        <span class="badgecount">{{selectCount}}</span>
                     </span>
 
                 </div>
@@ -38,7 +38,9 @@ export default {
     data() {
         return {
             userName: "temp",
-
+            imageFile: "default_profile.png",
+            score: 0,
+            selectCount: 0,
         }
     },
     watch:{
@@ -48,16 +50,22 @@ export default {
     },
     methods: {
         update() {
+            let endpoint;
             if (this.primary) {
-                this.$axios.get(`users/${this.editor}`).then(res=>{
-                    this.userName = res.data.data[0].USERNAME;
-                })
+                endpoint = this.editor;
             } else {
-                console.log('secondary')
-                this.$axios.get(`users/${this.creator}`).then(res=>{
-                    this.userName = res.data.data[0].USERNAME;
-                })
+                endpoint = this.creator;
             }
+
+            this.$axios.get(`users/${endpoint}`).then(res=>{
+                this.userName = res.data.data[0].USERNAME;
+                this.score = res.data.data[0].SCORE;
+                this.selectCount = res.data.data[0].SELECTED_ANSWER;
+            })
+            this.$axios.get(`users/profile-image/${endpoint}`).then(res=> {
+                this.imageFile = res.data.data;
+            })
+
         },
         goProfile() {
             this.$router.push({
@@ -68,6 +76,11 @@ export default {
     },
     mounted() {
         this.update();
+    },
+    computed: {
+        url: function() {
+            return `http://192.168.31.58:10123/${this.imageFile}`
+        }
     }
 }
 
