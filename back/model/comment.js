@@ -40,7 +40,6 @@ const initializeEndpoints = (app) => {
    */
   app.post('/comments', function(req, res) {
     var i = req.body;
-    console.log(i);
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err){
         res.status(401).send({
@@ -95,7 +94,7 @@ const initializeEndpoints = (app) => {
               if(qst_pk == -1){
                 qst_pk = rows[0].ANS_PK;
               }
-              var info = `{'question_pk':${qst_pk}, 'comment_pk':${commentId}}`;
+              var info = `{"question_pk":${qst_pk}, "comment_pk":${commentId}}`;
 
               if(!err && i.user_id != rows[0].CREATEDUSER){
                 sql =
@@ -162,7 +161,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -264,7 +262,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -312,7 +309,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -353,7 +349,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }

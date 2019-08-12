@@ -75,7 +75,6 @@ const initializeEndpoints = (app) => {
             res.json(rows);
           } else {
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            // console.log('Error while performing Query.', err);
             res.send(err);
           }
         });
@@ -122,7 +121,8 @@ const initializeEndpoints = (app) => {
                                       SUBSCRIBE
                                     GROUP BY TOPIC) AS S
                         ON T.PK = S.TOPIC
-                    WHERE PK != 1 `;
+                    WHERE PK != 1 
+                    ORDER BY SUBSCRIBES DESC`;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
@@ -408,7 +408,6 @@ const initializeEndpoints = (app) => {
    *        200:
    */
   app.get('/topics/search', function(req, res) {
-    console.log(req.headers.user_token);
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -421,11 +420,9 @@ const initializeEndpoints = (app) => {
         sql = ` SELECT pk,topic FROM topic WHERE topic like "%${req.query.title}%" and is_active =  ${TRUE} and topic !=1`;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            // console.log(this.sql);
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log(err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
