@@ -917,6 +917,63 @@ app.get('/users/profile-image/:pk', function(req,res){
 
 }
 );
+
+/**
+ * @swagger
+ *  /users/profile-image-name/{name}:
+ *    get:
+ *      tags:
+ *      - users
+ *      description: 해당 회원 프로필 이미지를 가져온다.
+ *      responses:
+ *       200:
+ *      parameters:
+ *       - name: user_token
+ *         in: header
+ *         type: string
+ *         description: 사용자의 token값을 전달.
+ *       - in: path
+ *         name: name
+ *         type: string
+ *         description: |
+ *          사용자 닉네임 전달
+ */
+app.get('/users/profile-image-name/:name', function(req,res){
+  jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
+    if(err){
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+      res.status(401).send({error:'invalid token'});
+    }else{
+      var sql = 
+                `
+                SELECT
+                  COUNT(*) AS CHEKING
+                  ,P.PROFILE_IMAGE
+                FROM
+                  PROFILE AS P
+                    RIGHT OUTER JOIN USER AS U ON U.PK = P.USER
+                WHERE
+                  U.USERNAME LIKE '${req.params.name}'
+                `;
+      connection.query(sql, function(err, rows, fields) {
+        if (!err){
+          // var img = '<img src="/'+rows[0].profile_image + '">';
+          console.log(rows[0].PROFILE_IMAGE);
+          serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+          res.send({sattus: "success",data: rows[0].PROFILE_IMAGE});
+        }else{
+          serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+          res.send({status: "fail"});
+        }
+      });
+    }
+  });
+
+}
+);
+
+
+
 /**
  * @swagger
  *  /users/profile/{pk}:
