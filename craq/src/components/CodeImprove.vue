@@ -4,12 +4,12 @@
 
 <script>
 import Spinner from '@/components/Spinner.vue';
-import AskQuestion from "@/components/AskQuestion.vue";
-// const AskQuestion = () => ({
-//     component: import("@/components/AskQuestion.vue"),
-//     loading: Spinner,
-//     delay: 500
-// });
+// import AskQuestion from "@/components/AskQuestion.vue";
+const AskQuestion = () => ({
+    component: import("@/components/AskQuestion.vue"),
+    loading: Spinner,
+    delay: 500
+});
 export default {
     name : 'codeImprove',
     components : {

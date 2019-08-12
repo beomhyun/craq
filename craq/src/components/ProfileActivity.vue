@@ -8,7 +8,7 @@
             <div class="follow__filter-btn" @click="toggleComments" :class="{'selected' : setComments}">Comments</div>
         </div>
 
-        <div class="follow__list following" v-show="setAsk">
+        <div class="follow__list following" v-if="setAsk">
             <div :key="idx" v-for="(list, idx) in askData" class="cardlist">
                 <router-link :to="{name: 'Questions', params: {question_pk : list.QUESTION[0].PK}}">
                     <CardProfile :list="list"/>
@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <div class="follow__list follower"  v-show="setAnswer">
+        <div class="follow__list follower"  v-if="setAnswer&&loaded">
             <div :key="idx" v-for="(list, idx) in answerData" class="cardlist">
                 <router-link :to="{name: 'Questions', params: {question_pk : list.QUESTION[0].PK}}">
                     <CardProfile :list="list"/>
@@ -42,7 +42,7 @@
 import CardProfile from '@/components/CardProfile.vue';
 
 export default {
-    name: 'ProfileFollow',
+    name: 'ProfileActivity',
     props: [
         'userActivityData',
         'userData',
@@ -52,13 +52,22 @@ export default {
     },
     data() {
         return {
-            askData: [],
-            answerData: [],
+            askData: [{
+                QUESTION: [
+                    {PK:1}
+                ]
+            }],
+            answerData: [{
+                QUESTION: [
+                    {PK:1}
+                ]
+            }],
             cardLists: [],
             setAsk: true,
             setAnswer: false,
             setPost: false,
             setComments: false,
+            loaded: false
         }
     },
     methods: {
@@ -73,8 +82,9 @@ export default {
         
         toggleAnswer() {
             if ( this.setAnswer == false ) {
-                this.setAsk = false;
                 this.setAnswer = true;
+                this.setAsk = false;
+                //this.setAnswer = true;
                 this.setPost = false;
                 this.setComments = false;
             }
@@ -101,34 +111,19 @@ export default {
     },
 
     mounted() {
-        
+        let waiter = []
         this.userActivityData.QUESTION.forEach((el) => {
-            this.$axios.get('questions/detail/' + el.PK).then(res => {
+            waiter.push(this.$axios.get('questions/detail/' + el.PK).then(res => {
                 this.askData.push(res.data.data)
-            })
+            }))
         });
         this.userActivityData.ANSWER.forEach((el) => {
-            this.$axios.get('questions/detail/' + el.PK).then(res => {
+            waiter.push(this.$axios.get('questions/detail/' + el.PK).then(res => {
                 this.answerData.push(res.data.data)
-            })
+            }))
         });
-            
+        Promise.all(waiter).then(()=>{this.loaded=true})
         
-        this.cardLists = [{
-                    id: '1',
-                    cardInfo:
-                        {
-                            Answer : '100',
-                            View : '1000',
-                            Helpful : '10000',
-                        },
-
-                    cardMain:
-                        {
-                            Title : 'Title Test - 1',
-                            Content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry'
-                        },
-                }]
     }
 
 }

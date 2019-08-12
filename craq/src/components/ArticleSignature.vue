@@ -45,7 +45,6 @@ export default {
             this.$emit('left');
         },
         codeImprove() {
-            console.log("?")
             this.$router.push({
                 "name": "Improve",
                 params : { question_pk : this.article_pk, editQuestion : true,}

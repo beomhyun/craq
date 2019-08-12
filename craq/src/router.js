@@ -59,7 +59,8 @@ export default new Router({
       meta: {
       },
       name: 'profile',
-      component: Profile
+      component: Profile,
+      prop:true
       // this.$router.push({'name': 'profile', 'params':{user_name: 'rngus'}})
     },
     {

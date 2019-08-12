@@ -116,8 +116,8 @@
                 </div>
             </div>
 
-            <ProfileActivity v-if="setActivity" :userActivityData="userActivityData" :userData="userData.PK"/>
-            <ProfileFollow v-if="setFollow" :followers="followers" :followings="followings"/>
+            <ProfileActivity v-if="loadedActivity&&setActivity" :userActivityData="userActivityData" :userData="userData.PK"/>
+            <ProfileFollow v-if="loadedFollow&&setFollow" :followers="followers" :followings="followings"/>
 
             <div class="Notify" v-show="setNotify">
                 Notify
@@ -141,12 +141,12 @@ const ProfileActivity= () => ({
     delay: 500
 })
 
-import ProfileFollow from '@/components/ProfileFollow.vue';
-// const ProfileFollow= () => ({
-//     component: import("@/components/ProfileFollow.vue"),
-//     loading: Spinner,
-//     delay: 500
-// })
+// import ProfileFollow from '@/components/ProfileFollow.vue';
+const ProfileFollow= () => ({
+    component: import("@/components/ProfileFollow.vue"),
+    loading: Spinner,
+    delay: 500
+})
 
 
 export default {
@@ -176,13 +176,21 @@ export default {
             userActivityData : [],
 
             // 팔로우 정보
-            followings : [],
-            followers : [],
+            followings : [{
+                PK:1
+            }],
+            followers : [
+                {PK:1}
+            ],
 
             // 수정 할 것인지 체크
             toggleProfile: false,
 
             // 프로필 필터 체크
+            loadedActivity: false,
+            loadedFollow: false,
+            loadedFollower : false,
+            loadedFollowing : false,
             setInformation : true,
             setActivity : false,
             setFollow : false,
@@ -236,7 +244,7 @@ export default {
         }
     },
     mounted() {
-        this.MyProfile = false
+        this.setProfie();
         this.updateImage();
         this.updateUser();
     },
@@ -246,8 +254,20 @@ export default {
         }
     },
     methods: {
-        updateUser() {
+        setProfie() {
             this.MyProfile = false
+            this.loadedActivity = false
+            this.loadedFollow = false
+            
+            this.loadedFollower = false
+            this.loadedFollowing = false
+
+            this.setInformation = true
+            this.setActivity = false
+            this.setFollow = false
+        },
+        updateUser() {
+            this.setProfie()
             this.$axios.get('users').then(res => {
                 this.allUserInfo = res.data
                 this.allUserInfo.forEach((data) => {
@@ -257,15 +277,24 @@ export default {
                             this.userData = response.data[0]
                             this.$axios.get('users/writing/' + data.PK).then(res => {
                                 this.userActivityData = res.data.data
+                                this.loadedActivity = true
                             })
-                            this.$axios.get('follows/' + data.PK).then(res => {
+                            let a = this.$axios.get('follows/' + data.PK).then(res => {
                                 this.followers = res.data.data
+                                this.loadedFollower = true
                             })
-                            this.$axios.get('followings/' + data.PK).then(res => {
+                            let b = this.$axios.get('followings/' + data.PK).then(res => {
                                 this.followings = res.data.data
+                                this.loadedFollowing = true
 
                             })
-                            this.username = this.$route.params.user_name
+                            Promise.all([a, b]).then(()=>{
+                                if(this.loadedFollower&&this.loadedFollowing) {
+                                    this.loadedFollow = true
+                                }
+                            })
+
+                            this.username = data.USERNAME
 
                             if(this.$session.get('username').toLowerCase() == this.$route.params.user_name.toLowerCase()) {
                                 this.MyProfile = true
@@ -293,7 +322,7 @@ export default {
                 )
             }
             if (!(this.$route.params.user_pk)){
-                this.$axios.get("users/profile-image/" + this.$session.get('userPk')).then(
+                this.$axios.get("users/profile-image-name/" + this.$route.params.user_name).then(
                     res=>{
                         this.imageFile = res.data.data;
                     }
@@ -312,7 +341,7 @@ export default {
                 'profile_image': this.userData.profile_image,
             }
             this.$axios.put('profile', data).catch(err => console.log(err))
-            this.$axios.get("users/profile/" + this.$session.get('userPk')).then(res=>{
+            this.$axios.get("users/profile/" + this.user_pk).then(res=>{
             })
             this.toggleProfile = false
         },
@@ -339,14 +368,14 @@ export default {
             }
         },
         toggleActivity() {
-            if (this.setActivity == false) {
+            if (this.setActivity == false && this.loadedActivity == true) {
                 this.setInformation = false
                 this.setActivity = true
                 this.setFollow = false
             }
         },
         toggleFollow() {
-            if (this.setFollow == false) {
+            if (this.setFollow == false && this.loadedFollow == true) {
                 this.setInformation = false
                 this.setActivity = false
                 this.setFollow = true
@@ -355,6 +384,7 @@ export default {
     },
     watch: {
         $route () {
+            this.loadedFollow = false;
             this.updateImage();
             this.updateUser();
         }
