@@ -101,7 +101,6 @@ const initializeEndpoints = (app) => {
   app.post('/contents', function(req, res) {
     var i = req.body;
     var sql = "";
-
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({ error: 'invalid token' });
@@ -211,7 +210,7 @@ const initializeEndpoints = (app) => {
                                         });
                                       }
                                       serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                      res.send({ status: "success", msg: "insert notice2"});
+                                      res.send({ status: "success",PK:contentId, msg: "insert notice2"});
                                     } else {
                                       serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                                       res.send({ status: "fail", msg: "select user err" });
@@ -250,8 +249,8 @@ const initializeEndpoints = (app) => {
                             }
                           });
                         }
-                        await serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                        await res.send({status:"success"});
+                        // await serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                        // await res.send({status:"success"});
                       }
                       toArray(i.tags, decoded.pk, contentId);
 
@@ -424,7 +423,7 @@ const initializeEndpoints = (app) => {
                                     });
                                   }
                                   serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                  res.send({ status: "success", msg: "insert notice" });
+                                  res.send({ status: "success",PK: contentId, msg: "insert notice" });
                                 } else {
                                   serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                                   res.send({ status: "fail", msg: "select user err" });
@@ -438,7 +437,7 @@ const initializeEndpoints = (app) => {
                         });
                       } else {
                         serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                        res.send({ status: "success" });
+                        res.send({ status: "success",PK: contentId });
                       }
                     } else {
                       serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
