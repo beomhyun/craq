@@ -3,7 +3,6 @@ import Router from 'vue-router'
 //test
 import Notice from '@/components/Notice.vue';
 import Tags from '@/components/Tags.vue';
-import Tree from '@/components/Tree.vue';
 import Profile from '@/components/Profile.vue';
 import Main from '@/components/Main.vue'
 
@@ -14,10 +13,16 @@ import CodeDetail from '@/components/CodeDetail.vue';
 import CodeAnswer from '@/components/CodeAnswer.vue';
 import CodeImprove from '@/components/CodeImprove.vue';
 
+//tree
+import Tree from '@/components/Tree.vue';
+import AddTree from '@/components/freeboardDir/CreateTree.vue';
+import Community from '@/components/freeboardDir/Community.vue'
 //Community
-import Community from '@/components/Community.vue';
-import CreateTree from '@/components/CreateTree.vue';
-import FreeBoard from '@/components/FreeBoard.vue';
+import FreeBoard from '@/components/freeboardDir/FreeBoard.vue';
+import FreeHome from '@/components/freeboardDir/FreeHome.vue';
+import FreeBoardWrite from '@/components/freeboardDir/FreeBoardWrite.vue';
+import FreeDetail from '@/components/freeboardDir/FreeDetail.vue';
+import FreeEdit from '@/components/freeboardDir/FreeEdit.vue'
 
 //end test
 Vue.use(Router)
@@ -50,23 +55,6 @@ export default new Router({
       component: Tags
     },
     {
-      path: '/tree',
-      meta: {
-      },
-      name: 'tree',
-      component: Tree,
-
-      children: [
-        {
-          path: 'createtree',
-          meta: {},
-          name: 'createtree',
-          component: CreateTree
-        },
-      ]
-
-    },
-    {
       path: '/profile/:user_name',
       meta: {
       },
@@ -90,12 +78,6 @@ export default new Router({
       component: AskQuestion
     },
     {
-      path: '/freeboard/:topic',
-      meta: {},
-      name: 'freeboard',
-      component: FreeBoard
-    },
-    {
       path: '/code/:question_pk',
       name: 'Questions',
       component: CodeDetail,
@@ -113,5 +95,56 @@ export default new Router({
       component: CodeImprove,
       props: true
     },
+    // Tree
+   {
+     path: '/tree',
+     meta: {},
+     name: 'tree',
+     component: Tree,
+     children : [
+       {
+         path: '',
+         name : 'community',
+         component : Community
+       },
+       {
+         path : 'addtree',
+         name : 'addtree',
+         component : AddTree,
+       }
+     ]
+   },
+   // FreeBoard
+   {
+     path: '/freeboard/:topic',
+     meta: {},
+     name: 'freeboard',
+     component: FreeBoard,
+     // props : true,
+     children : [
+       {
+         path : '',
+         name : 'home',
+         component : FreeHome
+       },
+       {
+         path : 'write',
+         name : 'freewrite',
+         component : FreeBoardWrite
+       },
+       {
+         path : 'detail/:id',
+         name : 'freedetail',
+         component : FreeDetail,
+         props : true,
+       },
+       {
+         path : 'detail/:id/edit',
+         name : 'freeedit',
+         component : FreeEdit,
+         props : true
+       }
+     ]
+   },
   ]
 })
