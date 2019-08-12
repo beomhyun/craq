@@ -55,7 +55,6 @@ const initializeEndpoints = (app) => {
             res.send({status: "fail"});
           }else{
             if( rows1[0].COUNT == 0 ){ // 작성된 topic이 없다면
-              // console.log(rows[0].COUNT);
               sql =
               `
                 INSERT  INTO
@@ -64,7 +63,6 @@ const initializeEndpoints = (app) => {
               `;
               connection.query(sql, function(err, rows2, fields) {
                 if(!err){
-                  // console.log(rows2.insertId);
                   serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
                   res.send({status: "success",data: rows2.insertId});
                 }else{
@@ -112,7 +110,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -239,7 +236,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -283,7 +279,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -415,12 +410,10 @@ const initializeEndpoints = (app) => {
                   LIMIT 0,10
                   `;
         connection.query(sql, function(err, rows, fields) {
-          // console.log(rows);
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json({status: "success", data: rows});
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status:"fail", data: err});
           }
@@ -479,12 +472,10 @@ const initializeEndpoints = (app) => {
                   LIMIT 0,5
                   `;
         connection.query(sql, function(err, rows, fields) {
-          // console.log(rows);
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json({status: "success", data: rows});
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status:"fail", data: err});
           }

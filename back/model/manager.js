@@ -51,7 +51,6 @@ const initializeEndpoints = (app) => {
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err && rows[0].COUNT == 0){
-            console.log(rows[0].COUNT);
             sql =
             `
             INSERT    INTO
