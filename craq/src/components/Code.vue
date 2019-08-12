@@ -7,8 +7,8 @@
                 <router-link to="/askquestion"><div class="btn btn--primary" @click="askQuestion">Ask Question</div></router-link> </div> <!-- headline -->
             <!-- show search query -->
             <template v-if="query('search_text')">
-                <div class="alert alert--is-visible js-alert" role="alert" :class="{'alert--success': asks.length!== 0,
-                                                                                    'alert--warning': asks.length ===0}">
+                <div class="alert alert--is-visible js-alert flex justify-between" role="alert" :class="{'alert--success': asks.length!== 0,
+                'alert--warning': asks.length ===0}">
                     <div class="alert__content flex items-center">
                         <font-awesome-icon icon="search">
                         </font-awesome-icon>
@@ -24,6 +24,11 @@
                             </div>
                         </ul>
                         </p>
+                    </div>
+                    <div>
+                        <button class="reset alert__close-btn js-alert__close-btn" @click.prevent="showAll">
+                            <svg class="icon" viewBox="0 0 24 24"><title>Close alert</title><g stroke-linecap="square" stroke-linejoin="miter" stroke-width="3" stroke="currentColor" fill="none" stroke-miterlimit="10"><line x1="19" y1="5" x2="5" y2="19"></line><line fill="none" x1="19" y1="19" x2="5" y2="5"></line></g></svg>
+                        </button>
                     </div>
                 </div>
             </template>
@@ -90,6 +95,16 @@ export default {
         }
     },
     methods: {
+        showAll() {
+            this.$router.push({
+                name: 'code',
+                query: {
+                    page: 1,
+                    order_by: "PK",
+                    search_text: "",
+                }
+            })
+        },
         closeTag(tag) {
             this.search_tags = this.search_tags.filter(function(el) {
                 return !(el == tag)
