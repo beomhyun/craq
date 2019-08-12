@@ -23,6 +23,10 @@ import FreeHome from '@/components/freeboardDir/FreeHome.vue';
 import FreeBoardWrite from '@/components/freeboardDir/FreeBoardWrite.vue';
 import FreeDetail from '@/components/freeboardDir/FreeDetail.vue';
 import FreeEdit from '@/components/freeboardDir/FreeEdit.vue'
+//Notice
+import NoticeHome from '@/components/noticeDir/NoticeHome.vue';
+import NoticeWrite from '@/components/noticeDir/NoticeWrite.vue';
+import NoticeDetail from '@/components/noticeDir/NoticeDetail.vue';
 
 //end test
 Vue.use(Router)
@@ -39,13 +43,6 @@ export default new Router({
       name: 'home',
       component: Main,
 
-    },
-    {
-      path: '/notice',
-      meta: {
-      },
-      name: 'notice',
-      component: Notice
     },
     {
       path: '/tags',
@@ -143,6 +140,31 @@ export default new Router({
          name : 'freeedit',
          component : FreeEdit,
          props : true
+       }
+     ]
+   },
+   {
+     path: '/notice',
+     meta: {
+     },
+     name: 'notice',
+     component: Notice,
+     children : [
+       {
+         path: '',
+         name : 'noticehome',
+         component : NoticeHome
+       },
+       {
+         path : 'write',
+         name : 'noticewrite',
+         component : NoticeWrite
+       },
+       {
+         path : 'detail/:id',
+         name : 'noticedetail',
+         component : NoticeDetail,
+         props : true,
        }
      ]
    },
