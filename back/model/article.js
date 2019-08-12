@@ -89,8 +89,8 @@ const initializeEndpoints = (app) => {
         SELECT  *
         FROM    ARTICLE
         WHERE   TOPIC   = 1
-        AND     ARTICLE = 0
-        AND     IS_REMOVED = 0
+        AND     ARTICLE = ${FALSE}
+        AND     IS_REMOVED = ${FALSE}
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
@@ -142,8 +142,8 @@ const initializeEndpoints = (app) => {
         FROM      ARTICLE A
         JOIN      CONTENT C
         ON        A.CONTENT       =   C.PK
-        WHERE     A.IS_REMOVED    =   0
-        AND       A.ARTICLE       =   0
+        WHERE     A.IS_REMOVED    =   ${FALSE}
+        AND       A.ARTICLE       =   ${FALSE}
         AND       A.CREATEDUSER   =   ${req.params.user_id}
         `;
         connection.query(sql, function(err, rows, fields) {
@@ -176,8 +176,8 @@ const initializeEndpoints = (app) => {
               FROM 		ARTICLE A
               JOIN 		CONTENT C
               ON 		  A.CONTENT       =   C.PK
-              WHERE   A.IS_REMOVED    =   0
-              AND     A.ARTICLE       =   0
+              WHERE   A.IS_REMOVED    =   ${FALSE}
+              AND     A.ARTICLE       =   ${FALSE}
               AND     A.CREATEDUSER   =   ${req.params.user_id}
               LIMIT   ${(req.params.page-1)*QST_PER_PAGE}, ${QST_PER_PAGE}
               `;
@@ -240,8 +240,8 @@ const initializeEndpoints = (app) => {
         FROM      ARTICLE A
         JOIN      CONTENT C
         ON        A.CONTENT       =   C.PK
-        WHERE     A.IS_REMOVED    =   0
-        AND       A.ARTICLE       !=   0
+        WHERE     A.IS_REMOVED    =   ${FALSE}
+        AND       A.ARTICLE       !=   ${FALSE}
         AND       A.CREATEDUSER   =   ${req.params.user_id}
         `;
         connection.query(sql, function(err, rows, fields) {
@@ -274,8 +274,8 @@ const initializeEndpoints = (app) => {
               FROM 		ARTICLE A
               JOIN 		CONTENT C
               ON 		  A.CONTENT       =   C.PK
-              WHERE   A.IS_REMOVED    =   0
-              AND     A.ARTICLE       !=   0
+              WHERE   A.IS_REMOVED    =   ${FALSE}
+              AND     A.ARTICLE       !=   ${FALSE}
               AND     A.CREATEDUSER   =   ${req.params.user_id}
               LIMIT   ${(req.params.page-1)*QST_PER_PAGE}, ${QST_PER_PAGE}
               `;
@@ -373,7 +373,7 @@ const initializeEndpoints = (app) => {
           SELECT    *
           FROM      ARTICLE
           WHERE     ARTICLE     =   ${req.params.id}
-          AND       IS_REMOVED  =   0
+          AND       IS_REMOVED  =   ${FALSE}
           AND       TOPIC       =   1
         `;
         connection.query(sql, function(err, rows, fields) {
@@ -839,29 +839,29 @@ const initializeEndpoints = (app) => {
                           FROM
                             ARTICLE AS A
                           WHERE
-                            A.ARTICLE != 0
+                            A.ARTICLE != ${FALSE}
                             AND A.CREATEDUSER = U.PK
-                            AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
+                            AND A.IS_ACTIVE = ${TRUE}) AS SELECTED_ANSWER
                         , (SELECT
                             COUNT(*)
                           FROM
                             ARTICLE AS A
                           WHERE
-                            A.ARTICLE != 0
+                            A.ARTICLE != ${FALSE}
                             AND A.CREATEDUSER = U.PK) AS ANSWER
                         , ((SELECT
                             COUNT(*)
                           FROM
                             ARTICLE AS A
                           WHERE
-                            A.ARTICLE != 0
+                            A.ARTICLE != ${FALSE}
                             AND A.CREATEDUSER = U.PK
-                            AND A.IS_ACTIVE = 1)/(SELECT
+                            AND A.IS_ACTIVE = ${TRUE})/(SELECT
                             COUNT(*)
                           FROM
                             ARTICLE AS A
                           WHERE
-                            A.ARTICLE != 0
+                            A.ARTICLE != ${FALSE}
                             AND A.CREATEDUSER = U.PK)) AS RELIABLE
                     FROM
                       ARTICLE AS ASK
@@ -869,9 +869,9 @@ const initializeEndpoints = (app) => {
                             LEFT OUTER JOIN ARTICLE AS ANSWER ON ASK.ANSWER = ANSWER.PK
                               LEFT OUTER JOIN USER AS U ON ANSWER.CREATEDUSER = U.PK
                     WHERE 1=1
-                      AND CON.IS_REMOVED = 0
-                      AND ASK.ARTICLE = 0
-                        AND ASK.TOPIC = 1
+                      AND CON.IS_REMOVED = ${FALSE}
+                      AND ASK.ARTICLE = ${FALSE}
+                        AND ASK.TOPIC = ${TRUE}
                      `;
             connection.query(sql, function(err, rows, fields) {
               if (!err) {
@@ -931,8 +931,8 @@ const initializeEndpoints = (app) => {
                         ARTICLE
                       WHERE 1=1
                           AND TOPIC = 1
-                          AND ARTICLE = 0
-                          AND IS_REMOVED =0 `
+                          AND ARTICLE = ${FALSE}
+                          AND IS_REMOVED =${FALSE} `
         connection.query(sql, function(err, rows2, fields) {
           if (!err) {
             var max_page = parseInt(rows2[0].TOTAL / perpage) + 1;
@@ -2148,6 +2148,120 @@ const initializeEndpoints = (app) => {
           } else {
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({status:"fail"});
+          }
+        });
+      }
+    });
+  });
+
+    /**
+   * @swagger
+   *  /articles/notices/pages/{page}:
+   *    get:
+   *      tags:
+   *      - article
+   *      description: page위치에 해당하는 특정 topic의 article들을 가져옴.
+   *      parameters:
+   *      - name: page
+   *        in: path
+   *        type: integer
+   *        description: article들을 가져올 page위치의 값
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token 값을 전달.
+   *      responses:
+   *        200:
+   */
+  app.get('/articles/notices/pages/:page', function(req, res) {
+    /*
+      topic값을 이용하여 특정 게시판의 총 게시글 수(totalArticle)를 먼저 구한다.
+      그리고 totalArticle 값을 이용하여 총 페이지 수(maxPage)값도 구하도록 한다.
+    */
+    var sql = '';
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+          error: 'invalid token'
+        });
+        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+      } else {
+        sql =
+          `
+        SELECT  COUNT(A.PK) AS TOTAL_ARTICLE
+        FROM    ARTICLE AS A
+                  LEFT OUTER JOIN CONTENT AS C ON A.PK = C.ARTICLE
+        WHERE A.IS_REMOVED = ${FALSE}
+              AND     A.TOPIC = 2
+              AND A.IS_ACTIVE = ${TRUE}
+        `;
+        connection.query(sql, function(err, rows, fields) {
+          if (!err) {
+            var totalArticle = rows[0].TOTAL_ARTICLE;
+            //나올 수 있는 총 페이지의 수를 구한다.
+            var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
+            if (totalArticle > totalPage * ARTICLE_PER_PAGE) {
+              totalPage++;
+            }
+            if(totalPage)
+            sql =
+              `
+            SELECT    B.ROWNUM
+                    , B.PK
+                    , B.TOPIC
+                    , B.TITLE
+                    , B.USERNAME
+                    , B.CREATED_AT
+                    , B.VOTE
+                    , B.VIEW
+            FROM       (
+                      SELECT      ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
+                                ROWNUM
+                              , A.PK
+                              , A.TOPIC
+                              , C.TITLE
+                              ,
+                              (
+                                SELECT  USERNAME
+                                FROM    USER
+                                WHERE   PK = A.CREATEDUSER
+                              ) AS USERNAME
+                              , C.CREATED_AT
+                              ,
+                              (
+                                SELECT     COUNT(ARTICLE)
+                                FROM         VIEW
+                                WHERE     ARTICLE = A.PK
+                              ) AS VIEW
+                              ,
+                              (
+                                SELECT    SUM(GOOD)
+                                FROM         VOTE
+                                WHERE     ARTICLE = A.PK
+                              ) AS VOTE
+                      FROM        ARTICLE AS A
+                      JOIN         CONTENT AS C
+                      ON           A.CONTENT = C.PK
+                      AND     TOPIC = 2
+                      AND         A.IS_REMOVED = ${FALSE}
+                      AND       A.IS_ACTIVE = ${TRUE}
+                    ) AS B
+            LIMIT     ${(req.params.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}
+          `;
+            connection.query(sql, function(err, rows, fields) {
+              if (!err) {
+                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                res.send({status: "success", data: rows, maxPage:totalPage});
+              } else {
+                // console.log('article insert err ', err);
+                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                res.send({status: "fail"});
+              }
+            });
+          } else {
+            // console.log('article insert err ', err);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send(err);
           }
         });
       }

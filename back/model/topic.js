@@ -121,7 +121,7 @@ const initializeEndpoints = (app) => {
                                       SUBSCRIBE
                                     GROUP BY TOPIC) AS S
                         ON T.PK = S.TOPIC
-                    WHERE PK != 1 
+                    WHERE PK NOT IN (1,2) 
                     ORDER BY SUBSCRIBES DESC`;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {

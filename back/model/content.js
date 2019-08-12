@@ -210,7 +210,7 @@ const initializeEndpoints = (app) => {
                                         });
                                       }
                                       serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                      res.send({ status: "success",PK:contentId, msg: "insert notice2"});
+                                      res.send({ status: "success",PK:articleId, msg: "insert notice2"});
                                     } else {
                                       serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                                       res.send({ status: "fail", msg: "select user err" });
@@ -249,8 +249,8 @@ const initializeEndpoints = (app) => {
                             }
                           });
                         }
-                        // await serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                        // await res.send({status:"success"});
+                        await serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                        await res.send({status:"success",PK:articleId});
                       }
                       toArray(i.tags, decoded.pk, contentId);
 
@@ -423,7 +423,7 @@ const initializeEndpoints = (app) => {
                                     });
                                   }
                                   serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                  res.send({ status: "success",PK: contentId, msg: "insert notice" });
+                                  res.send({ status: "success",PK: articleId, msg: "insert notice" });
                                 } else {
                                   serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                                   res.send({ status: "fail", msg: "select user err" });
@@ -437,7 +437,7 @@ const initializeEndpoints = (app) => {
                         });
                       } else {
                         serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                        res.send({ status: "success",PK: contentId });
+                        res.send({ status: "success",PK: articleId });
                       }
                     } else {
                       serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
