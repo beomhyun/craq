@@ -64,7 +64,7 @@ export default {
         padding: 0 3px 2px;
         display: inline-block;
         color: var(--color-contrast-medium);
-        font-size: 13px;
+        font-size: var(--text-lg);
     }
 }
 a {
