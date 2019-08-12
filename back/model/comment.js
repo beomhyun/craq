@@ -128,16 +128,20 @@ const initializeEndpoints = (app) => {
 
   /**
    * @swagger
-   *  /comments/users/{id}:
+   *  /comments/{user_id}/{page}:
    *    get:
    *      tags:
    *      - comment
    *      description: 특정 user의 댓글들을 전부 받아옴.
    *      parameters:
-   *      - name: id
+   *      - name: user_id
    *        in: path
    *        type: integer
    *        description: user의 id값을 전달
+   *      - name: page
+   *        in: path
+   *        type: integer
+   *        description: 보여줄 위치의 page값
    *      - name: user_token
    *        in: header
    *        type: string
@@ -145,7 +149,7 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/comments/users/:id', function(req, res) {
+  app.get('/comments/:user_id/:page', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err){
         res.status(401).send({
@@ -154,15 +158,59 @@ const initializeEndpoints = (app) => {
        serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       }
       else {
-        var sql = "SELECT * FROM comment WHERE User = ?";
-        var params = req.params.id;
-        connection.query(sql, params, function(err, rows, fields) {
+        var sql =
+        `
+        SELECT  COUNT(*) COUNT
+        FROM    COMMENT
+        WHERE   IS_REMOVED  =   0
+        AND     USER        =   ${req.params.user_id}
+        `;
+        connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-            res.json(rows);
+            const CMT_PER_PAGE = 5;
+            var totalComment = rows[0].COUNT;
+            var totalPage = parseInt(totalComment/CMT_PER_PAGE);
+            if(totalComment > totalPage*CMT_PER_PAGE);{
+              totalPage++;
+            }
+
+            if(totalComment > 0){
+              sql =
+              `
+              SELECT  (
+                        SELECT  ARTICLE
+                        FROM    CONTENT C
+                        WHERE   C.PK = CM.CONTENT
+                      ) ARTICLE_PK,
+                      CONTENT AS CONTENT_PK,
+                      (
+                        SELECT  TITLE
+                        FROM    CONTENT C
+                        WHERE   C.PK = CM.CONTENT
+                      ) TITLE,
+                      BODY,
+                      CREATED_AT
+              FROM    COMMENT CM
+              WHERE   IS_REMOVED = 0
+              AND     USER       = ${req.params.user_id}
+              LIMIT   ${(req.params.page-1)*CMT_PER_PAGE}, ${CMT_PER_PAGE}
+              `;
+              connection.query(sql, function(err, rows, fields) {
+                if(!err){
+                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                  res.send({status: "success",data:rows, maxPage:totalPage});
+                }else{
+                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                  res.send({status: "fail"});
+                }
+              });
+            }else{
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({status: "fail", msg:"do not exist comment"});
+            }
           } else {
-            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            res.send(err);
+            serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+            res.send({status: "fail"});
           }
         });
       }
