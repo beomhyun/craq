@@ -2,7 +2,7 @@
     <div class="container padding-sm">
         <div>
             <div class="inner-content clearfix">
-                <CodeDetailQuestionHeader v-if="loaded" :title="VERSION[QUESTION[0].VERSION].TITLE"></CodeDetailQuestionHeader>
+                <CodeDetailQuestionHeader v-if="loaded" :title="VERSION[QUESTION[0].VERSION].TITLE" :article_pk="QUESTION[0].PK"></CodeDetailQuestionHeader>
                 <CodeDetailQuestionHeaderBottom 
                   v-if="loaded"
                  :created_at="VERSION[1].CREATED_AT"
@@ -11,12 +11,12 @@
                  ></CodeDetailQuestionHeaderBottom>
                 <div id="mainbar">
                     <div id="question" class="question">
-                        <Article v-if="loaded" :article_pk="QUESTION[0].PK"></Article>
+                        <Article v-if="loaded" :article_pk="QUESTION[0].PK" :canSelected="false"></Article>
                     </div>
                     <div id="answers">
-                        <CodeDetailAnswerHeader v-if="loaded"></CodeDetailAnswerHeader>
+                        <CodeDetailAnswerHeader :count="ANSWERS.length"v-if="loaded"></CodeDetailAnswerHeader>
                         <template v-if="loaded" v-for="answer in ANSWERS" v-key="answer.PK">
-                            <Article :article_pk="answer.PK"></Article>
+                            <Article :article_pk="answer.PK" :canSelected="canSelected"></Article>
                             <div class="separator"></div>
                         </template>
                     </div>
@@ -66,20 +66,35 @@ export default {
             QUESTION: [],
             VERSION: [0],
             loaded: false,
+            canSelected: false,
         }
     },
     props: [
         "question_pk"
     ],
-    mounted() {
+    methods: {
+        update() {
+            this.loaded = false;
+            this.VERSION = [0];
         this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
             const data = res.data.data;
             this.ANSWERS = data.ANSWERS;
             this.QUESTION = data.QUESTION;
             this.VERSION = this.VERSION.concat(data.VERSION);
+            this.canSelected = !data.QUESTION[0].SELECTED && this.$session.get('username') == data.QUESTION[0].USER_NAME;
             this.loaded = true;
         })
 
+        }
+
+    },
+    watch: {
+        "$route": function() {
+            this.update();
+        }
+    },
+    mounted() {
+        this.update();
     }
 }
 

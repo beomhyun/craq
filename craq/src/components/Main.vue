@@ -158,6 +158,7 @@ export default {
 //   animation-duration: 4s;
 // }
 .content {
+    background: radial-gradient(alpha(var(--color-contrast-high), 0.7) 10%, alpha(var(--color-contrast-higher), 0.9)), url(../assets/redbrick.png);
     user-select: none;
     position: fixed;
     top:0;
@@ -187,6 +188,7 @@ export default {
     font-size: 100px;
     text-align: center;
     -webkit-animation: blink 4s infinite alternate;
+  
 
     &__title {
     font-family: 'neontubes';

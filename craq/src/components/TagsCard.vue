@@ -3,20 +3,20 @@
         <div class="p-table__item p-table__item--popular col-4@md">
             <div class="flex justify-between items-center margin-bottom-xxs">
                 <h4 class="p-table__title"><v-clamp autoresize :max-lines="1">{{tag.TITLE}}</v-clamp></h4>
-                <span class="p-table__badge">{{tag.pk}}</span>
+                <span class="p-table__badge">{{  }}</span>
             </div>
 
-            <div class="p-table__count margin-bottom-sm"><span>#151</span> <i>/ view1</i></div>
+            <div class="p-table__count margin-bottom-sm"><span>{{tag.COUNT}}</span> <i>/ tagged</i></div>
 
             <ul class="p-table__features margin-bottom-md">
-                <li>css : 1000</li>
-                <li>Html5: 500</li>
-                <li>Cpp: 10000</li>
-                <li>Java: 50</li>
-                <li>VueJs: 50000</li>
-            </ul>
-
-            <div class="margin-top-auto"><a href="#0" class="btn btn--primary btn--md width-100%">redirect</a></div>
+                <template v-for="topfive in topfives">
+                    <li>{{topfive.TITLE}} : {{topfive.COUNT}}</li>
+                </template>
+                <template v-for="i in (5-topfives.length)">
+                    <li>&nbsp;</li>
+                </template>
+            </ul> 
+            <div class="margin-top-auto"><a href="#0" class="btn btn--primary btn--md width-100%" @click.prevent="goSearch(tag.TITLE)">redirect</a></div>
         </div>
     </div>
 </template>
@@ -30,6 +30,26 @@ export default {
     ],
     components: {
         VClamp
+    },
+    data() {
+        return {
+            topfives: []
+        }
+    },
+    methods: {
+        goSearch: function(tag) {
+            this.$router.push({
+                name:'code',
+                query: {
+                    search_text:'[' + tag + ']'
+                }
+            })
+        } 
+    },
+    mounted() {
+        this.$axios.get(`tags/relation/topfive/${this.tag.PK}`).then((res) => {
+            this.topfives = res.data.data; 
+        })
     }
 }
 

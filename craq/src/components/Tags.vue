@@ -7,7 +7,7 @@
                 TAGS
             </div> <!-- headline -->
 
-            <!-- Filter && Card -->
+            <!-- Filter && Card 
             <div class="subnav">
                 <div class="subnav__filter">
                     <div class="btn btn--sm">Latest</div>
@@ -16,7 +16,7 @@
                     <div class="btn btn--sm">Answer</div>
                     <div class="btn btn--sm">View</div>
                 </div>
-            </div> <!-- Filter /div -->
+            </div> Filter /div -->
 
             <div class="grid  grid-gap-xl margin-lg">
                 <template v-for="tag in tags" v-key="i">

@@ -7,7 +7,7 @@
                 <p>Helpful</p>
             </div>
             <div class="info__column-right">
-                <p>{{0 + list.USER_ANSWER}}</p>
+                <p>{{0 + list.ANSWERS}}</p>
                 <p>{{0 + list.VIEWS}}</p>
                 <p>{{0 + list.HELPFUL}}</p>
             </div>
@@ -19,8 +19,8 @@
             <div class="main__hashtag">
 
 
-                <span :key="idx" v-for="(tag, idx) in list.HASHTAG.split(',')">
-                    <span  class="btn btn--sm btn--tag taglist">
+                <span :key="tag" v-for="(tag) in list.HASHTAG.split(',')">
+                    <span  class="btn btn--sm btn--tag taglist" @click="goSearch(tag)">
                         {{tag}}
                     </span>
                 </span>
@@ -57,7 +57,7 @@ export default {
         VClamp
     },
     props: [
-        'list'
+        'list',
     ],
     data() {
         return {
@@ -69,6 +69,16 @@ export default {
                 "name": "Questions",
                 "params": {
                     question_pk: this.list.PK
+                }
+            })
+        },
+        goSearch: function(tag) {
+            this.$router.push({
+                name:'code',
+                query: {
+                    'order_by': 'PK',
+                    'page': 1,
+                    'search_text': '['+ tag.trim() + ']'
                 }
             })
         }

@@ -1,7 +1,7 @@
 <template>
     <div class="userCard">
         <div class="userImg">
-            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="">
+            <img :src="imageFile" alt="">
             <div class="userInfo__Middle">
                     <font-awesome-icon icon="check" class="userInfo__Middle-icon circle"/>
                     <font-awesome-icon :icon="['far', 'envelope']" class="userInfo__Middle-icon envelope"/>
@@ -11,8 +11,8 @@
 
         <div class="userInfo">
             <div class="userInfo__Top">
-                <div class="userInfo__Top-name">
-                    {{userdata.USERNAME}}
+                <div class="userInfo__Top-name" @click="goProfile">
+                    {{userdata.USERNAME}} {{userdata.PK}}
                 </div>
                 <div class="userInfo__Top-mail">
                     {{userdata.EMAIL}}
@@ -36,19 +36,43 @@
 export default {
     name: 'UserCard',
     props: [
-        "list"
+        "list",
     ],
     data() {
         return {
-            userdata : []
+            userdata : {},
+            imageFile: ''
+        }
+    },
+    watch: {
+        'list': function() {
+            this.update();
+        }
+    },
+    methods: {
+        update() {
+            if (this.list.ANSWER_USERPK) {
+                this.$axios.get(`users/${this.list.ANSWER_USERPK}`).then(res => {
+                    this.userdata = res.data.data[0];
+                    }
+                )
+                this.$axios.get(`users/profile-image/${this.list.ANSWER_USERPK}`).then(
+                    response=>{
+                        this.imageFile = `http://192.168.31.58:10123/${response.data.data}`;
+                    }
+                )                       
+            }
+        },
+        goProfile() {
+            this.$router.push({
+                'name': 'profile',
+                params : {user_name : this.userdata.USERNAME, user_pk : this.userdata.PK}
+            })
+
         }
     },
     mounted() {
-        if (this.list.ANSWER_USERPK) {
-            this.$axios.get('users/' + this.list.ANSWER_USERPK).then(res => {
-                this.userdata = res.data.data[0];
-            })
-        }
+        this.update();
     }
 }
 </script>
@@ -64,6 +88,10 @@ export default {
     width: 120px;
     height: 120px;
 }
+.userImg img{
+    width: 120px;
+    height: 120px;
+}
 
 .userInfo {
     width: 180px;
@@ -74,6 +102,7 @@ export default {
 
     &__Top{
         &-name {
+            cursor: pointer;
             font-size: var(--text-md);
             color: var(--color-on-surface);
             font-weight: bold;

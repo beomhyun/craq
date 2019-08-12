@@ -5,7 +5,6 @@
         <Landing v-if="!isLogin"/>
         <div class="transparent">{{isLogin}}</div>
         <Footer/>
-            <Tester></Tester>
     </div>
 </template>
 
@@ -17,7 +16,6 @@ import Default from '@/layouts/Default.vue';
 //end layouts
 import Landing from '@/views/Landing.vue';
 import Footer from '@/components/Footer.vue';
-import Tester from '@/components/tester.vue';
 
 export default {
     components: {
@@ -25,19 +23,13 @@ export default {
         Footer,
         Default,
         Landing,
-        Tester
     },
     data() {
         return {
             themeTransition: false,
         }
     },
-    theme() {
-      this.themeTransition = true;
-      setTimeout(()=> {
-        this.themeTransition = false;
-      }, 2050);
-      return this.$store.state.theme;
+    methods: {
     },
     computed: {
         layout() {
@@ -65,8 +57,9 @@ export default {
 
 <style lang="scss">
 #app { //width
-  max-width: 1200px; // desktop size
-  margin: auto; // align center
+    max-width: 1200px; // desktop size
+    margin: auto; // align center
+    background-color: var(--color-bg); //TODO
 }
 body { //TODO
        background-color: var(--color-black); //TODO
@@ -76,13 +69,14 @@ body { //TODO
 }
 // dark mode smooth transition
 #app.transition {
-  & *,
-  & *:before,
-  & *:after {
-    transition: none !important;
-    transition: ease-out 2000ms !important;
-    transition-delay: 0 !important;
-  }
+    & *,
+    & *:before,
+    & *:after {
+        transition: none !important;
+        transition: ease-out 2000ms !important;
+        transition-delay: 0 !important;
+    }
 }
+
 // end dark mode smooth transition
 </style>

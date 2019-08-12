@@ -17,7 +17,6 @@ Vue.use(VueFroala)
 //end Froala
 
 // font-awesome
-// font-awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas} from '@fortawesome/free-solid-svg-icons'
 import { far} from '@fortawesome/free-regular-svg-icons';
@@ -32,7 +31,6 @@ Vue.component('font-awesome-icon', FontAwesomeIcon);
 //font awesome tester i tag  to svg
 import {dom} from '@fortawesome/fontawesome-svg-core';
 dom.watch()
-
 //font awesome tester
 
 //markdown View
@@ -91,7 +89,6 @@ Vue.filter('commaSep', function(val) {
 // end date format
 
 Vue.config.productionTip = false
-Vue.prototype.$http = axios
 
 new Vue({
   router,

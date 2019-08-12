@@ -14,7 +14,7 @@
               <div v-if="info.VOTE != null" class="vote-count" itemprop="upvoteCount" data-value=info.VOTE>
                   {{info.VOTE}}
               </div>
-              <div v-else class="vote-count" itemprop="upvoteCount" data-value=info.VOTE>
+              <div v-else class="vote-count" itemprop="upvoteCount" data-value=info.VOTE style="text-align:center;">
                   0
               </div>
               <button class="reset btn-vote" @click="recommendBoard(-1)" :class="{'color-primary': voteStatus == -1}">

@@ -3,12 +3,6 @@ import Router from 'vue-router'
 //test
 import Notice from '@/components/Notice.vue';
 import Tags from '@/components/Tags.vue';
-
-//tree
-import Tree from '@/components/Tree.vue';
-import AddTree from '@/components/freeboardDir/CreateTree.vue';
-import Community from '@/components/freeboardDir/Community.vue'
-//
 import Profile from '@/components/Profile.vue';
 import Main from '@/components/Main.vue'
 
@@ -16,7 +10,13 @@ import Main from '@/components/Main.vue'
 import Code from '@/components/Code.vue';
 import AskQuestion from '@/components/AskQuestion.vue';
 import CodeDetail from '@/components/CodeDetail.vue';
+import CodeAnswer from '@/components/CodeAnswer.vue';
+import CodeImprove from '@/components/CodeImprove.vue';
 
+//tree
+import Tree from '@/components/Tree.vue';
+import AddTree from '@/components/freeboardDir/CreateTree.vue';
+import Community from '@/components/freeboardDir/Community.vue'
 //Community
 import FreeBoard from '@/components/freeboardDir/FreeBoard.vue';
 import FreeHome from '@/components/freeboardDir/FreeHome.vue';
@@ -54,26 +54,6 @@ export default new Router({
       name: 'tags',
       component: Tags
     },
-
-    // Tree
-    {
-      path: '/tree',
-      meta: {},
-      name: 'tree',
-      component: Tree,
-      children : [
-        {
-          path: '',
-          name : 'community',
-          component : Community
-        },
-        {
-          path : 'addtree',
-          name : 'addtree',
-          component : AddTree,
-        }
-      ]
-    },
     {
       path: '/profile/:user_name',
       meta: {
@@ -99,7 +79,25 @@ export default new Router({
     },
 
 
-
+    // Tree
+    {
+      path: '/tree',
+      meta: {},
+      name: 'tree',
+      component: Tree,
+      children : [
+        {
+          path: '',
+          name : 'community',
+          component : Community
+        },
+        {
+          path : 'addtree',
+          name : 'addtree',
+          component : AddTree,
+        }
+      ]
+    },
     // FreeBoard
     {
       path: '/freeboard/:topic',
@@ -137,6 +135,18 @@ export default new Router({
       name: 'Questions',
       component: CodeDetail,
       props: true
-    }
+    },
+    {
+      path: '/code/:question_pk/answers/',
+      name: 'Answer',
+      component: CodeAnswer,
+      props: true
+    },
+    {
+      path: '/questions/:question_pk/improve/',
+      name: 'Improve',
+      component: CodeImprove,
+      props: true
+    },
   ]
 })

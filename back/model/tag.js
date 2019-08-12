@@ -50,27 +50,30 @@ const initializeEndpoints = (app) => {
                 WHERE    TITLE LIKE '${i.title}'
               `;
         connection.query(sql, function(err, rows1, fields) {
-          if( rows1[0].COUNT == 0 ){ // 작성된 topic이 없다면
-            // console.log(rows[0].COUNT);
-            sql =
-            `
-              INSERT  INTO
-              TAG     ( TITLE, BODY, CREATEDUSER, UPDATEDUSER )
-              VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${decoded.pk}, ${decoded.pk} )
-            `;
-            connection.query(sql, function(err, rows2, fields) {
-              if(!err){
-                // console.log(rows2.insertId);
-                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                res.send({status: "success",data: rows2.insertId});
-              }else{
-                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                res.send({status: "fail"});
-              }
-            });
-          }else{
+          if(!rows1){
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-            res.send({status: "fail", data: rows1[0].PK});
+            res.send({status: "fail"});
+          }else{
+            if( rows1[0].COUNT == 0 ){ // 작성된 topic이 없다면
+              sql =
+              `
+                INSERT  INTO
+                TAG     ( TITLE, BODY, CREATEDUSER, UPDATEDUSER )
+                VALUES  ( ${"'"+i.title+"'"}, ${"'"+i.body+"'"}, ${decoded.pk}, ${decoded.pk} )
+              `;
+              connection.query(sql, function(err, rows2, fields) {
+                if(!err){
+                  serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                  res.send({status: "success",data: rows2.insertId});
+                }else{
+                  serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                  res.send({status: "fail"});
+                }
+              });
+            }else{
+              serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+              res.send({status: "fail", data: rows1[0].PK});
+            }
           }
         });
       }
@@ -107,7 +110,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -234,7 +236,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -278,7 +279,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -335,10 +335,17 @@ const initializeEndpoints = (app) => {
                       `
                         SELECT	  	T.PK
                           		 	 ,	T.TITLE
-                          		 	 ,	T.BODY
+                                  ,	T.BODY
+                                  ,(SELECT
+                                    COUNT(*)
+                                  FROM
+                                    HASHTAG AS H
+                                  WHERE
+                                    H.HASHTAG = T.PK
+                                  ) AS COUNT
                         FROM 			  TAG AS T
                         WHERE			  T.IS_REMOVED = ${FALSE}
-                        ORDER BY 	  T.PK ASC
+                        ORDER BY 	  COUNT DESC
                         LIMIT 		  ${(req.params.page-1)*TAG_PER_PAGE}, ${TAG_PER_PAGE}
                       `;
 
@@ -403,12 +410,10 @@ const initializeEndpoints = (app) => {
                   LIMIT 0,10
                   `;
         connection.query(sql, function(err, rows, fields) {
-          // console.log(rows);
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json({status: "success", data: rows});
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status:"fail", data: err});
           }
@@ -417,16 +422,16 @@ const initializeEndpoints = (app) => {
     });
   });
 
-    /**
+  /**
    * @swagger
-   *  /tags/relation/topfive:
+   *  /tags/relation/topfive/{tag}:
    *    get:
    *      tags:
    *      - tag
    *      description: 해당 태그와 같이 많이 사용된 태그 상위 5개
    *      parameters:
    *      - name: tag
-   *        in: query
+   *        in: path
    *        type: integer   
    *        description: tag pk
    *      - name: user_token
@@ -436,7 +441,7 @@ const initializeEndpoints = (app) => {
    *      responses:
    *        200:
    */
-  app.get('/tags/relation/topfive', function(req, res) {
+  app.get('/tags/relation/topfive/:tag', function(req, res) {
     jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
       if (err) {
         res.status(401).send({
@@ -461,18 +466,16 @@ const initializeEndpoints = (app) => {
                             FROM
                               HASHTAG AS H
                             WHERE
-                              H.HASHTAG = ${req.query.tag})
-                    AND A.HASHTAG != ${req.query.tag}
+                              H.HASHTAG = ${req.params.tag})
+                    AND A.HASHTAG != ${req.params.tag}
                   GROUP BY A.HASHTAG
                   LIMIT 0,5
                   `;
         connection.query(sql, function(err, rows, fields) {
-          // console.log(rows);
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json({status: "success", data: rows});
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send({status:"fail", data: err});
           }
@@ -480,6 +483,90 @@ const initializeEndpoints = (app) => {
       }
     });
   });
+  
+  /**
+   * @swagger
+   *  /tags/search/{page}:
+   *    get:
+   *      tags:
+   *      - tag
+   *      description: 해당 페이지의 tag들을 가져옴 (12)
+   *      parameters:
+   *      - name: page
+   *        in: path
+   *        type: integer
+   *        description: 특정 위치의 page값을 전달.
+   *      - name: search_text
+   *        in: query
+   *        type: string
+   *        description: 검색 단어 전달
+   *      - name: user_token
+   *        in: header
+   *        type: string
+   *        description: 사용자의 token값을 전달
+   *      responses:
+   *        200:
+   */
+  app.get('/tags/search/:page', function(req, res) {
+    jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+      if (err) {
+        res.status(401).send({
+        error: 'invalid token'
+      });
+      serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+    }
+      else {
+        var sql =
+                  `
+                    SELECT  COUNT(PK) AS COUNT
+                    FROM    TAG
+                    WHERE   IS_REMOVED = ${FALSE}
+                            AND TITLE LIKE '%${req.query.search_text}%'
+                  `;
+        connection.query(sql, function(err, rows, fields) {
+          var totalTag = rows[0].COUNT;
+          var totalPage = parseInt(totalTag / TAG_PER_PAGE);      //  예 ) 26 / 12 => "2"
+          if(totalTag > totalPage * TAG_PER_PAGE){
+            totalPage++;
+          }
+          if(totalPage < req.params.page){
+            serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+            res.send({status: "fail"});
+          }else{
+            sql =
+                      `
+                        SELECT	  	T.PK
+                          		 	 ,	T.TITLE
+                                  ,	T.BODY
+                                  ,(SELECT
+                                    COUNT(*)
+                                  FROM
+                                    HASHTAG AS H
+                                  WHERE
+                                    H.HASHTAG = T.PK
+                                  ) AS COUNT
+                        FROM 			  TAG AS T
+                        WHERE			  T.IS_REMOVED = ${FALSE}
+                                    AND TITLE LIKE '%${req.query.search_text}%'
+                        ORDER BY 	  COUNT DESC
+                        LIMIT 		  ${(req.params.page-1)*TAG_PER_PAGE}, ${TAG_PER_PAGE}
+                      `;
+
+            connection.query(sql, function(err, rows, fields) {
+              if (!err){
+                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                res.send({status: "success", data: rows, maxPage:totalPage});
+              }else{
+                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                res.send({status: "fail"});
+              }
+            });
+          }          
+        });
+      }
+    });
+  });
+
 
 };
 module.exports = initializeEndpoints;
