@@ -49,7 +49,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -88,7 +87,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -140,7 +138,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -188,7 +185,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
@@ -236,7 +232,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('Error while performing Query.', err);
             serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
             res.send(err);
           }
