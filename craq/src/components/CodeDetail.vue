@@ -72,7 +72,10 @@ export default {
     props: [
         "question_pk"
     ],
-    mounted() {
+    methods: {
+        update() {
+            this.loaded = false;
+            this.VERSION = [0];
         this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
             const data = res.data.data;
             this.ANSWERS = data.ANSWERS;
@@ -82,6 +85,16 @@ export default {
             this.loaded = true;
         })
 
+        }
+
+    },
+    watch: {
+        "$route": function() {
+            this.update();
+        }
+    },
+    mounted() {
+        this.update();
     }
 }
 
