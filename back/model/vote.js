@@ -120,16 +120,21 @@ const initializeEndpoints = (app) => {
           AND       USER    = ${req.params.user_id}
         `;
         connection.query(sql, function(err, rows, fields) {
-          var val = rows[0].GOOD;
-          if(String(rows[0].GOOD) == "null"){
-            val = 0;
-          }
-          if(!err){
-            serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-            res.send({status: "success", data:val});
-          }else{
+          if(!rows){
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({status: "fail"});
+          }else{
+            var val = rows[0].GOOD;
+            if(String(rows[0].GOOD) == "null"){
+              val = 0;
+            }
+            if(!err){
+              serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+              res.send({status: "success", data:val});
+            }else{
+              serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+              res.send({status: "fail"});
+            }
           }
         });
       }
