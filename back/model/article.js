@@ -2016,7 +2016,7 @@ const initializeEndpoints = (app) => {
       ON      A.CONTENT     = C.PK
       WHERE   A.IS_REMOVED  = 0
               AND A.TOPIC = ${req.query.topic_id}
-              A.IS_ACTIVE = 0
+              AND A.IS_ACTIVE = 0
       `;
       sql +=keyword;
       connection.query(sql, function(err, rows, fields) {
@@ -2059,7 +2059,7 @@ const initializeEndpoints = (app) => {
             ON        A.CONTENT = C.PK
             WHERE     A.IS_REMOVED = 0
                       AND A.TOPIC = ${req.query.topic_id}
-                      A.IS_ACTIVE = 0
+                      AND A.IS_ACTIVE = 0
             `;
             sql+=keyword;
             sql+= `LIMIT ${(i.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}`;
