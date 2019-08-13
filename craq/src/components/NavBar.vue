@@ -141,6 +141,10 @@ export default {
                     path:`/code/${JSON.parse(targetNoty.info).question_pk}`,
                     query: {
                         target: info.comment_pk ? 'c' + info.comment_pk : 'a' + info.answer_pk
+                    },
+                    params: {
+                        target: info.comment_pk ? 'c' + info.comment_pk : 'a' + info.answer_pk
+
                     }
                 });
             })

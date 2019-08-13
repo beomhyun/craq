@@ -1,5 +1,5 @@
 <template>
-    <li class="comment">
+    <li class="comment" :class="{'targeted': 'c'+comment.PK == $route.query.target}">
         <div class="comment-actions">
             <div class="comment-score">{{comment.USER}}</div>
         </div>
@@ -85,5 +85,8 @@ export default {
         line-height: 1.3;
         color: var(--color-primary-dark);
     }
+}
+.targeted {
+    background-color: alpha(var(--color-secondary), 0.2);
 }
 </style>
