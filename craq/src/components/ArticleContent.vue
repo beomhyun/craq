@@ -13,7 +13,13 @@ export default {
     },
     props: [
         "body"
-    ]
+    ],
+    watch: {
+        '$props': function() {
+            console.log('content');
+        }
+
+    }
 }
 
 </script>

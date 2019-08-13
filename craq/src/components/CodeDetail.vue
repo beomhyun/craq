@@ -75,11 +75,21 @@ export default {
     methods: {
         clicked(sort_by) {
             if (this.sort_by == sort_by) return;
+            alert('WIP');
             this.sort_by = sort_by; 
             this.sort(sort_by);
         },
         sort(sort_by) {
-            console.log(this.ANSWERS);
+            this.loaded = false;
+            this.loaded = true;
+            this.$forceUpdate();
+            if (sort_by == 'votes') {
+
+            } else if(sort_by == 'active') {
+
+            } else {
+
+            }
         },
         update() {
             this.loaded = false;

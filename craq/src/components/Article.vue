@@ -44,19 +44,25 @@ export default {
             isAnswer: false,
         }
     },
+    watch: {
+        'article_pk': function() {
+            console.log('article');
+            this.$forceUpdate();
+        }
+    },
     methods: {
         selectVersion(version) {
             this.$axios.put(`questions/${this.article_pk}/content/${this.VERSION[version].PK}`)
                 .then(res=> {
                     console.log(res)
-                        swal({  
-                            title : "현재 버전으로 선택되었습니다!",
-                            text:'이 창은 잠시 후 자동으로 사라집니다.',
-                            icon: "success", 
-                            className: "swal-modal",
-                            button: false,
-                            timer: 2000,
-                            });
+                    swal({  
+                        title : "현재 버전으로 선택되었습니다!",
+                        text:'이 창은 잠시 후 자동으로 사라집니다.',
+                        icon: "success", 
+                        className: "swal-modal",
+                        button: false,
+                        timer: 2000,
+                    });
                 })
         },
         up: function() {
@@ -86,7 +92,7 @@ export default {
         if (this.canSelected !== undefined) {
             this.isAnswer = true
         }
-        
+
         this.$axios.get(`questions/detail/${this.article_pk}`).then(res=>{
             const data = res.data.data;
             this.ANSWERS = data.ANSWERS;
