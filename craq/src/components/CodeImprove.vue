@@ -1,7 +1,7 @@
 <template>
     <div>
-        <AskQuestion v-if="loaded&&$route.params.editQuestion" :editQuestion="$route.params.editQuestion" :questionData ="questionData"/>
-        <CodeAnswer v-if="loaded&&$route.params.editAnswer" :editAnswer="$route.params.editAnswer" :question_pk ="$route.params.question_pk" :questionData="questionData" />
+        <AskQuestion v-if="loaded&&editQuestion" :editQuestion="editQuestion" :questionData ="questionData"/>
+        <CodeAnswer v-if="loaded&&$route.params.editAnswer" :editAnswer="$route.params.editAnswer" :question_pk ="question_pk" :questionData="questionData" :answerData="answerData" :isAnswer="isAnswer"/>
     </div>
 </template>
 
@@ -20,6 +20,9 @@ const CodeAnswer = () => ({
 });
 export default {
     name : 'codeImprove',
+    props: [
+        'editQuestion', 'question_pk', 'isAnswer'
+    ],
     components : {
         AskQuestion,
         CodeAnswer,
@@ -42,27 +45,31 @@ export default {
     },
     mounted() {
         if (this.$route.params.editAnswer) {
-            this.$axios.get("questions/detail/" + this.$route.params.question_pk).then(res=>{    
+            this.$axios.get("questions/detail/" + this.isAnswer.QST_PK).then(res=>{    
                 const data = res.data.data;
                 this.questionData.QUESTION = data.QUESTION;
                 this.questionData.VERSION = this.questionData.VERSION.concat(data.VERSION);
                 this.questionData.current = this.questionData.QUESTION[0].VERSION+2;
-                this.$axios.get("questions/detail/" + res.data.ANSWERS.PK).then(res =>{
-                    const data = res.data.data;
-                    this.answerData.QUESTION = data.QUESTION;
-                    this.answerData.VERSION = this.questionData.VERSION.concat(data.VERSION);
-                    this.answerData.current = this.questionData.QUESTION[0].VERSION+2;
+                console.log("@@@@@@@@@@@@@@@@@@@@@@@@@",res)
+                console.log("$&%^*&%#$$^&(*&^%#$@#",this.question_pk)
+                this.$axios.get("questions/detail/" + this.question_pk).then(res =>{
+                    const askdata = res.data.data;
+                    this.answerData.QUESTION = askdata.QUESTION;
+                    this.answerData.VERSION = this.answerData.VERSION.concat(askdata.VERSION);
+                    this.answerData.current = this.answerData.QUESTION[0].VERSION+2;
+                    this.loaded = true;
                 })
+            })
+        }
+        if (!(this.$route.params.editAnswer)) {
+            this.$axios.get("questions/detail/" + this.question_pk).then(res=>{
+                const data = res.data.data;
+                this.questionData.QUESTION = data.QUESTION;
+                this.questionData.VERSION = this.questionData.VERSION.concat(data.VERSION);
+                this.questionData.current = this.questionData.QUESTION[0].VERSION+2;
                 this.loaded = true;
             })
         }
-        this.$axios.get("questions/detail/" + this.$route.params.question_pk).then(res=>{
-            const data = res.data.data;
-            this.questionData.QUESTION = data.QUESTION;
-            this.questionData.VERSION = this.questionData.VERSION.concat(data.VERSION);
-            this.questionData.current = this.questionData.QUESTION[0].VERSION+2;
-            this.loaded = true;
-        })
     }
 }
 </script>

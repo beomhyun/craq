@@ -45,19 +45,20 @@ export default {
             this.$emit('left');
         },
         codeImprove() {
-            console.log("isAnswer",this.isAnswer)
-            if (this.isAnswer) {
+            if (this.isAnswer.check == true) {
                 this.$router.push({
                     "name": "Improve",
-                    params : { question_pk : this.article_pk, editAnswer : true,}
+                    params : { question_pk : this.article_pk, editAnswer : true, isAnswer : this.isAnswer}
                 })
 
-            } else {
+            }
+            if (this.isAnswer.check == false) {
                 this.$router.push({
                     "name": "Improve",
                     params : { question_pk : this.article_pk, editQuestion : true,}
                 })
-            }
+
+            } 
         }
     }
 }

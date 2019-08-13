@@ -11,12 +11,12 @@
                                           ></CodeDetailQuestionHeaderBottom>
                 <div id="mainbar">
                     <div id="question" class="question">
-                        <Article v-if="loaded" :article_pk="QUESTION[0].PK" :canSelected="false"></Article>
+                        <Article v-if="loaded" :article_pk="QUESTION[0].PK" :canSelected="false" :is_answer="false"></Article>
                     </div>
                     <div id="answers">
                         <CodeDetailAnswerHeader :count="ANSWERS.length"v-if="loaded" @clicked="clicked" :curSort="sort_by"></CodeDetailAnswerHeader>
                         <template v-if="loaded" v-for="answer in ANSWERS" v-key="answer.PK">
-                            <Article :article_pk="answer.PK" :canSelected="canSelected"></Article>
+                            <Article :article_pk="answer.PK" :canSelected="canSelected" :is_answer="true" :QST_PK="answer.QST_PK"></Article>
                             <div class="separator"></div>
                         </template>
                     </div>

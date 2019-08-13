@@ -28,7 +28,7 @@ import swal from 'sweetalert';
 export default {
     name: "Article",
     props: [
-        "article_pk", "canSelected"
+        "article_pk", "canSelected", "is_answer" , 'QST_PK'
     ],
     data() {
         return {
@@ -42,7 +42,10 @@ export default {
             selected: 0,
             created:"",
             edited:"",
-            isAnswer: false,
+            isAnswer: {
+                check : false,
+                QST_PK : ''
+            },
         }
     },
     watch: {
@@ -94,8 +97,9 @@ export default {
         ArticleSignature,
     },
     mounted() {
-        if (this.canSelected !== undefined) {
-            this.isAnswer = true
+        if (this.is_answer == true) {
+            this.isAnswer = {check: true,
+                            QST_PK : this.QST_PK}
         }
 
         this.$axios.get(`questions/detail/${this.article_pk}`).then(res=>{

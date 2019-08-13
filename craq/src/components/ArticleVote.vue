@@ -166,6 +166,7 @@ export default {
     flex-direction: column;
     align-items: stretch;
     text-align: center;
+    margin-left: var(--space-sm);
 }
 .btn-vote {
     font-size: 1.5rem;
