@@ -123,7 +123,7 @@ export default {
         },
         notyGo(id) {
             let to = "/"
-            let targetNoty = null;
+            let targetNoty;
             let i = 0
             for (i = 0; i < this.noties.length; i++) {
                 if (this.noties[i].pk == id) {
@@ -133,9 +133,16 @@ export default {
                     break;
                 }
             }
+            console.log(!!JSON.parse(targetNoty.info).comment_pk);
+            let info = JSON.parse(targetNoty.info);
             this.$axios.put(`notices/checks/${id}`).then(()=> {
                 this.noties[i].is_active = 1;
-                this.$router.push(`/code/${JSON.parse(targetNoty.info).question_pk}`);
+                this.$router.push({
+                    path:`/code/${JSON.parse(targetNoty.info).question_pk}`,
+                    query: {
+                        target: info.comment_pk ? 'c' + info.comment_pk : 'a' + info.answer_pk
+                    }
+                });
             })
         },
         getNoties() {

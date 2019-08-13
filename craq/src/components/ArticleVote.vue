@@ -9,12 +9,14 @@
         <button class="reset btn-vote" @click="voteIt(-1)" :class="{'color-primary': voteStatus == -1}">
             <font-awesome-icon icon="chevron-down"></font-awesome-icon>
         </button>
+
         <button class="reset" v-if="question">
             <div class="btn-vote--small">
                 <font-awesome-icon :icon="starIcon" @click.prevent="wardIt"></font-awesome-icon>
             </div>
             <div>{{ward}}</div>
         </button>
+
         <button class="reset" v-if="is_active">
             <div class="btn-check--small">
                 <font-awesome-icon :icon="['fas', 'check']" ></font-awesome-icon>
