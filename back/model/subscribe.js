@@ -171,7 +171,8 @@ const initializeEndpoints = (app) => {
                       SUBSCRIBE AS S
                         LEFT OUTER JOIN TOPIC AS T ON S.TOPIC = T.PK
                     WHERE
-                      USER = ? `;
+                      USER = ?
+                      AND T.IS_ACTIVE = 1 `;
         var params = [req.params.user];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
