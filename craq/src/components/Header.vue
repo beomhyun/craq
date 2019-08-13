@@ -72,12 +72,9 @@ export default {
         background-size: cover;
         background-repeat: no-repeat;
         background-clip: border-box;
+        clip-path: polygon(0 3%, 100% 0%, 100% 100%, 0% 100%);
         
 
-        transform: skewY(-5deg);
-        & > * {
-            transform: skewY(5deg);
-        }
     }
 }
 
