@@ -7,7 +7,7 @@
                 </a>
             </div>
             <div class="user-gravatar32">
-                <a href="">
+                <a href="#">
                     <span class="anonymous-gravatar" style="display:none;"></span>
                     <img :src="url" alt="" width="32" height="32">
                 </a>

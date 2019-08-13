@@ -22,6 +22,7 @@
     "marked": "^0.7.0",
     "moment": "^2.24.0",
     "sweetalert": "^2.1.2",
+    "v-clipboard": "^2.2.2",
     "vue": "^2.6.10",
     "vue-chartjs": "^3.4.2",
     "vue-clamp": "^0.2.1",

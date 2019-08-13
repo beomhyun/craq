@@ -2,7 +2,9 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-
+//clipboard
+import Clipboard from 'v-clipboard'
+Vue.use(ClipBoard)
 
 //vue session
 import VueSession from 'vue-session'
