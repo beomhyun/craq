@@ -20,7 +20,7 @@
                         </li>
                         <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><div class="main-header__nav-link" @click.prevent="goSearch()" :class="{'main-header__nav-selected': currentRouteName == 'code'}" style="cursor: pointer;">Code</div></li>
                         <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><router-link class="main-header__nav-link" to="/notice" :class="{'main-header__nav-selected': currentRouteName == 'notice'}">Notice</router-link></li>
-                        <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><router-link class="main-header__nav-link" to="/tags" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
+                        <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><router-link class="main-header__nav-link" to="/tags?page=1" :class="{'main-header__nav-selected': currentRouteName == 'tags'}">Tags</router-link></li>
                         <li class="main-header__nav-item" v-show="!onSearch && $session.exists()"><router-link class="main-header__nav-link" to="/tree" :class="{'main-header__nav-selected': currentRouteName == 'tree'}">Tree</router-link></li>
                         <li class="main-header__nav-item main-header__nav-divider" v-if="!onSearch && $session.exists()"></li>
                         <li class="main-header__nav-item" v-if="onSearch && $session.exists()">
