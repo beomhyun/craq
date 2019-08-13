@@ -38,7 +38,9 @@
                 <label class="form-label margin-bottom-xxxs" for="inputEmail1">Email
                     <font-awesome-icon  v-if="!email && progress == 1" icon="exclamation" class="exclamation"></font-awesome-icon>
                     <font-awesome-icon  v-if="email && progress == 1" icon="check" class="check"></font-awesome-icon>
-                    {{is_validEmail ? (email ? 'ok':'double') : 'not an email'}}
+                    <span v-if="progress==1">
+{{is_validEmail ? (email ? 'ok':'double') : 'not an email'}}
+                    </span>
                 </label>
                 <input class="form-control width-100%" type="email" v-model="inputEmail" name="inputEmail" id="inputEmail" placeholder="SSAFY Email">
             </div>
