@@ -4,9 +4,9 @@
             <h2 :data-answercount="count">{{count}} Answers</h2>
             <div>
                 <div id="tabs">
-                    <a href="">active</a>
-                    <a href="">oldest</a>
-                    <a href="" class="youarehere is-selected">votes</a>
+                    <a @click.prevent="clicked('active')" :class="{'youarehere': curSort == 'active'}">active</a>
+                    <a @click.prevent="clicked('oldest')" :class="{'youarehere': curSort == 'oldest'}">oldest</a>
+                    <a @click.prevent="clicked('votes')"  :class="{'youarehere': curSort == 'votes'}">votes</a>
                 </div>
             </div>
         </div>
@@ -18,7 +18,12 @@
 <script>
 export default {
     name: "CodeDetailAnswerHeader",
-    props: ["count"],
+    props: ["count", "curSort"],
+    methods: {
+        clicked(sort_by) {
+            this.$emit("clicked", sort_by);
+        }
+    }
 }
 
 </script>

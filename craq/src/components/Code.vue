@@ -125,7 +125,8 @@ export default {
             this.askquestion = true;
         },
         update() {
-            this.$axios.get(`questions/search/${this.query('page')}?order_by=${this.query('order_by')}&search_text=${this.query('search_text')}`)
+            console.log(encodeURI(this.query('search_text')));
+            this.$axios.get(`questions/search/${this.query('page')}?order_by=${this.query('order_by')}&search_text=${encodeURIComponent(this.query('search_text'))}`)
                 .then(res=>{
                     if (res.data.status == "fail") {
                         this.asks = [];
