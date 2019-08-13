@@ -76,6 +76,10 @@ export default {
         clicked(sort_by) {
             if (this.sort_by == sort_by) return;
             this.sort_by = sort_by; 
+            this.sort(sort_by);
+        },
+        sort(sort_by) {
+            console.log(this.ANSWERS);
         },
         update() {
             this.loaded = false;
