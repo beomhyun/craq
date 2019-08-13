@@ -1,5 +1,6 @@
 <template> 
     <div>
+        <Spinner v-if="!loaded"></Spinner>
         <form @submit.prevent="submit2">
             <input v-focus type="text" class="form-control" v-model="body" autofocus><button class="reset btn btn--primary"><font-awesome-icon :icon="['fas', 'paper-plane']"></font-awesome-icon></button>
         </form>
@@ -7,6 +8,7 @@
 </template>
 
 <script>
+import Spinner from '@/components/Spinner.vue'
 export default {
     name: "ArticleCommenter",
     props: [
@@ -14,11 +16,13 @@ export default {
     ],
     data() {
         return {
-            body: ""
+            body: "",
+            loaded: true
         }
     },
     methods: {
         submit2: function()  {
+            this.loaded = false;
             let data = {
                 user_id: this.$session.get('userPk'),
                 content_id: this.content_id,
@@ -27,8 +31,9 @@ export default {
             }
             const hello = this;
             this.$axios.post('comments', data).then((res) => {
-            });
+                this.loaded = true;
                 this.$emit('clicked');
+            });
         }
     }
 }

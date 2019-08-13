@@ -1,5 +1,6 @@
 <template>
     <div class="voting-container">
+        <font-awesome-icon :icon="['fas', 'hand-point-right']" v-if="'a'+article_pk == $route.query.target" style="color: var(--color-secondary)"></font-awesome-icon>
         <button class="reset btn-vote" @click="voteIt(1)" :class="{'color-primary': voteStatus == 1}">
             <font-awesome-icon icon="chevron-up"></font-awesome-icon>
         </button>
