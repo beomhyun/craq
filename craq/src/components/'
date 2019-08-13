@@ -66,14 +66,16 @@ export default {
                 "user_id": this.$session.get('userPk'),
                 'body' : this.inputContent,
             }
-            console.log(data);
             console.log("푸시 전")
-            this.$axios.post('contents', data).then(res=>{
+            console.log(this.question_pk)
+            this.$axios.post('contents' , data).then(res => {
+                console.log(res)
                 this.$router.push({
-                    name : 'Questions',
-                    params : {question_pk : this.question_pk}
+                    name: 'Questions',
+                    params : { question_pk : this.question_pk }
                 })
-            })
+            }).catch(err=>console.log(err));
+            
         }
     }
 }

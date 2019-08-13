@@ -4,23 +4,22 @@
             <div class="inner-content clearfix">
                 <CodeDetailQuestionHeader v-if="loaded" :title="VERSION[QUESTION[0].VERSION].TITLE" :article_pk="QUESTION[0].PK"></CodeDetailQuestionHeader>
                 <CodeDetailQuestionHeaderBottom 
-                  v-if="loaded"
-                 :created_at="VERSION[1].CREATED_AT"
-                 :updated_at="VERSION[VERSION.length-1].CREATED_AT"
-                 :views="QUESTION[0].VIEWS"
-                 ></CodeDetailQuestionHeaderBottom>
+                                          v-if="loaded"
+                                          :created_at="VERSION[1].CREATED_AT"
+                                          :updated_at="VERSION[VERSION.length-1].CREATED_AT"
+                                          :views="QUESTION[0].VIEWS"
+                                          ></CodeDetailQuestionHeaderBottom>
                 <div id="mainbar">
                     <div id="question" class="question">
                         <Article v-if="loaded" :article_pk="QUESTION[0].PK" :canSelected="false"></Article>
                     </div>
                     <div id="answers">
-                        <CodeDetailAnswerHeader :count="ANSWERS.length"v-if="loaded"></CodeDetailAnswerHeader>
+                        <CodeDetailAnswerHeader :count="ANSWERS.length"v-if="loaded" @clicked="clicked" :curSort="sort_by"></CodeDetailAnswerHeader>
                         <template v-if="loaded" v-for="answer in ANSWERS" v-key="answer.PK">
                             <Article :article_pk="answer.PK" :canSelected="canSelected"></Article>
                             <div class="separator"></div>
                         </template>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -67,26 +66,34 @@ export default {
             VERSION: [0],
             loaded: false,
             canSelected: false,
+            sort_by: "votes",
         }
     },
     props: [
         "question_pk"
     ],
     methods: {
+        clicked(sort_by) {
+            if (this.sort_by == sort_by) return;
+            this.sort_by = sort_by; 
+            this.sort(sort_by);
+        },
+        sort(sort_by) {
+            console.log(this.ANSWERS);
+        },
         update() {
             this.loaded = false;
             this.VERSION = [0];
-        this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
-            const data = res.data.data;
-            this.ANSWERS = data.ANSWERS;
-            this.QUESTION = data.QUESTION;
-            this.VERSION = this.VERSION.concat(data.VERSION);
-            this.canSelected = !data.QUESTION[0].SELECTED && this.$session.get('username') == data.QUESTION[0].USER_NAME;
-            this.loaded = true;
-        })
-
-        }
-
+            this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
+                const data = res.data.data;
+                this.ANSWERS = data.ANSWERS;
+                this.QUESTION = data.QUESTION;
+                this.VERSION = this.VERSION.concat(data.VERSION);
+                this.canSelected = !data.QUESTION[0].SELECTED && this.$session.get('username') == data.QUESTION[0].USER_NAME;
+                this.loaded = true;
+                //this.ANSWERS.sort(this.votes);
+            })
+        },
     },
     watch: {
         "$route": function() {
