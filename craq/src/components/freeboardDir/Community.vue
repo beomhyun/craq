@@ -14,7 +14,7 @@
       </ul>
     </div>
     <form id="_boardForm" name="boardForm" @submit.prevent="searchTopics" class="form-horizontal">
-      <div class="width-100%">
+      <div class="width-100%" style="text-align: center;">
         <input type="search" name="searchA" v-model="searchtopic" placeholder="게시판 제목 검색" class="form-control width-70%">
         <button type="submit" class="btn btn-accept btn-sm" name="button" style="margin:5px;">Search</button>
       </div>

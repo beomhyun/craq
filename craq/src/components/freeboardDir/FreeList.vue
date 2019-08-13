@@ -48,7 +48,7 @@
       <button class="btn btn--primary btn--md" style="margin:5px;" @click="boardwrite">글쓰기</button>
 
       <form id="_frmForm1" name="frmForm1" @submit.prevent="searchArticle" class="form-horizontal">
-        <div class="width-100%" >
+        <div class="width-100%" style="text-align: center;">
           <select v-model="selected" class="form-control width-30%" autofocus>
             <!-- inline object literal -->
             <option selected="selected" v-bind:value="0">제목</option>
