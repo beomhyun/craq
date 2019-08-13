@@ -203,9 +203,10 @@ export default {
                     "tags": this.inputTags
                     }
                 this.$axios.post('contents', data).then(res=> {
+                    console.log(res)
                     this.$router.push({
                         "name": "Questions",
-                        params : {question_pk : res.data.CONTENTPK}
+                        params : {question_pk : res.data.ARTICLEPK}
                     })
                 })
             } 
@@ -224,7 +225,7 @@ export default {
             if (this.inputTags.length > 0 && this.inputTitle.length > 0 && this.inputContent.length > 0) {
                 const editdata = {
                     "topic_id": 1,
-                    "article_id": this.questionData.QUESTION[0].PK,
+                    "article_id": 0,
                     "beforeContent": this.questionData.VERSION[this.questionData.current].PK,
                     "title": this.inputTitle,
                     "body": this.inputContent,
@@ -232,7 +233,7 @@ export default {
                     "tags": this.inputTags
                     }
                 this.$axios.post('contents', editdata).then(res=> {
-                        console.log("res",res)
+                    this.$axios.put(`questions/${res.data.ARTICLEPK}/content/${res.data.CONTENTPK}`).then(res =>{
                         this.$router.push({
                             "name": "Questions",
                             params : {
@@ -240,6 +241,7 @@ export default {
                             }
                         })
                     })
+                })
             }
         },
 
@@ -288,8 +290,7 @@ export default {
     
         deleteTag(tag) {
             this.myTags = this.myTags.filter((el)=>el!=tag)
-            this.inputTags = this.inputTags.replace(tag.pk, '')
-            this.inputTags = this.inputTags.replace(",", '')
+            this.inputTags = this.inputTags.replace(","+tag.pk, '')
             },
 
          goSearch: function(item) {

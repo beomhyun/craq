@@ -121,7 +121,8 @@ const initializeEndpoints = (app) => {
                                       SUBSCRIBE
                                     GROUP BY TOPIC) AS S
                         ON T.PK = S.TOPIC
-                    WHERE PK NOT IN (1,2) 
+                    WHERE PK NOT IN (1,2)
+                          AND IS_ACTIVE = 1
                     ORDER BY SUBSCRIBES DESC`;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
@@ -179,7 +180,9 @@ const initializeEndpoints = (app) => {
                                       SUBSCRIBE
                                     GROUP BY TOPIC) AS S
                         ON T.PK = S.TOPIC
-                    WHERE T.CREATEDUSER = ${req.params.user} `;
+                    WHERE T.CREATEDUSER = ${req.params.user} 
+                          AND T.IS_ACTIVE = 1
+                    `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);

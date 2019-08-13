@@ -6,7 +6,7 @@
         <div class="postcell post-layout--right">
             <ArticleContent v-if="loaded" :body="VERSION[current].BODY"></ArticleContent>
             <ArticleTagList :content_pk="VERSION[current].PK"></ArticleTagList>
-            <ArticleSignature @right="up" @left="down" :current="current" :creator="creator" :editor="editor" :created="created" :edited="edited" :article_pk="article_pk" @selectVersion="selectVersion"></ArticleSignature>
+            <ArticleSignature @right="up" @left="down" :current="current" :creator="creator" :editor="editor" :created="created" :edited="edited" :article_pk="article_pk" @selectVersion="selectVersion" :isAnswer="isAnswer"></ArticleSignature>
             <div style="grid-column: 1 / 3;"></div>
             <div class="post-layout--right">
                 <ArticleComments v-bind="$props" :content_id="VERSION[current].PK"></ArticleComments>
@@ -41,6 +41,7 @@ export default {
             selected: 0,
             created:"",
             edited:"",
+            isAnswer: false,
         }
     },
     methods: {
@@ -82,6 +83,10 @@ export default {
         ArticleSignature,
     },
     mounted() {
+        if (this.canSelected !== undefined) {
+            this.isAnswer = true
+        }
+        
         this.$axios.get(`questions/detail/${this.article_pk}`).then(res=>{
             const data = res.data.data;
             this.ANSWERS = data.ANSWERS;

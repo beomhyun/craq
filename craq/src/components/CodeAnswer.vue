@@ -7,7 +7,8 @@
             <label for="content"><strong>content</strong> - 문제 해결을 위해 시도한 것들을 상세하게 작성해주십시오.</label>
             <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
         </div>
-        <div class="btn btn--primary btn--md" @click="createAnswer">Submit</div> 
+        <div class="btn btn--primary btn--md" @click="createAnswer" v-if="!$route.params.editAnswer">Submit</div> 
+        <div class="btn btn--primary btn--md" @click="editAnswer" v-if="$route.params.editAnswer">Edit</div> 
     </div>
 </template>
 <script>
@@ -50,6 +51,9 @@ export default {
         }
     },
     mounted() {
+        if (this.$route.params.editAnswer) {
+            this.placeholderText = "a"
+        }
         this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
             const data = res.data.data;
             this.VERSION = data.VERSION;
@@ -66,8 +70,21 @@ export default {
                 "user_id": this.$session.get('userPk'),
                 'body' : this.inputContent,
             }
-            console.log(data);
-            console.log("푸시 전")
+            this.$axios.post('contents', data).then(res=>{
+                this.$router.push({
+                    name : 'Questions',
+                    params : {question_pk : this.question_pk}
+                })
+            })
+        },
+        editAnswer() {
+            const data = {
+                'topic_id' : 1,
+                'article_id' : this.question_pk,
+                "beforeContent": 0,
+                "user_id": this.$session.get('userPk'),
+                'body' : this.inputContent,
+            }
             this.$axios.post('contents', data).then(res=>{
                 this.$router.push({
                     name : 'Questions',
