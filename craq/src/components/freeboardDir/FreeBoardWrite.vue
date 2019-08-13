@@ -13,14 +13,12 @@
       </div>
       <textarea rows="10" cols="80" name="content" class="form-control width-100%" v-model="content"/>
       <div>
-        <!-- <input type="text" name="filename" v-model="filename" readonly=true/> -->
         <div v-if="imageData.length > 0">
           <img class="preview" :src="imgDir" style="max-height : 500px;">
         </div>
         <input type="file" @change="previewImage" accept="image/*" class="form-control" />
       </div>
       <div>
-        <!-- <button @click="clearForm" class="btn btn-subtle btn-sm" style="margin:5px;">Clear</button> -->
         <button type="submit" class="btn btn-accept btn-sm" name="button" style="margin:5px;">Submit</button>
       </div>
     </form>
@@ -40,9 +38,6 @@ export default {
       content : "",
       imgDir : "",
       isManager : false,
-      // isNotice : false
-      // selectFile : null
-      // filename : "",
     }
   },
   created() {
@@ -56,12 +51,13 @@ export default {
     this.$axios
     .get(`managers/${this.$route.params.topic}/${this.$session.get("userPk")}`)
     .then((res) => {
-      // console.log(res.data);
       if(res.data.status === "fail") {
         this.isManager = false;
       }else {
         this.isManager = true;
       }
+      console.log("Manager");
+      console.log(this.isManager);
     })
   },
   methods : {
@@ -104,9 +100,6 @@ export default {
           this.$router.go(-1);
         })
       }
-
-      // this.isAddBoard = false;
-      // this.$emit('childs-event', this.isAddBoard)
     },
     previewImage: function(event) {
         // Reference to the DOM input element

@@ -2,7 +2,7 @@
     <div>
         <!-- <div v-if="freeState === 'freeboard'"> -->
           <div class="container max-width-lg" style="display: flex">
-            <h3 style="display: inline; width:100%">공지사항 게시판</h3>
+            <h3 style="display: inline; width:100%">공지사항</h3>
           </div>
           <NoticeList :page='1' />
     </div>

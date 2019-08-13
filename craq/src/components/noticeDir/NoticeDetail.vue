@@ -26,7 +26,7 @@
       </div>
 
       <div class="column middle">
-        <p v-if="info.IMAGE !== 'default_profile.png'" style="text-align : center;">
+        <p v-if="info.IMAGE !== ''" style="text-align : center;">
           <img class="preview" :src="info.IMAGE" style="max-height : 500px;" align="center">
         </p>
         <p>{{info.BODY}}</p>

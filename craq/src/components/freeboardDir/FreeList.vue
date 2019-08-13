@@ -17,7 +17,7 @@
       <tr v-for="notice in topic_notices" v-if="noticeToggle">
         <td v-if="isManager"><button class="btn btn--primary btn-lg" style="margin:3px" @click="postDelete(notice.PK)">Delete</button></th>
         <td>공지</td>
-        <td v-html="notice.TITLE" @click="showDetail(notice)"></td>
+        <td class="" v-html="notice.TITLE" @click="showDetail(notice)"></td>
         <!-- <td v-html="notice.title"><router-link :to="{ name: 'freedetail', params: {id : notice.id} }"></router-link></td> -->
         <td v-html="notice.USERNAME"></td>
         <td><time itemprop=notice.CREATED_AT datetime=notice.CREATED_AT>{{notice.CREATED_AT|formatDate}}</time></td>
@@ -25,10 +25,10 @@
         <td v-if="notice.VOTE != null" v-html="notice.VOTE"></td>
         <td v-else>0</td>
       </tr>
-      <tr v-for="(board, idx) in topic_articles">
+      <tr v-for="board in topic_articles">
         <td v-if="isManager"><button class="btn btn--primary btn-lg" style="margin:3px" @click="postDelete(board.PK)">Delete</button></th>
-        <td v-html="board.PK"></td>
-        <td v-html="board.TITLE" @click="showDetail(board)"></td>
+        <td v-html="board.ROWNUM"></td>
+        <td class="table-hover" v-html="board.TITLE" @click="showDetail(board)"></td>
         <!-- <td v-html="board.title"><router-link :to="{ name: 'freedetail', params: {id : board.id} }"></router-link></td> -->
         <td v-html="board.USERNAME"></td>
         <td><time itemprop=board.CREATED_AT datetime=board.CREATED_AT>{{board.CREATED_AT|formatDate}}</time></td>
@@ -45,8 +45,6 @@
     </div>
     <div class="container max-width-lg center">
       <button class="btn btn--subtle btn--md" style="margin:5px;" @click="notice">공지사항</button>
-      <!-- <button class="btn btn--subtle btn--md" style="margin:5px;" @click="newest">최신순</button>
-      <button class="btn btn--subtle btn--md" style="margin:5px;" @click="viewSort">조회순</button> -->
       <button class="btn btn--primary btn--md" style="margin:5px;" @click="boardwrite">글쓰기</button>
 
       <form id="_frmForm1" name="frmForm1" @submit.prevent="searchArticle" class="form-horizontal">
@@ -81,18 +79,15 @@ export default {
   ],
   data() {
     return {
-      newtoggle : true,
-      viewtoggle : true,
-      isNew : false,
       noticeToggle : false,
       topic_articles : [],
       topic_notices : [],
-      totalpage: 1,
-      info: {},
       selected: 0,
       searcharticle : '',
       endPage : 0,
       isManager : false,
+      isSearch: false,
+      searchPage : 1,
       }
     },
     // beforeRouteUpdate(to) {
@@ -153,20 +148,28 @@ export default {
         .then((res) => {
           if(res.data.data != null) {
             this.topic_articles = res.data.data;
+            this.isSearch = true;
+            this.endPage = res.data.maxPage;
           }else {
             alert("검색 결과가 없습니다.!!")
           }
-
         })
       },
       showPage(index) {
-        this.$axios
-        .get(`articles/${this.topic}/${index}`)
-        .then((res) => {
-          this.topic_articles = res.data.data;
-
-          this.page = index;
-        })
+        if(this.isSearch) {
+          this.$axios
+          .get(`articles/searches?topic_id=${this.topic}&type_id=${this.selected}&word=${this.searcharticle}&page=${index}`)
+          .then((res) => {
+            this.topic_articles = res.data.data;
+          })
+        }else {
+          this.$axios
+          .get(`articles/${this.topic}/${index}`)
+          .then((res) => {
+            this.topic_articles = res.data.data;
+            this.page = index;
+          })
+        }
       },
       notice() {
         this.noticeToggle = !this.noticeToggle;
@@ -196,8 +199,17 @@ export default {
          padding: 10px;
          vertical-align: top;
          border-bottom: 1px solid #ccc;
+
+     }
+
+     .table-hover:hover {
+       // background: var(--color-tertiary);
+       color : var(--color-primary);
+       font-weight: bold;
      }
 }
+
+
 .pagination {
   // display: inline-block;
   ul {
