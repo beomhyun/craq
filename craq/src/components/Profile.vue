@@ -132,6 +132,7 @@
 </template>
 <script>
 import Noty from '@/components/Noty.vue';
+import swal from 'sweetalert';
 import Spinner from '@/components/Spinner.vue';
 
 //import ProfileActivity from '@/components/ProfileActivity.vue';
@@ -342,6 +343,13 @@ export default {
             }
             this.$axios.put('profile', data).catch(err => console.log(err))
             this.$axios.get("users/profile/" + this.user_pk).then(res=>{
+                swal({  
+                        title : "수정 완료",
+                        text : "프로필 수정을 완료하였습니다.",
+                        icon : 'success',
+                        button: false,
+                        timer: 2000,
+                        });
             })
             this.toggleProfile = false
         },
