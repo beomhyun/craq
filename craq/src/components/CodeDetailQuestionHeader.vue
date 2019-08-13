@@ -1,7 +1,7 @@
 <template>
     <div id="question-header">
         <h1>
-            <a class="question-hyperlink margin-bottom-xs" href="">
+            <a class="question-hyperlink margin-bottom-xs" href="#">
                 {{title}}
             </a>
         </h1>
