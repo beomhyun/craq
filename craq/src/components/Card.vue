@@ -20,7 +20,7 @@
                 
                 
                 <span :key="tag" v-for="(tag) in list.HASHTAG.split(',')">
-                    <span  class="btn btn--sm btn--tag taglist" @click="goSearch(tag)">
+                    <span  class="btn btn--sm btn--tag taglist" @click.left.exact="goSearch(tag)" @click.shift.left.exact="shiftClick(tag)">
                         <VClamp autoresize :max-lines="1">{{tag}} </VClamp>
                     </span>
                 </span>
@@ -64,6 +64,21 @@ export default {
         }
     }, 
     methods: {
+        shiftClick: function(tag) {
+            console.log(this.$route.query);
+            console.log(tag);
+            if (this.$route.query.search_text.includes(encodeURIComponent('['+tag.trim()+']'))) {
+                    return;
+            }
+            this.$router.push({
+                name: 'code',
+                query: {
+                    'order_by': this.$route.query.order_by,
+                    'page': this.$route.query.page,
+                    'search_text': this.$route.query.search_text + '[' + tag.trim()+ ']'
+                }
+            })
+        },
         routerPush: function() {
             this.$router.push({
                 "name": "Questions",
