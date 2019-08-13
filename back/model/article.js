@@ -1087,7 +1087,8 @@ const initializeEndpoints = (app) => {
           				AND 		W.IS_REMOVED  = 0
           			) AS WARDS,
           			A.ANSWER AS IS_ANSWER,
-          			A.IS_ACTIVE
+                A.IS_ACTIVE,
+                A.ARTICLE AS ARTICLE_PK
         FROM 		ARTICLE AS A
         WHERE 	1 = 1
         AND 		A.PK = ${req.params.pk}
@@ -1152,6 +1153,7 @@ const initializeEndpoints = (app) => {
                 FROM 	 ARTICLE AS A
                 WHERE  A.ARTICLE = ${req.params.pk}
                 AND		 A.IS_REMOVED = 0
+                ORDER BY IS_SELECTED DESC
                 `;
                 connection.query(sql, function(err, answers, fields) {
                   if (!err) {
@@ -2014,6 +2016,7 @@ const initializeEndpoints = (app) => {
       ON      A.CONTENT     = C.PK
       WHERE   A.IS_REMOVED  = 0
               AND A.TOPIC = ${req.query.topic_id}
+              A.IS_ACTIVE = 0
       `;
       sql +=keyword;
       connection.query(sql, function(err, rows, fields) {
@@ -2056,6 +2059,7 @@ const initializeEndpoints = (app) => {
             ON        A.CONTENT = C.PK
             WHERE     A.IS_REMOVED = 0
                       AND A.TOPIC = ${req.query.topic_id}
+                      A.IS_ACTIVE = 0
             `;
             sql+=keyword;
             sql+= `LIMIT ${(i.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}`;
