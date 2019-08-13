@@ -48,6 +48,7 @@ export default {
     methods: {
         selectThis() {
             this.$axios.put(`questions/${this.$route.params.question_pk}/answers/${this.article_pk}`).then(res=>{
+                this.$emit('question22', this.article_pk);
                 this.$root.$emit('question_selected', this.article_pk);
                 swal({
                         title : "답변을 채택했습니다!", 

@@ -1,8 +1,8 @@
 <template>
     <div class="post-layout" :class="{'selected-answer': is_active,
-                                      'targeted': 'a' + article_pk == $route.query.target}">
+    'targeted': 'a' + article_pk == $route.query.target}" :ref="'a' + article_pk">
         <div class="votecell post-layout--left">
-            <ArticleVote v-if="loaded" :vote="QUESTION[0].HELPFUL" :ward="QUESTION[0].WARDS" :question="!QUESTION[0].ARTICLE_PK" v-bind="$props" :is_active="is_active"></ArticleVote>
+            <ArticleVote v-if="loaded" :vote="QUESTION[0].HELPFUL" :ward="QUESTION[0].WARDS" :question="!QUESTION[0].ARTICLE_PK" v-bind="$props" :is_active="is_active" @question22="question22"></ArticleVote>
         </div>
         <div class="postcell post-layout--right">
             <ArticleContent v-if="loaded" :body="VERSION[current].BODY"></ArticleContent>
@@ -52,6 +52,10 @@ export default {
         }
     },
     methods: {
+        question22() {
+            this.is_active = true;
+            console.log(this.$refs['a' + this.article_pk].classList.add('selected-answer'));
+        },
         selectVersion(version) {
             this.$axios.put(`questions/${this.article_pk}/content/${this.VERSION[version].PK}`)
                 .then(res=> {
