@@ -29,6 +29,9 @@
             <Paginator :chunkSize="5" :maxPage="endPage" :curPage="page" @clicked="showNoticePage"></Paginator>
       </div>
     </div>
+    <div class="container max-width-lg center">
+      <button v-if="isManager" class="btn btn--primary btn--md" style="margin:5px;" @click="boardwrite">글쓰기</button>
+    </div>
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <table class="table freetable width-100%">
+    <table class="type09 width-100%">
       <col v-if="isManager" width="10%"><col width="10%"><col width="30%"><col width="10%"><col width="15%"><col width="10%"><col width="10%">
       <thead>
         <tr>
@@ -209,6 +209,50 @@ export default {
        font-weight: bold;
      }
 }
+
+
+.type09 {
+	border-collapse: collapse;
+	text-align: left;
+	line-height: 1.5;
+
+  thead{
+    th {
+     	padding: 10px;
+     	font-weight: bold;
+     	vertical-align: top;
+     	color: var(--color-tertiary-darker);
+     	border-bottom: 3px solid var(--color-tertiary-darker);
+    }
+  }
+
+   tbody {
+     th {
+       	width: 150px;
+       	padding: 10px;
+       	font-weight: bold;
+       	vertical-align: top;
+       	border-bottom: 1px solid #ccc;
+       	background: #f3f6f7;
+     }
+
+     td {
+     	width: 350px;
+     	padding: 10px;
+     	vertical-align: top;
+     	border-bottom: 1px solid var(--color-primary);
+     }
+   }
+
+   .table-hover:hover {
+     background: var(--color-tertiary);
+     color : var(--color-surface);
+     font-weight: bold;
+   }
+
+}
+
+
 
 
 .pagination {
