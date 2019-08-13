@@ -1056,102 +1056,113 @@ const initializeEndpoints = (app) => {
         serverlog.log(connection, 0, this.sql, "fail", req.connection.remoteAddress);
       } else {
         var json = {};
-        var sql = `SELECT
-                          A.PK
-                          ,(SELECT
-                            C.VERSION
-                          FROM
-                            CONTENT AS C
-                          WHERE
-                            A.CONTENT = C.PK
-                          ) AS VERSION
-                          ,(SELECT
-                                U.USERNAME
-                              FROM
-                                USER AS U
-                              WHERE
-                                U.PK = A.CREATEDUSER
-                            ) AS USER_NAME
-                          ,(SELECT
-                              COUNT(*)
-                            FROM
-                              ARTICLE AS B
-                            WHERE
-                              B.ARTICLE = A.PK
-                          ) AS ANSWERS
-                          ,A.ANSWER AS SELECTED
-                          ,(SELECT
-                                  IFNULL(SUM(V.GOOD),0)
-                                FROM VOTE AS V
-                                WHERE A.PK = V.ARTICLE) AS HELPFUL
-                          ,(SELECT
-                            COUNT(*)
-                          FROM
-                            VIEW AS V
-                          WHERE
-                            A.PK = V.ARTICLE) AS VIEWS
-                          ,(SELECT
-                              COUNT(*)
-                            FROM
-                              WARD AS W
-                            WHERE
-                              1=1
-                              AND W.ARTICLE = A.PK
-                              AND W.IS_REMOVED = 0
-                          ) AS WARDS
-                          ,A.ARTICLE AS IS_ANSWER
-                          ,A.IS_ACTIVE
-                        FROM
-                          ARTICLE AS A
-                        WHERE
-                          1=1
-                    AND A.PK = ${req.params.pk} `;
+        var sql = // 해당 질문글의 aritlce 정보를 가져옴.
+        `
+        SELECT	A.PK,
+          			(
+          				SELECT	C.VERSION
+          				FROM 		CONTENT AS C
+          				WHERE		C.PK = A.CONTENT
+          			) AS VERSION,
+          			(
+          				SELECT	U.USERNAME
+          				FROM 		USER AS U
+          				WHERE 	U.PK = A.CREATEDUSER
+          			) AS USER_NAME,
+          			(
+          				SELECT	IFNULL(SUM(V.GOOD),0)
+          				FROM 		VOTE AS V
+          				WHERE		V.ARTICLE = A.PK
+          			) AS HELPFUL,
+          			(
+          				SELECT	COUNT(*)
+          				FROM		VIEW AS V
+          				WHERE		V.ARTICLE = A.PK
+          			) AS VIEW,
+          			(
+          				SELECT	COUNT(*)
+          				FROM 		WARD AS W
+          				WHERE 	1 = 1
+          				AND 	   W.ARTICLE = A.PK
+          				AND 		W.IS_REMOVED  = 0
+          			) AS WARDS,
+          			A.ANSWER AS IS_ANSWER,
+          			A.IS_ACTIVE
+        FROM 		ARTICLE AS A
+        WHERE 	1 = 1
+        AND 		A.PK = ${req.params.pk}
+        `;
         connection.query(sql, function(err, question, fields) {
           if (!err) {
             json.QUESTION = question;
-            sql = `SELECT
-                          C.PK
-                          ,C.VERSION
-                          ,C.TITLE
-                          ,C.BODY
-                          ,C.CREATEDUSER AS USER_PK
-                          ,(SELECT
-                              U.USERNAME
-                            FROM
-                              USER AS U
-                            WHERE
-                              U.PK = C.CREATEDUSER
-                          ) AS USER_NAME
-                          ,CREATED_AT
-                      FROM
-                          CONTENT AS C
-                      WHERE
-                          1=1
-                          AND C.ARTICLE = ${req.params.pk}
-                          AND C.IS_REMOVED = 0
-                      `
+            sql = // 해당 질문글의 모든 content정보를 가져옴.
+            `
+            SELECT	C.PK,
+            			  C.VERSION,
+            			  C.TITLE,
+            			  C.BODY,
+            			  C.CREATEDUSER AS USER_PK,
+            			  (
+            			  	SELECT	U.USERNAME
+            	  			FROM		USER AS U
+            	  			WHERE 	U.PK = C.CREATEDUSER
+            	  		) AS USER_NAME,
+            		  	CREATED_AT
+            FROM		CONTENT AS C
+            WHERE 	1=1
+            AND		  C.ARTICLE = ${req.params.pk}
+            AND		  C.IS_REMOVED = 0
+            `;
             connection.query(sql, function(err, versions, fields) {
-              if (!err) {
+              if (!err) { // version은 무조건 1개이상이기 때문에 no counting
                 json.VERSION = versions;
-                sql = `SELECT
-                          PK
-                        FROM
-                          ARTICLE
-                        WHERE
-                          ARTICLE = ${req.params.pk}`;
+                sql =
+                `
+                SELECT	A.ARTICLE AS QST_PK,
+                  			PK,
+                 			(
+                 				SELECT	COUNT(*)
+                 				FROM 		VOTE AS V
+                 				WHERE 	V.ARTICLE =  A.PK
+                 			) AS VOTE,
+                 			(
+                 				SELECT	CREATED_AT
+                 				FROM 		CONTENT AS CT
+                 				WHERE 	CT.ARTICLE =  A.PK
+                 				LIMIT    1
+                 			) CREATED_AT,
+                 			(
+                 				SELECT	CREATED_AT
+                 				FROM 		CONTENT AS CT
+                 				WHERE 	CT.PK =
+                 				(
+                 					SELECT	CONTENT
+                 					FROM 		ARTICLE
+                 					WHERE		PK = A.PK
+                 				)
+                 			) UPDATED_AT,
+                 			IF
+                 			(
+                 				(
+                 					SELECT	ANSWER
+                 					FROM 		ARTICLE
+                 					WHERE    PK = ${req.params.pk}
+                 				)  = A.PK , 1 ,0
+                 			) IS_SELECTED
+                FROM 	 ARTICLE AS A
+                WHERE  A.ARTICLE = ${req.params.pk}
+                AND		 A.IS_REMOVED = 0
+                `;
                 connection.query(sql, function(err, answers, fields) {
                   if (!err) {
                     json.ANSWERS = answers;
-                    sql = `
-                          SELECT
-                          COUNT(*) AS CHECKk
-                        FROM
-                          VIEW
-                        WHERE
-                          ARTICLE = ${req.params.pk}
-                          AND USER = ${decoded.pk}
-                          `;
-
+                    sql =
+                    `
+                    SELECT	COUNT(*) AS CHECKk
+                    FROM 		VIEW
+                    WHERE		ARTICLE = ${req.params.pk}
+                    AND     USER = ${decoded.pk}
+                    `;
                     connection.query(sql, function(err, checking, fields) {
                       if (!err) {
                         if (checking[0].CHECKk == 0) {
