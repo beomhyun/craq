@@ -5,7 +5,7 @@
                 <div class="post-menu">
                     <a href="">share</a>
                     <span style="visibility: hidden;">|</span>
-                    <span class="improve_btn" @click="codeImprove">improve this question</span>
+                    <span class="improve_btn" @click="codeImprove">edit</span>
                     <span style="visibility: hidden;">|</span>
                     <span style="visibility: hidden;">|</span>
                     <a @click.prevent="left"><</a>
@@ -45,7 +45,6 @@ export default {
             this.$emit('left');
         },
         codeImprove() {
-            console.log("?")
             this.$router.push({
                 "name": "Improve",
                 params : { question_pk : this.article_pk, editQuestion : true,}
