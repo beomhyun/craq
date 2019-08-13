@@ -52,7 +52,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
@@ -89,8 +88,8 @@ const initializeEndpoints = (app) => {
         SELECT  *
         FROM    ARTICLE
         WHERE   TOPIC   = 1
-        AND     ARTICLE = ${FALSE}
-        AND     IS_REMOVED = ${FALSE}
+        AND     ARTICLE = 0
+        AND     IS_REMOVED = 0
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
@@ -142,8 +141,8 @@ const initializeEndpoints = (app) => {
         FROM      ARTICLE A
         JOIN      CONTENT C
         ON        A.CONTENT       =   C.PK
-        WHERE     A.IS_REMOVED    =   ${FALSE}
-        AND       A.ARTICLE       =   ${FALSE}
+        WHERE     A.IS_REMOVED    =   0
+        AND       A.ARTICLE       =   0
         AND       A.CREATEDUSER   =   ${req.params.user_id}
         `;
         connection.query(sql, function(err, rows, fields) {
@@ -176,8 +175,8 @@ const initializeEndpoints = (app) => {
               FROM 		ARTICLE A
               JOIN 		CONTENT C
               ON 		  A.CONTENT       =   C.PK
-              WHERE   A.IS_REMOVED    =   ${FALSE}
-              AND     A.ARTICLE       =   ${FALSE}
+              WHERE   A.IS_REMOVED    =   0
+              AND     A.ARTICLE       =   0
               AND     A.CREATEDUSER   =   ${req.params.user_id}
               LIMIT   ${(req.params.page-1)*QST_PER_PAGE}, ${QST_PER_PAGE}
               `;
@@ -240,8 +239,8 @@ const initializeEndpoints = (app) => {
         FROM      ARTICLE A
         JOIN      CONTENT C
         ON        A.CONTENT       =   C.PK
-        WHERE     A.IS_REMOVED    =   ${FALSE}
-        AND       A.ARTICLE       !=   ${FALSE}
+        WHERE     A.IS_REMOVED    =   0
+        AND       A.ARTICLE       !=   0
         AND       A.CREATEDUSER   =   ${req.params.user_id}
         `;
         connection.query(sql, function(err, rows, fields) {
@@ -274,8 +273,8 @@ const initializeEndpoints = (app) => {
               FROM 		ARTICLE A
               JOIN 		CONTENT C
               ON 		  A.CONTENT       =   C.PK
-              WHERE   A.IS_REMOVED    =   ${FALSE}
-              AND     A.ARTICLE       !=   ${FALSE}
+              WHERE   A.IS_REMOVED    =   0
+              AND     A.ARTICLE       !=   0
               AND     A.CREATEDUSER   =   ${req.params.user_id}
               LIMIT   ${(req.params.page-1)*QST_PER_PAGE}, ${QST_PER_PAGE}
               `;
@@ -332,7 +331,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
@@ -373,7 +371,7 @@ const initializeEndpoints = (app) => {
           SELECT    *
           FROM      ARTICLE
           WHERE     ARTICLE     =   ${req.params.id}
-          AND       IS_REMOVED  =   ${FALSE}
+          AND       IS_REMOVED  =   0
           AND       TOPIC       =   1
         `;
         connection.query(sql, function(err, rows, fields) {
@@ -381,7 +379,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.send({status: "success",data:rows});
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({status: "fail"});
           }
@@ -424,7 +421,6 @@ const initializeEndpoints = (app) => {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
             res.json(rows);
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
@@ -533,13 +529,11 @@ const initializeEndpoints = (app) => {
                 serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
                 res.send({status: "success", data: rows, maxPage:totalPage});
               } else {
-                // console.log('article insert err ', err);
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                 res.send({status: "fail"});
               }
             });
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
@@ -592,7 +586,6 @@ const initializeEndpoints = (app) => {
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             var totalArticle = rows[0].TOTAL_ARTICLE;
-            //console.log("totalArticle = "+totalArticle);
             //나올 수 있는 총 페이지의 수를 구한다.
             var totalPage = totalArticle / ARTICLE_PER_PAGE;
             if (totalArticle > totalPage * ARTICLE_PER_PAGE) {
@@ -639,13 +632,11 @@ const initializeEndpoints = (app) => {
                 serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
                 res.json(rows);
               } else {
-                // console.log('article insert err ', err);
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                 res.send(err);
               }
             });
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
@@ -839,29 +830,29 @@ const initializeEndpoints = (app) => {
                           FROM
                             ARTICLE AS A
                           WHERE
-                            A.ARTICLE != ${FALSE}
+                            A.ARTICLE != 0
                             AND A.CREATEDUSER = U.PK
-                            AND A.IS_ACTIVE = ${TRUE}) AS SELECTED_ANSWER
+                            AND A.IS_ACTIVE = 1) AS SELECTED_ANSWER
                         , (SELECT
                             COUNT(*)
                           FROM
                             ARTICLE AS A
                           WHERE
-                            A.ARTICLE != ${FALSE}
+                            A.ARTICLE != 0
                             AND A.CREATEDUSER = U.PK) AS ANSWER
                         , ((SELECT
                             COUNT(*)
                           FROM
                             ARTICLE AS A
                           WHERE
-                            A.ARTICLE != ${FALSE}
+                            A.ARTICLE != 0
                             AND A.CREATEDUSER = U.PK
-                            AND A.IS_ACTIVE = ${TRUE})/(SELECT
+                            AND A.IS_ACTIVE = 1)/(SELECT
                             COUNT(*)
                           FROM
                             ARTICLE AS A
                           WHERE
-                            A.ARTICLE != ${FALSE}
+                            A.ARTICLE != 0
                             AND A.CREATEDUSER = U.PK)) AS RELIABLE
                     FROM
                       ARTICLE AS ASK
@@ -869,9 +860,9 @@ const initializeEndpoints = (app) => {
                             LEFT OUTER JOIN ARTICLE AS ANSWER ON ASK.ANSWER = ANSWER.PK
                               LEFT OUTER JOIN USER AS U ON ANSWER.CREATEDUSER = U.PK
                     WHERE 1=1
-                      AND CON.IS_REMOVED = ${FALSE}
-                      AND ASK.ARTICLE = ${FALSE}
-                        AND ASK.TOPIC = ${TRUE}
+                      AND CON.IS_REMOVED = 0
+                      AND ASK.ARTICLE = 0
+                        AND ASK.TOPIC = 1
                      `;
             connection.query(sql, function(err, rows, fields) {
               if (!err) {
@@ -931,8 +922,8 @@ const initializeEndpoints = (app) => {
                         ARTICLE
                       WHERE 1=1
                           AND TOPIC = 1
-                          AND ARTICLE = ${FALSE}
-                          AND IS_REMOVED =${FALSE} `
+                          AND ARTICLE = 0
+                          AND IS_REMOVED =0 `
         connection.query(sql, function(err, rows2, fields) {
           if (!err) {
             var max_page = parseInt(rows2[0].TOTAL / perpage) + 1;
@@ -2016,17 +2007,12 @@ const initializeEndpoints = (app) => {
       sql +=keyword;
       connection.query(sql, function(err, rows, fields) {
         if (!err) {
-          console.log(this.sql);
-          console.log(rows);
           var totalArticle = rows[0].COUNT;     // 검색 후 나온 article의 갯수
-          console.log(totalArticle);
           var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
           if(totalArticle > totalPage * ARTICLE_PER_PAGE){
             totalPage++;  // article이 20개씩 나올 페이지의 갯수
           }
           if(i.page > totalPage){
-            console.log(i.page);
-            console.log(totalPage);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send({status: "fail"});
           }else{
@@ -2193,7 +2179,7 @@ const initializeEndpoints = (app) => {
                   LEFT OUTER JOIN CONTENT AS C ON A.PK = C.ARTICLE
         WHERE A.IS_REMOVED = ${FALSE}
               AND     A.TOPIC = 2
-              AND A.IS_ACTIVE = ${TRUE}
+              AND A.IS_ACTIVE = 1
         `;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
@@ -2253,13 +2239,11 @@ const initializeEndpoints = (app) => {
                 serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
                 res.send({status: "success", data: rows, maxPage:totalPage});
               } else {
-                // console.log('article insert err ', err);
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                 res.send({status: "fail"});
               }
             });
           } else {
-            // console.log('article insert err ', err);
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
             res.send(err);
           }
