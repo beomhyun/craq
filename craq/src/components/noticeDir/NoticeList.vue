@@ -29,21 +29,6 @@
             <Paginator :chunkSize="5" :maxPage="endPage" :curPage="page" @clicked="showNoticePage"></Paginator>
       </div>
     </div>
-    <div class="container max-width-lg center">
-      <button v-if="isManager" class="btn btn--primary btn--md" style="margin:5px;" @click="boardwrite">글쓰기</button>
-      <form id="_frmForm1" name="frmForm1" @submit.prevent="searchNotice" class="form-horizontal">
-        <div class="width-100%" >
-          <select v-model="selected" class="form-control width-30%" autofocus>
-            <!-- inline object literal -->
-            <option selected="selected" v-bind:value="0">제목</option>
-            <option v-bind:value="1">내용</option>
-            <option v-bind:value="2">제목+내용</option>
-          </select>
-          <input type="search" name="searchA" v-model="searchnotice" class="form-control width-70%">
-          <button type="submit" class="btn btn-accept btn-sm" name="button" style="margin:5px;">Search</button>
-        </div>
-      </form>
-    </div>
   </div>
 </template>
 
