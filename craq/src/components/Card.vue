@@ -14,14 +14,14 @@
         </div>
 
         <div class="main">
-            <div class="main__title" @click="routerPush"><h4> {{list.TITLE}} </h4></div>
+            <div class="main__title" @click="routerPush"><h4><VClamp autoresize :max-lines="1"> {{list.TITLE}} </VClamp> </h4></div>
             
             <div class="main__hashtag">
                 
                 
                 <span :key="tag" v-for="(tag) in list.HASHTAG.split(',')">
                     <span  class="btn btn--sm btn--tag taglist" @click="goSearch(tag)">
-                        {{tag}}
+                        <VClamp autoresize :max-lines="1">{{tag}} </VClamp>
                     </span>
                 </span>
                 
@@ -252,6 +252,7 @@ $--card-main-height: 120px;
         margin: var(--space-xxxs);
         color: var(--color-on-tertiary);
         box-shadow: unset;
+        overflow: visible;
     }
 
 .noneSelected {

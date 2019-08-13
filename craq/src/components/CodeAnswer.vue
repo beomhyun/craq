@@ -67,15 +67,12 @@ export default {
                 'body' : this.inputContent,
             }
             console.log("푸시 전")
-            console.log(this.question_pk)
-            this.$axios.post('contents' , data).then(res => {
-                console.log(res)
+            this.$axios.post('contents', data).then(res=>{
                 this.$router.push({
-                    name: 'Questions',
-                    params : { question_pk : this.question_pk }
+                    name : 'Questions',
+                    params : {question_pk : this.question_pk}
                 })
-            }). ca
-            
+            })
         }
     }
 }

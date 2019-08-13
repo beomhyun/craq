@@ -16,7 +16,7 @@
                 <div class="layout">
                 <div class="inputQuestion__form">
                     <label for="title"><strong>Title</strong> - 제목을 입력시 유사한 질문을 표시해 줍니다.</label>
-                    <input type="text" id="title" v-model="inputTitle" class="questionForm" placeholder="제목을 입력해 주세요." v-on:blur="onBlur" :class="{'openSearchBox' : toggleTitle}">
+                    <input type="text" id="title" v-model="inputTitle" class="questionForm" placeholder="제목을 입력해 주세요." v-on:blur="onBlur" :class="{'openSearchBox' : toggleTitle}" @keydown.enter="createTitle(inputTitle)">
                     
                     <div class="searchtitle" v-if="!questionData">
 
@@ -84,7 +84,7 @@
             <div class="sub">
                 <div class="sub-Box">
                     <h3 class="sub-Box__title">Hot HashTags</h3>
-                    <div :key="idx" v-for="(item, idx) in Hot" class="sub-Box__list">
+                    <div :key="idx" v-for="(item, idx) in Hot.slice(1,11)" class="sub-Box__list">
                         <div class="btn" @click="goSearch(item)">{{item.TITLE}}</div>
                     </div>
                 </div>
@@ -205,7 +205,7 @@ export default {
                 this.$axios.post('contents', data).then(res=> {
                     this.$router.push({
                         "name": "Questions",
-                        params : {question_pk : res.data.PK}
+                        params : {question_pk : res.data.CONTENTPK}
                     })
                 })
             } 
@@ -232,9 +232,6 @@ export default {
                     "tags": this.inputTags
                     }
                 this.$axios.post('contents', editdata).then(res=> {
-                    console.log(this.questionData.QUESTION[0].PK)
-                    console.log(this.questionData.VERSION[this.questionData.current].PK)
-                    this.$axios.put(`questions/${this.questionData.QUESTION[0].PK}/content/${this.questionData.VERSION[this.questionData.current].PK}`).then(res => {
                         console.log("res",res)
                         this.$router.push({
                             "name": "Questions",
@@ -243,8 +240,6 @@ export default {
                             }
                         })
                     })
-                    
-                })
             }
         },
 
@@ -259,7 +254,15 @@ export default {
                 this.tags = [] 
                 this.toggleTags = false
         },
-
+        createTitle(item) {
+            console.log("작동안되니?")
+            if ( item.length == 0) {
+                swal("제목은 한 글자 이상!","장난으로 마구 입력하면 안되요!","error")
+            } 
+            if ( item.length > 0) {
+                this.onBlur()
+            }
+        },
         createHashtags(item) {
             if ( this.inputHashtag.length == 0) {
                 swal("태그는 한 글자 이상!","장난으로 마구 입력하면 안되요!","error")
