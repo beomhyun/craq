@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import VClamp from 'vue-clamp';
 export default {
     name: "Noty",
     props: [
@@ -53,7 +54,6 @@ export default {
     border-radius: var(--radius-md);
     color: var(--color-on-surface);
     width: 100%;
-
     &__content {
     }
     &__link-icon {
@@ -86,7 +86,9 @@ export default {
         opacity: 0.5;
     }
 }
-
+.alert__content p {
+    width: 20%;
+}
 .close-btn {
     z-index: 99;
 }
