@@ -206,7 +206,7 @@ export default {
                     console.log(res)
                     this.$router.push({
                         "name": "Questions",
-                        params : {question_pk : res.data.CONTENTPK}
+                        params : {question_pk : res.data.ARTICLEPK}
                     })
                 })
             } 
@@ -290,8 +290,7 @@ export default {
     
         deleteTag(tag) {
             this.myTags = this.myTags.filter((el)=>el!=tag)
-            this.inputTags = this.inputTags.replace(tag.pk, '')
-            this.inputTags = this.inputTags.replace(",", '')
+            this.inputTags = this.inputTags.replace(","+tag.pk, '')
             },
 
          goSearch: function(item) {
