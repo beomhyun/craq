@@ -3,7 +3,7 @@
         <div class="padding-top-xs margin-top-md flex flex-wrap justify-end items-start flex-gap-sm">
             <div class="margin-right-xs" style="flex: 1 1 100px">
                 <div class="post-menu">
-                    <a href="">share</a>
+                    <a @click.prevent="toClip">share</a>
                     <span style="visibility: hidden;">|</span>
                     <span class="improve_btn" @click="codeImprove">edit</span>
                     <span style="visibility: hidden;">|</span>
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import swal from 'sweetalert';
 import ArticleSignatureCard from '@/components/ArticleSignatureCard.vue';
 export default {
     name: "ArticleSignature",
@@ -34,6 +35,18 @@ export default {
         ArticleSignatureCard
     },
     methods: {
+        toClip: function() {
+            this.$clipboard(window.location.href);
+            swal({
+                title:"copied to clipboard",
+                text:"share",
+                icon: "success",
+                button: false,
+                timer: 2000
+            })
+
+            
+        },
         selectVersion: function() {
             this.$emit('selectVersion', this.current);
 

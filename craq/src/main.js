@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 //clipboard
 import Clipboard from 'v-clipboard'
-Vue.use(ClipBoard)
+Vue.use(Clipboard)
 
 //vue session
 import VueSession from 'vue-session'
