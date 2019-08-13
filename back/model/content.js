@@ -68,7 +68,7 @@ const initializeEndpoints = (app) => {
    *      tags:
    *      - content
    *      description: content를 작성, 질문&작성글일 땐 topic = 1 이며 , 질문글을 작성할 때는 article_id = 0
-   *                   답변글 작성일 때는최초 작성일 떄는 beforeContent = 0
+   *                   답변글 작성일 때는 article_id !=0 최초 작성일 떄는 beforeContent = 0
    *      parameters:
    *      - in: body
    *        name: contentsbody
@@ -170,12 +170,7 @@ const initializeEndpoints = (app) => {
                             connection.query(sql, function(err, rows, fields) {
 
                               if (!err) {
-                                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                              } else {
-                                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                              }
-                            });
-                            sql = // 답변을 작성한 직후에 질문 article에 와드를 설정한 사용자들의 수를 구한다.
+                                sql = // 답변을 작성한 직후에 질문 article에 와드를 설정한 사용자들의 수를 구한다.
                             `
                             SELECT  COUNT(*) COUNT
                             FROM    WARD
@@ -210,50 +205,56 @@ const initializeEndpoints = (app) => {
                                         });
                                       }
                                       serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                      res.send({ status: "success",PK:articleId, msg: "insert notice2"});
+                                      res.send({ status: "success",ARTICLEPK:articleId,CONTENTPK:contentId, msg: "insert notice2"});
                                     } else {
                                       serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                                       res.send({ status: "fail", msg: "select user err" });
                                     }
                                   });
+                                }else{
+                                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                  res.send({ status: "success",ARTICLEPK:articleId,CONTENTPK:contentId});
                                 }
-
-                              } else{
+                              }else{
                                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                                res.send({ status: "fail", msg: "select user count err" });
+                                res.send({ status: "fail"});
                               }
                             });
+                              } else {
+                                serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                              }
+                            });
+                            
                            }
                          });
                        }else{
-                      async function replaceAll(str, searchStr, replaceStr) {
-                        return await str.split(searchStr).join(replaceStr);
-                      }
-                      async function toArray(tags, createdUser, contentId) {
-                        tags = await replaceAll(tags, '[', '');
-                        tags = await replaceAll(tags, ']', '');
-                        tags = await replaceAll(tags, ' ', '');
-                        var arr = await tags.split(',');
-                        for (var i in arr) {
-                          var sql = await `
-                          INSERT  INTO
-                          HASHTAG  ( CONTENT, HASHTAG , CREATEDUSER, UPDATEDUSER )
-                          VALUES
-                          `;
-                          sql += await ` (${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
-                          await connection.query(sql, function(err, rows, fields) {
-                            if (!err) {
-                              console.log("tag add successs");
-                            } else {
-                              console.log("tag add fail");
-                            }
-                          });
+                        async function replaceAll(str, searchStr, replaceStr) {
+                          return await str.split(searchStr).join(replaceStr);
                         }
-                        await serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                        await res.send({status:"success",PK:articleId});
-                      }
-                      toArray(i.tags, decoded.pk, contentId);
-
+                        async function toArray(tags, createdUser, contentId) {
+                          tags = await replaceAll(tags, '[', '');
+                          tags = await replaceAll(tags, ']', '');
+                          tags = await replaceAll(tags, ' ', '');
+                          var arr = await tags.split(',');
+                          for (var i in arr) {
+                            var sql = await `
+                            INSERT  INTO
+                            HASHTAG  ( CONTENT, HASHTAG , CREATEDUSER, UPDATEDUSER )
+                            VALUES
+                            `;
+                            sql += await ` (${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
+                            await connection.query(sql, function(err, rows, fields) {
+                              if (!err) {
+                                // console.log("tag add successs");
+                              } else {
+                                // console.log("tag add fail");
+                              }
+                            });
+                          }
+                          serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                          res.send({ status: "success",ARTICLEPK:articleId,CONTENTPK:contentId});
+                        }
+                        toArray(i.tags, decoded.pk, contentId);
                        }
                        
                      }else{
@@ -269,10 +270,12 @@ const initializeEndpoints = (app) => {
              }
            });
          } else { // 이전에 작성한 article이 존재할 때
+
           var version = 1;
           sql =
           `
           SELECT  COUNT(*) AS C
+                  ,ARTICLE
           FROM    CONTENT
           WHERE   1 = 1
           AND     ARTICLE =
@@ -285,6 +288,7 @@ const initializeEndpoints = (app) => {
           connection.query(sql, function(err, rows, fields) {
             if (!err) {
               version = rows[0].C + 1;
+              var articleId = rows[0].ARTICLE;
               sql =
               `
               INSERT    INTO
@@ -317,34 +321,13 @@ const initializeEndpoints = (app) => {
               connection.query(sql, function(err, rows, fields) {
                 var contentId = rows.insertId;  // 방금 생성한 content의 pk값
                 if (!err) { 
-                  async function replaceAll(str, searchStr, replaceStr) {
-                    return await str.split(searchStr).join(replaceStr);
-                  }
-                  async function toArray(tags, createdUser, contentId) {
-                    tags = await replaceAll(tags, '[', '');
-                    tags = await replaceAll(tags, ']', '');
-                    tags = await replaceAll(tags, ' ', '');
-                    var arr = await tags.split(',');
-                    for (var i in arr) {
-                      var sql = await `
-                      INSERT  INTO
-                      HASHTAG  ( CONTENT, HASHTAG , CREATEDUSER, UPDATEDUSER )
-                      VALUES
-                      `;
-                      sql += await ` (${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
-                      await connection.query(sql, function(err, rows, fields) {
-                        if (!err) {
-                          // console.log("tag add successs");
-                        } else {
-                          // console.log("tag add fail");
-                        }
-                      });
-                    }
-                    // await serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                    // await res.send({status:"success"});
-                  }
-                  toArray(i.tags, decoded.pk, contentId);
-                  sql = ``;
+                  sql = // 방금 생성된 article의 id값으로 갱신시켜준다.
+                  `
+                  UPDATE  ARTICLE
+                  SET     CONTENT = ${contentId}
+                  WHERE   PK      = ${articleId}
+                  `;
+
                   connection.query(sql, function(err, rows, fields) {
                     if (!err) {
                       if (i.topic_id == 1 && i.article_id != 0) { // 작성한 article이 답변형식일 때
@@ -370,6 +353,7 @@ const initializeEndpoints = (app) => {
                         WHERE   A.PK         = ${i.article_id}
                         `;
                         connection.query(sql, function(err, rows, fields) {
+
                           var msg = `${rows[0].TITLE} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
                           var qst_pk = rows[0].QUESTION_PK;
                           var qst_content = rows[0].QUESTION_CONTENT;
@@ -397,38 +381,44 @@ const initializeEndpoints = (app) => {
                           AND     IS_REMOVED  =   0
                           `;
                           connection.query(sql, function(err, rows, fields) {
-                            if (!err && rows[0].COUNT > 0) {
-                              sql =
-                              `
-                              SELECT  USER
-                              FROM    WARD
-                              WHERE   ARTICLE     =  ${qst_pk}
-                              AND     IS_REMOVED  =  0
-                              `;
-                              connection.query(sql, function(err, rows, fields) {
-                                if (!err) {
-                                  for (var i = 0; i < rows.length; i++) {
-                                    sql =
-                                    `
-                                    INSERT  INTO
-                                    NOTICE  (USER,TYPE,BODY,INFO)
-                                    VALUES  (${rows[i].USER},1,'${msg}','${info}')
-                                    `;
-                                    connection.query(sql, function(err, rows, fields) {
-                                      if (!err) {
-                                        serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                      } else {
-                                        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                                      }
-                                    });
+                            if (!err) {
+                              if(rows[0].COUNT > 0){
+                                sql =
+                                `
+                                SELECT  USER
+                                FROM    WARD
+                                WHERE   ARTICLE     =  ${qst_pk}
+                                AND     IS_REMOVED  =  0
+                                `;
+                                connection.query(sql, function(err, rows, fields) {
+                                  if (!err) {
+                                    for (var i = 0; i < rows.length; i++) {
+                                      sql =
+                                      `
+                                      INSERT  INTO
+                                      NOTICE  (USER,TYPE,BODY,INFO)
+                                      VALUES  (${rows[i].USER},1,'${msg}','${info}')
+                                      `;
+                                      connection.query(sql, function(err, rows, fields) {
+                                        if (!err) {
+                                          serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                        } else {
+                                          serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                        }
+                                      });
+                                    }
+                                    serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                    res.send({ status: "success",ARTICLEPK: articleId,CONTENTPK:contentId, msg: "insert notice" });
+                                  } else {
+                                    serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
+                                    res.send({ status: "fail", msg: "select user err" });
                                   }
-                                  serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                                  res.send({ status: "success",PK: articleId, msg: "insert notice" });
-                                } else {
-                                  serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                                  res.send({ status: "fail", msg: "select user err" });
-                                }
-                              });
+                                });
+                              }else {
+                                serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                                res.send({ status: "success",ARTICLEPK: articleId,CONTENTPK:contentId, msg: "insert notice" });
+                              }
+
                             } else {
                               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                               res.send({ status: "fail", msg: "select count user err" });
@@ -436,8 +426,34 @@ const initializeEndpoints = (app) => {
                           });
                         });
                       } else {
-                        serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
-                        res.send({ status: "success",PK: articleId });
+                        async function replaceAll(str, searchStr, replaceStr) {
+                          return await str.split(searchStr).join(replaceStr);
+                        }
+                        async function toArray(tags, createdUser, contentId) {
+                          tags = await replaceAll(tags, '[', '');
+                          tags = await replaceAll(tags, ']', '');
+                          tags = await replaceAll(tags, ' ', '');
+                          var arr = await tags.split(',');
+                          for (var i in arr) {
+                            var sql = await `
+                            INSERT  INTO
+                            HASHTAG  ( CONTENT, HASHTAG , CREATEDUSER, UPDATEDUSER )
+                            VALUES
+                            `;
+                            sql += await ` (${contentId}, ${arr[i]}, ${createdUser}, ${createdUser})`;
+                            await connection.query(sql, function(err, rows, fields) {
+                              if (!err) {
+                                // console.log("tag add successs");
+                              } else {
+                                // console.log("tag add fail");
+                              }
+                            });
+                          }
+                          serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
+                          res.send({ status: "success",ARTICLEPK: articleId,CONTENTPK:contentId });
+                        }
+                        toArray(i.tags, decoded.pk, contentId);
+
                       }
                     } else {
                       serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
