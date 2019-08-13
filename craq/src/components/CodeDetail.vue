@@ -99,7 +99,7 @@ export default {
                 this.ANSWERS = data.ANSWERS;
                 this.QUESTION = data.QUESTION;
                 this.VERSION = this.VERSION.concat(data.VERSION);
-                this.canSelected = !data.QUESTION[0].SELECTED && this.$session.get('username') == data.QUESTION[0].USER_NAME;
+                this.canSelected = !data.QUESTION[0].IS_ANSWER && this.$session.get('username') == data.QUESTION[0].USER_NAME;
                 this.loaded = true;
                 //this.ANSWERS.sort(this.votes);
             })

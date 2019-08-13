@@ -1,7 +1,8 @@
 <template>
-    <div class="post-layout" :class="{'selected-answer': is_active}">
+    <div class="post-layout" :class="{'selected-answer': is_active,
+                                      'targeted': 'a' + article_pk == $route.query.target}">
         <div class="votecell post-layout--left">
-            <ArticleVote v-if="loaded" :vote="QUESTION[0].HELPFUL" :ward="QUESTION[0].WARDS" :question="!QUESTION[0].IS_ANSWER" v-bind="$props" :is_active="is_active"></ArticleVote>
+            <ArticleVote v-if="loaded" :vote="QUESTION[0].HELPFUL" :ward="QUESTION[0].WARDS" :question="!QUESTION[0].ARTICLE_PK" v-bind="$props" :is_active="is_active"></ArticleVote>
         </div>
         <div class="postcell post-layout--right">
             <ArticleContent v-if="loaded" :body="VERSION[current].BODY"></ArticleContent>
@@ -138,8 +139,12 @@ export default {
     }
 }
 .selected-answer {
-    background-color: var(--color-contrast-low);
+    outline: 3px alpha(var(--color-primary-light), .5) inset;
+    outline-offset: 5px;
 
+}
+.targeted {
+    background-color: alpha(var(--color-secondary), 0.2);
 }
 
 </style>
