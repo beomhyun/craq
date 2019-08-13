@@ -89,7 +89,8 @@ const initializeEndpoints = (app) => {
             // content_id를 갖는 article의 정보를 가져온다.
             // 가져온 article이 질문일 때는 QST_PK, QST_CONTENT가 -1로 나타남
             connection.query(sql, function(err, rows, fields) {
-              var msg = rows[0].TITLE+" 에 댓글이 달렸습니다.";
+              var title = rows[0].TITLE.substring(0,10);
+              var msg = `"${title}.. " 에 댓글이 달렸습니다`;
               var qst_pk = rows[0].QST_PK;
               if(qst_pk == -1){
                 qst_pk = rows[0].ANS_PK;
