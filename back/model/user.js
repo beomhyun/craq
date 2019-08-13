@@ -255,6 +255,10 @@ app.get('/username-checking/:username', function(req,res){
  *      responses:
  *       200:
  *      parameters:
+ *       - in: header
+ *         name: user_token
+ *         type: string
+ *         description: 사용자의 token 값
  *       - in: path
  *         name: pk
  *         type: integer
@@ -262,6 +266,12 @@ app.get('/username-checking/:username', function(req,res){
  *          사용자 아이디 전달
  */
 app.get('/users/:pk', function(req,res){
+  jwt.verify(req.headers.user_token, secretObj.secret, function(err, decoded) {
+    if(err){
+      res.status(401).send({
+        error: 'invalid token'
+      });
+    }else{
       var sql = 
                 `
                 SELECT
@@ -292,6 +302,15 @@ app.get('/users/:pk', function(req,res){
                     WHERE
                         A.ARTICLE != 0
                         AND A.CREATEDUSER = U.PK) AS ANSWERS
+                  ,(
+                  	SELECT
+                  		COUNT(*)
+                  	FROM
+                  		FOLLOW AS F
+                  	WHERE
+                  		F.TOUSER = ${req.params.pk}
+                  		AND F.FROMUSER = ${decoded.pk}
+						        ) AS IS_FOLLOWED
                 FROM
                   USER AS U
                 WHERE
@@ -308,6 +327,9 @@ app.get('/users/:pk', function(req,res){
               res.send(err);
             }
           });
+    }
+  });
+
   }
 );
 
