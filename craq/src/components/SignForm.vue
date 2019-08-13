@@ -27,17 +27,18 @@
 
             <div v-if="progress == 1" class="margin-bottom-sm">
                 <label class="form-label margin-bottom-xxxs" for="inputUsername">Username
-                    <font-awesome-icon  v-if="!username" icon="exclamation"></font-awesome-icon>
-                    <font-awesome-icon  v-else icon="check"></font-awesome-icon>
-
+                    <font-awesome-icon  v-if="!username" icon="exclamation" class="exclamation"></font-awesome-icon>
+                    <font-awesome-icon  v-else icon="check" class="check"></font-awesome-icon>
+                    <span>{{ inputUsername.length > 5 ? (username ? 'OK': 'double') : 'length> 5' }}</span>
 
                 </label>
                 <input class="form-control width-100%" type="text" v-model="inputUsername" name="inputUsername" id="inputUsername" placeholder="Username">
             </div>
             <div v-if="progress == 0 || progress == 1" class="margin-bottom-sm">
                 <label class="form-label margin-bottom-xxxs" for="inputEmail1">Email
-                    <font-awesome-icon  v-if="!email && progress == 1" icon="exclamation"></font-awesome-icon>
-                    <font-awesome-icon  v-if="email && progress == 1" icon="check"></font-awesome-icon>
+                    <font-awesome-icon  v-if="!email && progress == 1" icon="exclamation" class="exclamation"></font-awesome-icon>
+                    <font-awesome-icon  v-if="email && progress == 1" icon="check" class="check"></font-awesome-icon>
+                    {{is_validEmail ? (email ? 'ok':'double') : 'not an email'}}
                 </label>
                 <input class="form-control width-100%" type="email" v-model="inputEmail" name="inputEmail" id="inputEmail" placeholder="SSAFY Email">
             </div>
@@ -54,8 +55,9 @@
             <div v-if="progress == 1" class="margin-bottom-sm">
                 <div class="flex justify-between margin-bottom-xxxs">
                     <label class="form-label" for="inputPassword2">Password Verification
-                    <font-awesome-icon  v-if="!password && progress == 1" icon="exclamation"></font-awesome-icon>
-                    <font-awesome-icon  v-if="password && progress == 1" icon="check"></font-awesome-icon>
+                    <font-awesome-icon  v-if="!password && progress == 1" icon="exclamation" class="exclamation"></font-awesome-icon>
+                    <font-awesome-icon  v-if="password && progress == 1" icon="check" class="check"></font-awesome-icon>
+                    {{inputPassword1.length > 5 ? (password ? 'ok':'not sames'):'length > 5'}}
                     </label>
                 </div>
 
@@ -106,9 +108,12 @@ export default {
             "inputPassword1": "",
             "inputPassword2": "",
             username: false,
+            username_double: false,
             showModal: false,
             email: false,
+            is_validEmail: false,
             password: false,
+            password_double: false,
             errors: [],
         }
     },
@@ -121,8 +126,7 @@ export default {
             } else {
                 
                 this.$axios.get("username-checking/" + checker).then(res=>{
-                    console.log(res.data);
-                    this.username = (res.data.status == 'success');
+                    this.username = (res.data.status == 'success' && checker.length > 5);
 
                 }).
                     catch(err=>console.log(err));
@@ -132,8 +136,10 @@ export default {
         inputEmail: function(val, oldVal) {
             const checker = val;
             if (!this.validEmail(val)) {
-                this.email = false;
+                this.is_validEmail = false;
                 return;
+            } else {
+                this.is_validEmail = true;
             }
             this.$axios.get("email-checking/" + checker).then(res=>{
                 this.email = (res.data.status == 'success');
@@ -143,11 +149,11 @@ export default {
         },
         inputPassword2: function(val, oldVal) {
             const checker = val;
-            this.password = (this.inputPassword1 == checker);
+            this.password = (this.inputPassword1 == checker && val.length >= 6);
         },
         inputPassword1: function(val, oldVal) {
             const checker = val;
-            this.password = (this.inputPassword2 == checker);
+            this.password = (this.inputPassword2 == checker && val.length>=6);
 
         }
     },
@@ -315,6 +321,13 @@ export default {
 
 .noShow {
     display: none;
+}
+.check {
+    color: var(--color-success);
+
+}
+.exclamation {
+    color: var(--color-warning-darker);
 }
 
 </style>
