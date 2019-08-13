@@ -1,12 +1,14 @@
 <template>
   <div>
     <!-- style="column-count: 2;" -->
-    <div class="my-ul container">
-      <ul class="flex" v-for="i in mytopics.length > limits ? limits : mytopics.length">
-        <li class="content"><router-link :to="`/freeboard/${mytopics[i-1].PK}`">{{mytopics[i-1].TOPIC}}</router-link></li>
-      </ul>
+    <div class="my-ul">
+      <div class="topicList">
+        <div class="topicList__content" v-for="i in mytopics.length > limits ? limits : mytopics.length">
+          <router-link :to="`/freeboard/${mytopics[i-1].PK}`">{{mytopics[i-1].TOPIC}}</router-link>
+        </div>
+      </div>
     </div>
-    <a href="#" @click="loadMore" class="loadMore" v-if="mytopics.length > 4">{{more_txt}}</a>
+    <a href="#" @click="loadMore" class="loadMore" v-if="mytopics.length > 10">{{more_txt}}</a>
   </div>
 </template>
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
@@ -17,7 +19,7 @@ export default {
   data() {
     return {
       mytopics: [],
-      limits: 4,
+      limits: 10,
       more_txt: "더 보기"
     }
   },
@@ -64,22 +66,24 @@ export default {
 
 <style lang="scss" scoped>
 .my-ul {
-  box-sizing: border-box;
-  ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+  padding: var(--space-md);
+  background-color: var(--color-surface-light);
+  .topicList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
 
-    li {
+    width: 100%;
+
+    &__content {
+      margin-bottom: var(--space-xs);
+      width: 50%;
+      text-align: center;
       // border: 1px solid var(--color-surface);
-      margin-top: -1px;
-      padding: 12px;
       font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
       // border-bottom: 1px solid #ccc;
       text-decoration: none;
       // color: #000;
-      display: block;
-      width: 75%;
 
       -webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
       -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
@@ -88,14 +92,14 @@ export default {
       transition: font-size 0.3s ease, background-color 0.3s ease;
     }
 
-    li:last-child {
+    &__content:last-child {
       border: none;
     }
 
-    li:hover {
+    &__content:hover {
       // font-size: 30px;
       // background: var(--color-primary-dark);
-      background: var(--color-tertiary-darker);
+      background: var(--color-tertiary);
       color : var(--color-surface);
       font-weight: bold;
     }
@@ -118,24 +122,6 @@ export default {
   background-color: var(--color-surface);
   border: 1px solid var(--color-tertiary);
   text-decoration: none;
-}
-.flex {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-.content {
-  // height: 100px;
-  width: 45%;
-  // color: #fff;
-  font-size: 24px;
-  line-height: 100px; /* centering text just for view */
-  text-align: center;
-  background-color: var(--color-surface);
-  margin: 5px;
-  border: 1px solid var(--color-primary-dark);
-  display: none;
 }
 
 </style>

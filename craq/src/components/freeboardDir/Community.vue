@@ -1,13 +1,17 @@
 <template>
   <div class="tree-board">
-    <div class="container max-width-lg" style="display: flex">
-      <h2 style="display: inline; width: 100%">자유 게시판</h2>
+    <div class="container max-width-lg haedline" style="display: flex">
+      <h2 style="display: inline; width: 100%" class="haedline__title">자유 게시판</h2>
       <button @click="addTree" class="btn btn--primary btn--md" style="margin:5px">게시판 신청</button>
     </div>
-    <h3 style="text-align:center;">내가 구독한 게시판</h3>
-    <MyCommunities/>
-    <h3 style="text-align:center;">지금 잘나가는 게시판</h3>
-    <AllCommunity/>
+    <div class="myBoard">
+      <div class="myBoard__title">내가 구독한 게시판</div>
+      <MyCommunities/>
+    </div>
+    <div class="hotBoard">
+      <div class="hotBoard__title">지금 잘나가는 게시판</div>
+      <AllCommunity/>
+    </div>
     <div class="my-ul" v-if="topicsList.length > 0">
       <ul v-for="topicOne in topicsList">
         <li><router-link :to="`/freeboard/${topicOne.pk}`">{{topicOne.topic}}</router-link></li>
@@ -65,7 +69,48 @@ export default {
 
 <style scoped lang="scss">
 .tree-board {
+  user-select: none;
+  width: auto;
+  background-color: var(--color-background);
+  padding: var(--space-md);
+}
+.headline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 75px;
 
+    padding: var(--space-md);
+}
+.headline__title {
+        background-color: var(--color-background);
+        font-size: var(--text-md);
+        text-transform: capitalize;
+    }
+
+.myBoard {
+  background-color: var(--color-surface);
+  padding: var(--space-md);
+  border: 1px dashed var(--color-contrast-low);
+  border-radius: var(--radius-sm);
+
+  &__title {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-sm);
+    font-weight: bold;
+  }
+}
+
+.hotBoard {
+  background-color: var(--color-surface);
+  padding: var(--space-sm);
+
+  &__title {
+    font-size: var(--text-md);
+    margin-bottom: var(--space-sm);
+    font-weight: bold;
+  }
 }
 .my-ul {
   box-sizing: border-box;

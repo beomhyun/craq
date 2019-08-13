@@ -4,7 +4,8 @@
             <!-- Headline -->
             <div class="headline">
                 <div class="headline__title">{{currentRouteName}}</div>
-                <router-link to="/askquestion"><div class="btn btn--primary" @click="askQuestion">Ask Question</div></router-link> </div> <!-- headline -->
+                <router-link to="/askquestion"><div class="btn btn--primary" @click="askQuestion">Ask Question</div></router-link> 
+            </div> <!-- headline -->
             <!-- show search query -->
             <template v-if="query('search_text')">
                 <div class="alert alert--is-visible js-alert flex justify-between" role="alert" :class="{'alert--success': asks.length!== 0,
@@ -153,6 +154,7 @@ export default {
         },
         move(page) {
             this.loaded = false;
+            window.scrollTo(0,0)
             this.$router.push({
                 name:'code',
                 query: {

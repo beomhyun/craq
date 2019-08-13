@@ -7,7 +7,7 @@
                 <div class="main-footer__colophon-nav" >
                     <span>CRAQ &copy; 2019~</span>
                     <br>
-                    <span @click="openModal" class="contact" style="font-size: 12px;">Contact Us</span>
+                    <!-- <span @click="openModal" class="contact" style="font-size: 12px;">Contact Us</span> -->
                     
                     <mailModal v-bind:show="showModal" @close="closeModal"></mailModal>
                 </div>

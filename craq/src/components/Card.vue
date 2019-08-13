@@ -88,6 +88,7 @@ export default {
             }) 
         },
         goSearch: function(tag) {
+                window.scrollTo(0,0)
             this.$router.push({
                 name:'code',
                 query: {

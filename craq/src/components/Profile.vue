@@ -341,8 +341,8 @@ export default {
                 'gitUrl': this.userData.gitUrl,
                 'profile_image': this.userData.profile_image,
             }
-            this.$axios.put('profile', data).catch(err => console.log(err))
-            this.$axios.get("users/profile/" + this.user_pk).then(res=>{
+            this.$axios.put('profile', data).then(res=>{
+                console.log(res.data);
                 swal({  
                         title : "수정 완료",
                         text : "프로필 수정을 완료하였습니다.",
@@ -350,6 +350,9 @@ export default {
                         button: false,
                         timer: 2000,
                         });
+            }).catch(err => console.log(err))
+            this.$axios.get("users/profile/" + this.user_pk).then(res=>{
+                
             })
             this.toggleProfile = false
         },
