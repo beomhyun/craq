@@ -95,8 +95,8 @@ export default {
     li:hover {
       // font-size: 30px;
       // background: var(--color-primary-dark);
-      background: var(--color-surface);
-      color : var(--color-primary);
+      background: var(--color-tertiary-darker);
+      color : var(--color-surface);
       font-weight: bold;
     }
   }
