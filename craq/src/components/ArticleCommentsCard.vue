@@ -1,7 +1,10 @@
 <template>
     <li class="comment" :class="{'targeted': 'c'+comment.PK == $route.query.target}">
         <div class="comment-actions">
-            <div class="comment-score">{{comment.USER}}</div>
+            <div class="comment-score">
+                <font-awesome-icon v-if="'c'+comment.PK == $route.query.target" :icon="['fas', 'hand-point-right']"></font-awesome-icon>
+                <font-awesome-icon v-else :icon="['far', 'hand-point-right']"></font-awesome-icon>
+            </div>
         </div>
         <div class="comment-text">
             <div class="comment-body">
@@ -26,7 +29,10 @@ export default {
     name: "ArticleCommentsCard",
     props: [
         "comment"
-    ]
+    ],
+    mounted() {
+        console.log(this.comment);
+    }
 }
 
 </script>
