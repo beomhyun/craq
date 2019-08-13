@@ -65,7 +65,7 @@
             </div>
 
             <div v-if="progress != 2" class="margin-bottom-sm">
-                <button class="btn btn--primary btn--md width-100%" @click.prevent="primeButton">
+                <button class="btn btn--primary btn--md width-100%" @click.prevent="primeButton" :class="{'inactive' : allpass}">
                     {{progress == 0 ? 'Login' : '' }}
                     {{progress == 1 ? 'Verify' : '' }}
                     {{progress == 2 ? 'next2' : '' }}
@@ -113,7 +113,6 @@ export default {
             email: false,
             is_validEmail: false,
             password: false,
-            password_double: false,
             errors: [],
         }
     },
@@ -212,7 +211,7 @@ export default {
 
         },
         verify() {
-            if (!this.password || !this.username || !this.email) return alert('check form');
+            if (this.allpass) return alert('check form');
             this.progress = 2 
             setTimeout(() => {
             this.signUp().then(res=> {
@@ -261,8 +260,15 @@ export default {
             return 'hi';
         }
 
+    },
+    computed: {
+        allpass: {
+            cache: false,
+            get() {
+            return !(this.inputUsername.length >5 && this.username && this.is_validEmail && this.email && this.inputPassword1.length > 5 && this.password) && this.progress ==1;
+            }
+        } 
     }
-
 }
 
 </script>
@@ -328,6 +334,11 @@ export default {
 }
 .exclamation {
     color: var(--color-warning-darker);
+}
+.inactive {
+    background-color: var(--color-contrast-low);
+    color: var(--color-contrast-high);
+    cursor: unset;
 }
 
 </style>
