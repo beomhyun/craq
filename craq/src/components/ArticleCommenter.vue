@@ -36,6 +36,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+form {
+    display: flex;
+    justify-content: space-around;
+}
+.form-control {
+    width: 95%;
+}
 
 </style>

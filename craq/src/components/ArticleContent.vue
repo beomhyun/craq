@@ -20,7 +20,8 @@ export default {
 
 <style scoped lang="scss">
 .post-text {
-    margin-bottom: 5px;
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
     word-wrap: break-word;
     font-size: 1rem; // TODO
     line-height: 1.3;

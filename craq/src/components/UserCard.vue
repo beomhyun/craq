@@ -3,9 +3,8 @@
         <div class="userImg">
             <img :src="imageFile" alt="">
             <div class="userInfo__Middle">
-                    <font-awesome-icon icon="check" class="userInfo__Middle-icon circle"/>
-                    <font-awesome-icon :icon="['far', 'envelope']" class="userInfo__Middle-icon envelope"/>
-                    <font-awesome-icon icon="exclamation-triangle" class="userInfo__Middle-icon triangle"/>
+                <font-awesome-icon icon="check" v-if="!userdata.IS_FOLLOWED" class="userInfo__Middle-icon circle" @click="getFollow"/>
+                <font-awesome-icon icon="times" v-if="userdata.IS_FOLLOWED" class="userInfo__Middle-icon times" @click="deleteFollow"/>
             </div>
         </div>
 
@@ -33,6 +32,7 @@
     </div>
 </template>
 <script>
+import swal from 'sweetalert';
 export default {
     name: 'UserCard',
     props: [
@@ -41,7 +41,7 @@ export default {
     data() {
         return {
             userdata : {},
-            imageFile: ''
+            imageFile: '',
         }
     },
     watch: {
@@ -53,9 +53,42 @@ export default {
         },
         'following': function() {
             this.update();
+        },
+        'userdata': function() {
+            this.update();
         }
     },
     methods: {
+        getFollow() {
+            const data = {
+                fromUser : this.$session.get('userPk'),
+                toUser : this.userdata.PK
+            }
+            this.$axios.post('follows', data).then(res=>{
+                swal({  
+                        title : "팔로우 성공!!",
+                        text:'새 친구가 생기셨네요? 일방적이지만요',
+                        icon: "success", 
+                        button: false,
+                        timer: 2000,
+                        });
+            })
+        },
+        deleteFollow() {
+            const data = {
+                fromUser : this.$session.get('userPk'),
+                toUser : this.userdata.PK
+            }
+            this.$axios.delete('follows',  { data } ).then(res=>{
+                swal({  
+                        title : "팔로우 삭제!!",
+                        text:'얼마 있지도 않은 친구가 하나 사라졌네요!',
+                        icon: "error", 
+                        button: false,
+                        timer: 2000,
+                        });
+            })
+        },
         update() {
             if (this.list) {
                 this.$axios.get(`users/${this.list.ANSWER_USERPK}`).then(res => {
@@ -66,7 +99,7 @@ export default {
                     response=>{
                         this.imageFile = `http://192.168.31.58:10123/${response.data.data}`;
                     }
-                )                       
+                )                      
             }
             if (this.follower) {
                 this.$axios.get(`users/${this.follower}`).then(res => {
@@ -90,6 +123,7 @@ export default {
                     }
                 )                       
             }
+
         },
         goProfile() {
             this.$router.push({
@@ -146,11 +180,14 @@ export default {
     &__Middle {
         position: relative;
         height: 33px;
-        top: -40px;
+        width: 33px;
+        top: -45px;
+        left: 45px;
         display: flex;
         justify-content: space-around;
         align-items: center;
-        background-color: alpha(var(--color-surface-darker), 0.7);
+        border-radius: 50%;
+        background-color: alpha(var(--color-white), 0.9);
         margin-top: var(--space-xxxs);
         opacity: 0;
         transition: opacity 0.4s;
@@ -185,15 +222,11 @@ export default {
 }
 
 .circle {
-    color: var(--color-primary-dark);
+    color: var(--color-primary);
 }
-.envelope {
-    color: var(--color-black);
-}
-.triangle {
+.times {
     color: var(--color-accent);
 }
-
 
 </style>
 

@@ -4,11 +4,11 @@
             <ArticleContent v-if="loaded" :body="this.VERSION[this.current].BODY"></ArticleContent>
         </div>
         <div class="answerForm">
-            <label for="content"><strong>content</strong> - 문제 해결을 위해 시도한 것들을 상세하게 작성해주십시오.</label>
+            <!-- <label for="content"><strong>content</strong> - {{isAnswer.QST_PK}} {{question_pk}} {{answerData}}</label> -->
             <froala id="edit content" :tag="'textarea'" :config="config" v-model="inputContent"></froala>
         </div>
         <div class="btn btn--primary btn--md" @click="createAnswer" v-if="!$route.params.editAnswer">Submit</div> 
-        <div class="btn btn--primary btn--md" @click="editAnswer" v-if="$route.params.editAnswer">Edit</div> 
+        <div class="btn btn--primary btn--md" @click="improveAnswer" v-if="$route.params.editAnswer">Edit</div> 
     </div>
 </template>
 <script>
@@ -26,7 +26,7 @@ import VueFroala from 'vue-froala-wysiwyg';
 export default {
     name: 'CodeAnswer',
     props: [
-        'question_pk'
+        'question_pk', 'questionData', 'answerData', 'isAnswer', 
     ],
     components: {
         ArticleContent
@@ -51,15 +51,21 @@ export default {
         }
     },
     mounted() {
-        if (this.$route.params.editAnswer) {
-            this.placeholderText = "a"
+        if (!(this.$route.params.editAnswer)) {
+            this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
+                const data = res.data.data;
+                this.VERSION = data.VERSION;
+                this.current = data.VERSION.length-1;
+                this.loaded = true
+            })
         }
-        this.$axios.get(`questions/detail/${this.question_pk}`).then(res=>{
-            const data = res.data.data;
-            this.VERSION = data.VERSION;
-            this.current = data.VERSION.length-1;
+        if (this.$route.params.editAnswer == true) {
+            this.VERSION = this.questionData.VERSION;
+            this.current = this.questionData.current;
+            this.inputContent = this.answerData.VERSION[this.answerData.current].BODY
             this.loaded = true
-        })
+            }
+
     },
     methods: {
         createAnswer() {
@@ -77,18 +83,18 @@ export default {
                 })
             })
         },
-        editAnswer() {
-            const data = {
+        improveAnswer() {
+            const editdata = {
                 'topic_id' : 1,
-                'article_id' : this.question_pk,
-                "beforeContent": 0,
+                'article_id' : this.isAnswer.QST_PK,
+                "beforeContent": this.answerData.VERSION[this.answerData.current].PK,
                 "user_id": this.$session.get('userPk'),
                 'body' : this.inputContent,
             }
-            this.$axios.post('contents', data).then(res=>{
+            this.$axios.post('contents', editdata).then(res=>{
                 this.$router.push({
                     name : 'Questions',
-                    params : {question_pk : this.question_pk}
+                    params : {question_pk : this.isAnswer.QST_PK}
                 })
             })
         }
