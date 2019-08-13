@@ -4,21 +4,24 @@
           <div class="container max-width-lg" style="display: flex">
             <h3 style="display: inline; width:100%">{{topic}} 게시판</h3>
             <div v-if="!isManager">
-              <button v-if="!isSubscribe" class="btn--subtle" @click="subscribe">Subscribe</button>
-              <button v-else class="btn--primary" @click="subscribe">Subscribe</button>
+              <button v-if="!isSubscribe" class="btn btn--primary" @click="subscribe">구독하기</button>
+              <button v-else class="btn btn--accent" @click="subscribe">구독취소</button>
             </div>
           </div>
-          <div class="container my-ul">
-            <div>
-              <ul v-for="allpost in all_tmp_data">
-                <li>
-                  ({{allpost.TOPIC}})
-                  <strong class="strong" @click="boardShowDetail(allpost)">{{allpost.TITLE}}</strong>
-                  [{{allpost.COMMENTS}}]&emsp;
-                  <span>{{allpost.writer}}</span>
+          <h4 style="text-align:center;">최신글</h4>
+          <div class="my-ul container">
+            <!-- <div> -->
+              <ul class="width-100%" v-for="allpost in all_tmp_data">
+                <li class="width-100%">
+                  <p @click="boardShowDetail(allpost)">
+                    ({{allpost.TOPIC}})
+                    {{allpost.TITLE}}
+                    [{{allpost.COMMENTS}}]
+                    {{allpost.writer}}
+                  </p>
                 </li>
               </ul>
-            </div>
+            <!-- </div> -->
           </div>
           <FreeList :topic="this.$route.params.topic" :page='1' />
     </div>
@@ -26,7 +29,6 @@
 </template>
 
 <script>
-// import FreeList from '@/components/freeboardDir/FreeList.vue';
 import Spinner from '@/components/Spinner.vue';
 
 const FreeList = () => ({
@@ -40,8 +42,6 @@ export default {
   components : {
     FreeList
   },
-  // loading: Spinner,
-  // delay: 500,
   data() {
     return {
       topic : "",
@@ -63,21 +63,14 @@ export default {
       }else {
         this.isSubscribe = true;
       }
-      // this.loaded = true;
     });
 
     this.$axios
     .get('articles/new')
     .then((res) => {
       this.all_tmp_data = res.data
-      // this.loaded = true;
     });
 
-    // this.$axios
-    // .get(`/subscribes/${this.$route.params.topic}/${this.$session.get("userPk")}`)
-    // .then((res) => {
-    //   console.log(res.data)
-    // })\
     this.$axios
     .get(`managers/${this.$route.params.topic}/${this.$session.get("userPk")}`)
     .then((res) => {
@@ -88,7 +81,6 @@ export default {
       }else {
         this.isManager = true;
       }
-      // this.loaded = true;
     });
   },
   methods : {
@@ -102,17 +94,15 @@ export default {
           this.isSubscribe = true;
         });
       }else {
-        this.$axios.delete(`subscribes/${this.$route.params.topic}/${this.$session.get("userPk")}`)
+        this.$axios
+        .delete(`subscribes/${this.$route.params.topic}/${this.$session.get("userPk")}`)
         .then((res) => {
           this.isSubscribe = false;
         });
       }
     },
     boardShowDetail(data) {
-       // this.$router.push({path: `${this.$route.params.topic}/detail/${data.id}`, params: { info : data}});
-       console.log(data.PK + ", " + this.$route.params.topic)
        this.$router.push({name: 'freedetail' , params: { id: data.PK, topic : this.$route.params.topic, page : 1}});
-      // this.$router.push({name: 'freedetail' , params: { id: data.id, info : data}});
     },
   }
 }
@@ -195,7 +185,7 @@ $--card-main-height: 120px;
     .my-ul {
       box-sizing: border-box;
       column-count: 2;
-      column-rule: dotted 1px var(--color-parimary);
+      // column-rule: dotted 1px var(--color-parimary);
       ul {
         list-style-type: none;
         padding: 0;
@@ -210,7 +200,7 @@ $--card-main-height: 120px;
           text-decoration: none;
           // color: #000;
           display: block;
-          width: 200px;
+          width: 90%;
 
           -webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
           -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
@@ -224,8 +214,10 @@ $--card-main-height: 120px;
         }
 
         li:hover {
-          font-size: 30px;
-          // background: #f6f6f6;
+          // font-size: 30px;
+          // background: var(--color-primary);
+          color : var(--color-tertiary);
+          font-weight: bold;
         }
       }
     }
