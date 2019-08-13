@@ -28,7 +28,7 @@ import ArticleSignatureCard from '@/components/ArticleSignatureCard.vue';
 export default {
     name: "ArticleSignature",
     props: [
-        "current", "creator","created", "editor", "edited", "article_pk"
+        "current", "creator","created", "editor", "edited", "article_pk", "isAnswer"
     ],
     components: {
         ArticleSignatureCard
@@ -45,10 +45,19 @@ export default {
             this.$emit('left');
         },
         codeImprove() {
-            this.$router.push({
-                "name": "Improve",
-                params : { question_pk : this.article_pk, editQuestion : true,}
-            })
+            console.log("isAnswer",this.isAnswer)
+            if (this.isAnswer) {
+                this.$router.push({
+                    "name": "Improve",
+                    params : { question_pk : this.article_pk, editAnswer : true,}
+                })
+
+            } else {
+                this.$router.push({
+                    "name": "Improve",
+                    params : { question_pk : this.article_pk, editQuestion : true,}
+                })
+            }
         }
     }
 }
