@@ -21,16 +21,16 @@
         <!-- <td v-html="notice.title"><router-link :to="{ name: 'freedetail', params: {id : notice.id} }"></router-link></td> -->
         <td>{{notice.USERNAME}}</td>
         <td><time itemprop=notice.CREATED_AT datetime=notice.CREATED_AT>{{notice.CREATED_AT|formatDate}}</time></td>
-        <td>notice.VIEW</td>
+        <td>{{notice.VIEW}}</td>
         <td v-if="notice.VOTE != null">{{notice.VOTE}}</td>
         <td v-else>0</td>
       </tr>
       <tr v-for="board in topic_articles">
         <td v-if="isManager"><button class="btn btn--primary btn-lg" style="margin:3px" @click="postDelete(board.PK)">Delete</button></th>
         <td v-html="board.ROWNUM"></td>
-        <td class="table-hover" @click="showDetail(board)" v-value="">{{board.TITLE}}</td>
+        <td class="table-hover" @click="showDetail(board)" style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">{{board.TITLE}}</td>
         <!-- <td v-html="board.title"><router-link :to="{ name: 'freedetail', params: {id : board.id} }"></router-link></td> -->
-        <td>{{board.USERNAME}}</td>
+        <td style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">{{board.USERNAME}}</td>
         <td><time itemprop=board.CREATED_AT datetime=board.CREATED_AT>{{board.CREATED_AT|formatDate}}</time></td>
         <td v-html="board.VIEW"></td>
         <td v-if="board.VOTE != null" v-html="board.VOTE"></td>

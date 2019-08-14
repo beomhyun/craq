@@ -29,7 +29,9 @@
         <p v-if="info.IMAGE !== 'http://192.168.31.58:10123/'" style="text-align : center;">
           <img class="preview" :src="info.IMAGE" style="max-height : 500px;" align="center">
         </p>
-        <p>{{info.BODY}}</p>
+        <div class="post-text" item-prop="text">
+            <div v-html="info.BODY"></div>
+        </div>
       </div>
     </div>
 
@@ -230,7 +232,15 @@ export default {
   }
 
 }
-
+.post-text {
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    word-wrap: break-word;
+    font-size: 1rem; // TODO
+    line-height: 1.3;
+    font-family: Arial, "Helvetica Neue",Helvetica, sans-serif;
+    width: 1100px;
+}
 
 
 </style>
