@@ -17,20 +17,20 @@
       <tr v-for="notice in topic_notices" v-if="noticeToggle">
         <td v-if="isManager"><button class="btn btn--primary btn-lg" style="margin:3px" @click="postDelete(notice.PK)">Delete</button></th>
         <td>공지</td>
-        <td class="" v-html="notice.TITLE" @click="showDetail(notice)"></td>
+        <td @click="showDetail(notice)">{{notice.TITLE}}</td>
         <!-- <td v-html="notice.title"><router-link :to="{ name: 'freedetail', params: {id : notice.id} }"></router-link></td> -->
-        <td v-html="notice.USERNAME"></td>
+        <td>{{notice.USERNAME}}</td>
         <td><time itemprop=notice.CREATED_AT datetime=notice.CREATED_AT>{{notice.CREATED_AT|formatDate}}</time></td>
-        <td v-html="notice.VIEW"></td>
-        <td v-if="notice.VOTE != null" v-html="notice.VOTE"></td>
+        <td>notice.VIEW</td>
+        <td v-if="notice.VOTE != null">{{notice.VOTE}}</td>
         <td v-else>0</td>
       </tr>
       <tr v-for="board in topic_articles">
         <td v-if="isManager"><button class="btn btn--primary btn-lg" style="margin:3px" @click="postDelete(board.PK)">Delete</button></th>
         <td v-html="board.ROWNUM"></td>
-        <td class="table-hover" v-html="board.TITLE" @click="showDetail(board)"></td>
+        <td class="table-hover" @click="showDetail(board)" v-value="">{{board.TITLE}}</td>
         <!-- <td v-html="board.title"><router-link :to="{ name: 'freedetail', params: {id : board.id} }"></router-link></td> -->
-        <td v-html="board.USERNAME"></td>
+        <td>{{board.USERNAME}}</td>
         <td><time itemprop=board.CREATED_AT datetime=board.CREATED_AT>{{board.CREATED_AT|formatDate}}</time></td>
         <td v-html="board.VIEW"></td>
         <td v-if="board.VOTE != null" v-html="board.VOTE"></td>

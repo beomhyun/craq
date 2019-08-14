@@ -13,7 +13,7 @@
             <!-- <div> -->
               <ul class="width-100%" v-for="allpost in all_tmp_data">
                 <li class="width-100%">
-                  <p @click="boardShowDetail(allpost)">
+                  <p @click="boardShowDetail(allpost)" style="width:200px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; ">
                     ({{allpost.TOPIC}})
                     {{allpost.TITLE}}
                     [{{allpost.COMMENTS}}]
