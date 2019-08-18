@@ -870,28 +870,73 @@ app.put('/profile', function(req, res){
      res.status(401).send({error:'invalid token'});
     }else{
       var i = req.body;
-      var sql =
-      `
-        UPDATE  PROFILE
-        SET     SSAFY_YEARS   = ${i.ssafy_years}
-              , IS_MAJOR      = '${i.is_major}'
-              , REGION        = '${i.region}'
-              , GRADE         = '${i.grade}'
-              , INTRO         = '${i.intro}'
-              , GITURL        = '${i.gitUrl}'
-              , PROFILE_IMAGE = '${i.profile_image}'
-              , UPDATED_AT    = NOW()
-        WHERE   USER          = ${i.User}
-      `;
+      sql = `select count(*) as cheking, profile_image from profile where user = ${decoded.pk}`
       connection.query(sql, function(err, rows, fields) {
-              if (err){
-                serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
-                res.send({status: "fail",data: err});
-              }else{
-                serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
-                res.send({status: "success"});
-              }
+        if(!err){
+          if(rows[0].profile_image != 'default_profile'){
+            var PROFILE_IMAGE = rows[0].profile_image;
+          }else{
+            var PROFILE_IMAGE = 'default_profile';
+          }
+          var SSAFY_YEARS =0;
+          if(i.ssafy_years){
+            SSAFY_YEARS = i.ssafy_years;
+          }
+          var IS_MAJOR = '';
+          if(i.is_major){
+            IS_MAJOR = i.is_major;
+          }
+          var REGION = '';
+          if(i.region){
+            REGION = i.region;
+          }
+          var GRADE = '';
+          if(i.grade){
+            GRADE = i.grade;
+          }
+          var INTRO = '';
+          if(i.intro){
+            INTRO = i.intro;
+          }
+          var GITURL = '';
+          if(i.gitUrl){
+            GITURL =i.gitUrl; 
+          }
+          var USER = '';
+          if(decoded.pk){
+            USER = decoded.pk;
+          }
+          var sql =
+          `
+            UPDATE  PROFILE
+            SET     SSAFY_YEARS   = ${SSAFY_YEARS}
+                  , IS_MAJOR      = '${IS_MAJOR}'
+                  , REGION        = '${REGION}'
+                  , GRADE         = '${GRADE}'
+                  , INTRO         = '${INTRO}'
+                  , GITURL        = '${GITURL}'
+                  , PROFILE_IMAGE = '${PROFILE_IMAGE}'
+                  , UPDATED_AT    = NOW()
+            WHERE   USER          = ${USER}
+          `;
+          connection.query(sql, function(err, rows, fields) {
+            console.log(this.sql);
+                  if (err){
+                    console.log(err);
+                    serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
+                    res.send({status: "fail",data: err});
+                  }else{
+                    serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
+                    res.send({status: "success"});
+                  }
+          });
+        }else{
+
+        }
       });
+
+
+      
     }
   });
 });
@@ -1022,10 +1067,24 @@ app.get('/users/profile/:pk', function(req,res){
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
   } else{
-      var sql = " select * from profile where user = ? ";
-      var params = [req.params.pk];
-      connection.query(sql,params, function(err, rows, fields) {
+      var sql =
+            `SELECT
+            USER AS User
+            ,PROFILE_IMAGE AS profile_image
+            ,IFNULL(SSAFY_YEARS,'') AS ssafy_years
+            ,IFNULL(IS_MAJOR,'') AS is_major
+            ,IFNULL(REGION,'') AS region
+            ,IFNULL(GRADE,'') AS grade
+            ,IFNULL(INTRO,'') AS intro
+            ,IFNULL(GITURL,'') AS gitUrl
+          FROM
+            PROFILE
+          WHERE
+            USER = ${req.params.pk}
+            `;      
+      connection.query(sql, function(err, rows, fields) {
         if (!err){
+          console.log(rows);
           serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send(rows);
         }else{
@@ -1062,6 +1121,7 @@ app.put('/users/password/:pk', function(req, res){
   var data = hash.update('1234','utf-8');
   var gen_hash= data.digest('hex');
   var sql = ` UPDATE user SET PASSWORD = '${gen_hash}' WHERE pk = ${req.params.pk}`;
+  console.log(gen_hash);
   connection.query(sql, function(err, rows, fields) {
           if (!err){
             serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);

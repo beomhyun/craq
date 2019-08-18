@@ -491,7 +491,7 @@ const initializeEndpoints = (app) => {
                     , B.VOTE
                     , B.VIEW
             FROM       (
-                      SELECT      ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
+                      SELECT      ROW_NUMBER() OVER( ORDER BY A.PK ASC ) AS
                                 ROWNUM
                               , A.PK
                               , A.TOPIC
@@ -522,6 +522,7 @@ const initializeEndpoints = (app) => {
                       AND         A.IS_REMOVED = ${FALSE}
                       AND       A.IS_ACTIVE = ${FALSE}
                     ) AS B
+            ORDER BY B.ROWNUM DESC
             LIMIT     ${(req.params.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}
           `;
             connection.query(sql, function(err, rows, fields) {
@@ -914,7 +915,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var perpage = 20;
+        var perpage = 10;
         var nowpage = req.params.now_page;
         var sql = `  SELECT
                         COUNT(*) AS TOTAL
@@ -1601,7 +1602,7 @@ const initializeEndpoints = (app) => {
                 data: "no data"
               });
             }else{
-              var perpage = 20;
+              var perpage = 10;
             var nowpage = req.params.now_page;
             var max_page = parseInt(rows[0].TOTAL / perpage) + 1;
             if (nowpage > max_page) {

@@ -65,6 +65,7 @@ const initializeEndpoints = (app) => {
              		 , B.ANS_CONTENT
              		 , B.CREATEDUSER
              		 , B.TITLE
+             		 , QUESTION_TITLE
              FROM(
              		SELECT	(
              					SELECT	PK
@@ -80,6 +81,15 @@ const initializeEndpoints = (app) => {
              			 	 , A.CONTENT 	AS ANS_CONTENT
              			 	 , A.CREATEDUSER
              			 	 , C.TITLE
+             			 	 ,(
+		             		 	SELECT
+		             		 		Y.TITLE
+		             		 	FROM
+		             		 		ARTICLE AS X
+		             		 			LEFT OUTER JOIN CONTENT AS Y ON X.CONTENT = Y.PK
+		             		 	WHERE
+		             		 		A.ARTICLE = X.PK
+		             		 	) AS QUESTION_TITLE
              		FROM 		ARTICLE 		AS A
              		JOIN 		CONTENT 		AS C
              		ON 		A.CONTENT = C.PK
@@ -90,7 +100,14 @@ const initializeEndpoints = (app) => {
             // 가져온 article이 질문일 때는 QST_PK, QST_CONTENT가 -1로 나타남
             connection.query(sql, function(err, rows, fields) {
               var title = rows[0].TITLE.substring(0,10);
-              var msg = `"${title}.. " 에 댓글이 달렸습니다`;
+              if(rows[0].TITLE != 'undefined'){
+                var msg = `"${title}.. " 에 댓글이 달렸습니다`;
+                console.log(msg);
+              }else{
+                title = rows[0].QUESTION_TITLE.substring(0,10);
+                var msg = `"${title}.. " 에 댓글이 달렸습니다`;
+                console.log(msg);
+              }
               var qst_pk = rows[0].QST_PK;
               if(qst_pk == -1){
                 qst_pk = rows[0].ANS_PK;
@@ -174,7 +191,7 @@ const initializeEndpoints = (app) => {
         AND         CM.IS_REMOVED = 0
       `;
       connection.query(sql, function(err, rows, fields) {
-        console.log(this.sql);
+        // console.log(this.sql);
         if (!err){
           serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
           res.send({status: "success",data:rows});

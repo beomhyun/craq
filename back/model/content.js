@@ -157,7 +157,7 @@ const initializeEndpoints = (app) => {
                             res.send({status:"fail"});
                           }else{
                             var title = rows[0].TITLE.substring(0,10);
-                            var msg = `"${title}.. " 에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+                            var msg = `${title} 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
                             var qst_pk = rows[0].QUESTION_PK;
                             var qst_content = rows[0].QUESTION_CONTENT;
                             var info = `{"question_pk":${qst_pk}, "question_content":${qst_content}, "answer_pk":${articleId}, "answer_content":${contentId}}`;
@@ -225,7 +225,7 @@ const initializeEndpoints = (app) => {
                                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                               }
                             });
-
+                            
                            }
                          });
                        }else{
@@ -257,7 +257,7 @@ const initializeEndpoints = (app) => {
                         }
                         toArray(i.tags, decoded.pk, contentId);
                        }
-
+                       
                      }else{
                        serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                        res.send({ status: "fail", msg: "update content err" });
@@ -321,7 +321,7 @@ const initializeEndpoints = (app) => {
               `;
               connection.query(sql, function(err, rows, fields) {
                 var contentId = rows.insertId;  // 방금 생성한 content의 pk값
-                if (!err) {
+                if (!err) { 
                   sql = // 방금 생성된 article의 id값으로 갱신시켜준다.
                   `
                   UPDATE  ARTICLE
@@ -355,7 +355,8 @@ const initializeEndpoints = (app) => {
                         `;
                         connection.query(sql, function(err, rows, fields) {
                           var title = rows[0].TITLE.substring(0,10);
-                          var msg = `"${title}.. " 에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.                          var qst_pk = rows[0].QUESTION_PK;
+                          var msg = `"${title}.." 글에 답변이 달렸습니다`; // 질문 작성자에게 답변이 달렸음을 알려주는 알림정보를 추가한다.
+                          var qst_pk = rows[0].QUESTION_PK;
                           var qst_content = rows[0].QUESTION_CONTENT;
                           var ans_pk = rows[0].ANS_PK;
                           var info = `{"question_pk":${qst_pk}, "question_content":${qst_content}, "answer_pk":${ans_pk}, "answer_content":${contentId}}`;
@@ -372,7 +373,7 @@ const initializeEndpoints = (app) => {
                               serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
                             }
                           });
-
+    
                           sql = // 답변을 작성한 직후에 와드를 설정한 사용자들의 수를 구한다.
                           `
                           SELECT  COUNT(*) COUNT
