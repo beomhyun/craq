@@ -40,5 +40,18 @@ app.all('/*', function(req, res, next) {
 });
 
 app.use((err, req, res, next) => console.error('There was an error', err));
+// port setup
+app.set('port', process.env.PORT || 9000);
 
-app.listen(11123, () => console.log('App started'));
+//////////////////////////////////////////////
+// ---------- creates Server -------------------
+module.exports = app;
+
+var server = app.listen(app.get('port'), function() {
+	console.log('Express server listening on port' + server.address().port);
+});
+
+module.exports = app;
+
+
+// app.listen(10123, () => console.log('App started'));

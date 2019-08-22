@@ -2,7 +2,7 @@ module.exports = (function () {
   return {
     local: { // localhost
       host: 'localhost',
-      post: 3306,
+      post: 9000,
       user: 'root',
       password: 'root',
       database: 'craq'

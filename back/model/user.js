@@ -188,7 +188,7 @@ const initializeEndpoints = (app)=>{
  *          사용자 이메일 전달
  */
 app.get('/email-checking/:email', function(req,res){
-    var sql = " select count(*) as checking from user where email like ? ";
+    var sql = " select count(*) as checking from USER where email like ? ";
     var params = [req.params.email];
     connection.query(sql,params, function(err, rows, fields) {
             if (!err){
@@ -224,7 +224,7 @@ app.get('/email-checking/:email', function(req,res){
  *          사용자 이름 전달
  */
 app.get('/username-checking/:username', function(req,res){
-    var sql = " select count(*) as checking from user where username like ? ";
+    var sql = " select count(*) as checking from USER where username like ? ";
     var params = [req.params.username];
     connection.query(sql,params, function(err, rows, fields) {
             if (!err){
@@ -350,7 +350,7 @@ app.get('/users/:pk', function(req,res){
  *          사용자 이메일 전달
  */
 app.get('/users/email/:email', function(req,res){
-  var sql = " SELECT * FROM user WHERE email like ? ";
+  var sql = " SELECT * FROM USER WHERE email like ? ";
     var params = [req.params.email];
     connection.query(sql,params, function(err, rows, fields) {
             if (!err){
@@ -394,7 +394,7 @@ app.get('/users/email/:email', function(req,res){
         serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
         res.status(200).send({status: "fail", error:' already used.'});
       }
-      var usedcheck = " select count(*) as usedcheck from user where email like ? or username like ?";
+      var usedcheck = " select count(*) as usedcheck from USER where email like ? or username like ?";
       var checkparams = [req.body.email, req.body.username];
       connection.query(usedcheck,checkparams, function(err, rows, fields) {
               if (err){
@@ -448,7 +448,7 @@ app.get('/users/email/:email', function(req,res){
    *               type: string
    */
   app.post('/login', function(req,res){
-      var sql = " select count(*) as checking, pk, username from user where email = ? and password = ? and is_removed = 0 ";
+      var sql = " select count(*) as checking, pk, username from USER where email = ? and password = ? and is_removed = 0 ";
       var params = [req.body.email,req.body.password];
       connection.query(sql,params, function(err, rows, fields) {
               if (!err){
@@ -499,7 +499,7 @@ app.get('/users/email/:email', function(req,res){
    *       200:
    */
   app.delete('/users', function(req,res){
-      var sql = " UPDATE user SET is_removed = 1, updated_at = now() ";
+      var sql = " UPDATE USER SET is_removed = 1, updated_at = now() ";
       connection.query(sql, function(err, rows, fields) {
               if (!err){
                 serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
@@ -529,7 +529,7 @@ app.get('/users/email/:email', function(req,res){
  *          사용자 아이디 전달
  */
 app.delete('/users/:pk', function(req,res){
-    var sql = " UPDATE user SET is_removed = 1, updated_at = now() WHERE pk = ?";
+    var sql = " UPDATE USER SET is_removed = 1, updated_at = now() WHERE pk = ?";
     var params = [req.params.pk];
     connection.query(sql,params, function(err, rows, fields) {
             if (!err){
@@ -561,7 +561,7 @@ app.delete('/users/:pk', function(req,res){
  *          사용자 아이디 전달
  */
 app.put('/users/last-login/:pk', function(req,res){
-    var sql = " UPDATE user SET last_login = now() WHERE pk = ?";
+    var sql = " UPDATE USER SET last_login = now() WHERE pk = ?";
     var params = [req.params.pk];
     connection.query(sql,params, function(err, rows, fields) {
             if (!err){
@@ -606,18 +606,18 @@ app.post('/follows', function(req,res){
   jwt.verify(req.headers.user_token,  secretObj.secret, function(err, decoded) {
     if(err) res.status(401).send({error:'invalid token'});
     else{
-      var usercheck = " select count(*) as checkUser from user where pk in (?,?) ";
+      var usercheck = " select count(*) as checkUser from USER where pk in (?,?) ";
       var params = [req.body.fromUser,req.body.toUser];
       connection.query(usercheck,params, function(err, rows, fields) {
               if (!err){
                 if(rows[0].checkUser == 2){
-                  var followcheck = " select count(*) as checkfollow from follow where fromUser = ? and toUser = ? ";
+                  var followcheck = " select count(*) as checkfollow from FOLLOW where fromUser = ? and toUser = ? ";
                   connection.query(followcheck,params, function(err, rows, fields) {
                     if(err){
                       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
                       res.send({status: "fail"});
                     }else if(rows[0].checkfollow == 0){
-                      var sql = " insert into follow(fromUser,toUser) values(?,?) ";
+                      var sql = " insert into FOLLOW(fromUser,toUser) values(?,?) ";
                       connection.query(sql,params, function(err, rows, fields) {
                         if(!err){
                           serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
@@ -680,7 +680,7 @@ app.delete('/follows', function(req,res){
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
      }else{
-      var sql = "delete from follow where fromUser = ? and toUser = ? ";
+      var sql = "delete from FOLLOW where fromUser = ? and toUser = ? ";
       var params = [req.body.fromUser,req.body.toUser];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){

@@ -104,7 +104,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
      else {
-        var sql = "SELECT * FROM tag";
+        var sql = "SELECT * FROM TAG";
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
@@ -229,7 +229,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "UPDATE tag SET body = ?, updatedUser = ? WHERE pk = ?";
+        var sql = "UPDATE TAG SET body = ?, updatedUser = ? WHERE pk = ?";
         var params = [req.query.body, req.query.user_id, req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -272,7 +272,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "DELETE FROM tag WHERE pk = ?";
+        var sql = "DELETE FROM TAG WHERE pk = ?";
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {

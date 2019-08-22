@@ -67,7 +67,7 @@ const initializeEndpoints = (app) => {
         serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       }
       else{
-        var sql = "INSERT INTO topic(topic,createdUser,updatedUser) VALUES(?,?,?)";
+        var sql = "INSERT INTO TOPIC(topic,createdUser,updatedUser) VALUES(?,?,?)";
         var params = [req.body.topic, decoded.pk, req.body.user_id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -327,7 +327,7 @@ const initializeEndpoints = (app) => {
         var params = [req.params.pk];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
-            sql = " insert into manager(topic,user,first) values(?,(select t.createduser from topic as t where t.pk  = ?),1) ";
+            sql = " insert into MANAGER(topic,user,first) values(?,(select t.createduser from TOPIC as t where t.pk  = ?),1) ";
             params = [req.params.pk,req.params.pk];
             connection.query(sql, params, function(err, rows, fields) {
               if(!err){
@@ -420,7 +420,7 @@ const initializeEndpoints = (app) => {
     }
       else {
         //var sql = ' SELECT pk,topic FROM topic WHERE topic like "'+'%' + req.query.title + '%" and is_active =  1 ';
-        sql = ` SELECT pk,topic FROM topic WHERE topic like "%${req.query.title}%" and is_active =  ${TRUE} and topic !=1`;
+        sql = ` SELECT pk,topic FROM TOPIC WHERE topic like "%${req.query.title}%" and is_active =  ${TRUE} and topic !=1`;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);

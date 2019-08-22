@@ -507,7 +507,7 @@ const initializeEndpoints = (app) => {
           error: 'invalid token'
         });
       } else {
-        var sql = " select count(*) as cheking, image from content where pk = ? ";
+        var sql = " select count(*) as cheking, image from CONTENT where pk = ? ";
         var params = [req.params.pk];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -565,7 +565,7 @@ const initializeEndpoints = (app) => {
                           ) AS USERNAME
                           , TITLE
                     		  , BODY
-                    	    , CONCAT("http://192.168.31.58:10123/",IMAGE) AS IMAGE
+                    	    , CONCAT("http://52.79.234.151:8080/",IMAGE) AS IMAGE
                     	    , (
                       		 	SELECT	USERNAME
                       		 	FROM 		USER
@@ -651,7 +651,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var sql = "SELECT * FROM content WHERE article = ? ORDER BY pk DESC limit 1";
+        var sql = "SELECT * FROM CONTENT WHERE article = ? ORDER BY pk DESC limit 1";
         var params = [req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -876,7 +876,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var sql = `UPDATE content SET is_removed = ${TRUE} WHERE pk = ?`;
+        var sql = `UPDATE CONTENT SET is_removed = ${TRUE} WHERE pk = ?`;
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {

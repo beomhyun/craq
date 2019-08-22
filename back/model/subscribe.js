@@ -76,7 +76,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = " INSERT INTO subscribe(topic,user) VALUES(?,?) ";
+        var sql = " INSERT INTO SUBSCRIBE(topic,user) VALUES(?,?) ";
         var params = [req.body.topic, req.body.user_id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -115,7 +115,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "SELECT * FROM subscribe";
+        var sql = "SELECT * FROM SUBSCRIBE";
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
@@ -275,7 +275,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "DELETE FROM subscribe WHERE Topic = ? AND User = ?";
+        var sql = "DELETE FROM SUBSCRIBE WHERE Topic = ? AND User = ?";
         var params = [req.params.topic, req.params.user];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {

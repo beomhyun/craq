@@ -42,7 +42,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "INSERT INTO hashtag(content,hashtag,createdUser,updatedUser) ( SELECT c.pk,t.pk,c.createdUser,c.createdUser FROM content as c JOIN tag as t WHERE c.pk = ? AND t.pk = ? )";
+        var sql = "INSERT INTO HASHTAG(content,hashtag,createdUser,updatedUser) ( SELECT c.pk,t.pk,c.createdUser,c.createdUser FROM CONTENT as c JOIN TAG as t WHERE c.pk = ? AND t.pk = ? )";
         var params = [i.content_id, i.tag_id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -81,7 +81,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "SELECT * FROM hashtag";
+        var sql = "SELECT * FROM HASHTAG";
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection,decoded.pk,this.sql,"success",req.connection.remoteAddress);
@@ -178,7 +178,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "SELECT * FROM hashtag WHERE content = ? AND hashtag = ?";
+        var sql = "SELECT * FROM HASHTAG WHERE content = ? AND hashtag = ?";
         var params = [req.params.c_id,req.params.t_id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -225,7 +225,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "DELETE FROM hashtag WHERE content = ? AND hashtag = ?";
+        var sql = "DELETE FROM HASHTAG WHERE content = ? AND hashtag = ?";
         var params = [req.params.c_id,req.params.t_id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {

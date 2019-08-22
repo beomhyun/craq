@@ -232,7 +232,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "SELECT * FROM comment WHERE pk = ?";
+        var sql = "SELECT * FROM COMMENT WHERE pk = ?";
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -279,7 +279,7 @@ const initializeEndpoints = (app) => {
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
     }
       else {
-        var sql = "UPDATE comment SET body = ? WHERE pk = ?";
+        var sql = "UPDATE COMMENT SET body = ? WHERE pk = ?";
         var params = [req.query.body, req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -319,7 +319,7 @@ const initializeEndpoints = (app) => {
         error: 'invalid token'
       });
       else {
-        var sql = `UPDATE comment SET is_removed = ${TRUE} WHERE pk = ?`;
+        var sql = `UPDATE COMMENT SET is_removed = ${TRUE} WHERE pk = ?`;
         var params = [req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {

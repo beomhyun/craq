@@ -46,7 +46,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var sql = "SELECT * FROM article";
+        var sql = "SELECT * FROM ARTICLE";
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
@@ -325,7 +325,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var sql = `SELECT * FROM article WHERE topic = ${QA} AND article IS NOT NULL`;
+        var sql = `SELECT * FROM ARTICLE WHERE topic = ${QA} AND ARTICLE IS NOT NULL`;
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
             serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
@@ -414,7 +414,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var sql = "SELECT * FROM article WHERE pk = ( SELECT content FROM article WHERE pk = ? )"
+        var sql = "SELECT * FROM ARTICLE WHERE pk = ( SELECT content FROM ARTICLE WHERE pk = ? )"
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -722,7 +722,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var sql = "UPDATE article SET content = ? WHERE pk = ?";
+        var sql = "UPDATE ARTICLE SET content = ? WHERE pk = ?";
         var params = [req.query.content_id, req.params.id];
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -764,7 +764,7 @@ const initializeEndpoints = (app) => {
         });
         serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
       } else {
-        var sql = `UPDATE article SET is_removed = ${TRUE} WHERE pk = ?`;
+        var sql = `UPDATE ARTICLE SET is_removed = ${TRUE} WHERE pk = ?`;
         var params = req.params.id;
         connection.query(sql, params, function(err, rows, fields) {
           if (!err) {
@@ -1433,7 +1433,7 @@ const initializeEndpoints = (app) => {
         }
         connection.query(sql, function(err, rows, fields) {
           if (!err) {
-            sql = `select count(*) as total from article where topic = 1`
+            sql = `select count(*) as total from ARTICLE where topic = 1`
             connection.query(sql, function(err, rows2, fields) {
               if (!err) {
                 serverlog.log(connection, decoded.pk, this.sql, "success", req.connection.remoteAddress);
@@ -2022,10 +2022,10 @@ const initializeEndpoints = (app) => {
       sql +=keyword;
       connection.query(sql, function(err, rows, fields) {
         if (!err) {
-          var totalArticle = rows[0].COUNT;     // 검색 후 나온 article의 갯수
+          var totalArticle = rows[0].COUNT;     // 검색 후 나온 ARTICLE의 갯수
           var totalPage = parseInt(totalArticle / ARTICLE_PER_PAGE);
           if(totalArticle > totalPage * ARTICLE_PER_PAGE){
-            totalPage++;  // article이 20개씩 나올 페이지의 갯수
+            totalPage++;  // ARTICLE이 20개씩 나올 페이지의 갯수
           }
           if(i.page > totalPage){
             serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
