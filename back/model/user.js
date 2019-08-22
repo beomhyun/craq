@@ -405,12 +405,12 @@ app.get('/users/email/:email', function(req,res){
                 serverlog.log(connection,0,this.sql,"fail",req.connection.remoteAddress);
                 res.status(200).send({status: "fail", error:' already used.'});
               }else{
-                var sql = " insert into user(email, username, password) values(?,?,?) ";
+                var sql = " insert into USER(email, username, password) values(?,?,?) ";
                 var params = [req.body.email,req.body.username,req.body.password,req.body.status,req.body.profile,req.body.git_address];
                 connection.query(sql,params, function(err, rows, fields) {
                         if (!err){
                             //user profile
-                          sql = " insert into profile(User) values(?) ";
+                          sql = " insert into PROFILE(User) values(?) ";
                           params = [rows.insertId];
                           connection.query(sql,params, function(err, rows, fields){});
                           serverlog.log(connection,0,this.sql,"success",req.connection.remoteAddress);
@@ -453,7 +453,7 @@ app.get('/users/email/:email', function(req,res){
       connection.query(sql,params, function(err, rows, fields) {
               if (!err){
                 if(rows[0].checking == 1){
-                  var loginsql = " UPDATE user SET last_login = now() WHERE pk = ?";
+                  var loginsql = " UPDATE USER SET last_login = now() WHERE pk = ?";
                   var loginparams = [rows[0].pk];
                   connection.query(loginsql,loginparams, function(err, rows, fields) {
                           if (!err){
@@ -719,7 +719,7 @@ app.get('/follows/:toUser', function(req,res){
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
     }else{
-      var sql = "select fromuser as PK from follow where toUser = ? ";
+      var sql = "select fromuser as PK from FOLLOW where toUser = ? ";
       var params = [req.params.toUser];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
@@ -758,7 +758,7 @@ app.get('/followings/:fromUser', function(req,res){
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
     }else{
-      var sql = "select toUser as PK from follow where fromUser = ? ";
+      var sql = "select toUser as PK from FOLLOW where fromUser = ? ";
       var params = [req.params.fromUser];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
@@ -870,7 +870,7 @@ app.put('/profile', function(req, res){
      res.status(401).send({error:'invalid token'});
     }else{
       var i = req.body;
-      sql = `select count(*) as cheking, profile_image from profile where user = ${decoded.pk}`
+      sql = `select count(*) as cheking, profile_image from PROFILE where user = ${decoded.pk}`
       connection.query(sql, function(err, rows, fields) {
         if(!err){
           if(rows[0].profile_image != 'default_profile'){
@@ -967,7 +967,7 @@ app.get('/users/profile-image/:pk', function(req,res){
       serverlog.log(connection,decoded.pk,this.sql,"fail",req.connection.remoteAddress);
       res.status(401).send({error:'invalid token'});
     }else{
-      var sql = " select count(*) as cheking, profile_image from profile where user = ? ";
+      var sql = " select count(*) as cheking, profile_image from PROFILE where user = ? ";
       var params = [req.params.pk];
       connection.query(sql,params, function(err, rows, fields) {
         if (!err){
@@ -1120,7 +1120,7 @@ app.put('/users/password/:pk', function(req, res){
   var hash = crypto.createHash('sha512');
   var data = hash.update('1234','utf-8');
   var gen_hash= data.digest('hex');
-  var sql = ` UPDATE user SET PASSWORD = '${gen_hash}' WHERE pk = ${req.params.pk}`;
+  var sql = ` UPDATE USER SET PASSWORD = '${gen_hash}' WHERE pk = ${req.params.pk}`;
   console.log(gen_hash);
   connection.query(sql, function(err, rows, fields) {
           if (!err){
