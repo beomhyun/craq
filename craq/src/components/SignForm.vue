@@ -95,7 +95,7 @@ import Modal from '@/components/Modal.vue';
 import Spinner from '@/components/Spinner.vue';
 const SHA512 = require('crypto-js/sha512');
 
-const baseUrl = 'http://192.168.31.58:10123'
+const baseUrl = 'http://13.125.251.247:9000/'
 
 export default {
     name: "SignForm",

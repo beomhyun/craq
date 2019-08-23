@@ -35,14 +35,6 @@ export default {
       ]
     }
   },
-  // created() {
-  //   axios.get('http://192.168.31.58:10123/api-docs/', {
-  //     user_id : this.$store.state.user_id
-  //   }).
-  //   then((response) => {
-  //     tmpData = response.data
-  //   })
-  // }
 }
 
 </script>

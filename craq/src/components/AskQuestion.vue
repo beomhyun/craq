@@ -359,6 +359,7 @@ export default {
         inputTitle (newVal, oldVal) {
             this.toggleTitle=true;
             this.$axios.get('questions/search?search_text=' + newVal).then(res => {
+                console.log(res)
                 this.cardLists = res.data.data.slice(0,10)
             })
         }

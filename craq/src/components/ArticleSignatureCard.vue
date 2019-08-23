@@ -79,7 +79,7 @@ export default {
     },
     computed: {
         url: function() {
-            return `http://192.168.31.58:10123/${this.imageFile}`
+            return `http://13.125.251.247:9000/${this.imageFile}`
         }
     }
 }
