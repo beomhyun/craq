@@ -2,7 +2,7 @@ const path = require("path");
 
 module.exports = {
   devServer: {
-      host : 'localhost',
+      host : '15.164.153.221',
       port : 8080, 
       disableHostCheck : true
     },
