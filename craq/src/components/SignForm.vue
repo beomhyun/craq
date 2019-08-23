@@ -178,7 +178,7 @@ export default {
             this.showModal = false;
         },
         signUp() {
-            const apiUrl = baseUrl + "/users";
+            const apiUrl = baseUrl + "users";
             let headers = {
                 "accept": "application/json",
                 "Content-Type" : "application/json "
