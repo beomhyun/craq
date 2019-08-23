@@ -9,6 +9,10 @@ module.exports = {
     }
   },
   chainWebpack: (config) => {
+    config.devServer
+      .host('15.164.153.221')
+      .port(8080)
+      .disableHostCheck(true)
     config.plugins.delete('preload')
   }
 };

@@ -26,7 +26,7 @@
       </div>
 
       <div class="column middle">
-        <p v-if="info.IMAGE !== 'http://13.125.251.247:9000/'" style="text-align : center;">
+        <p v-if="info.IMAGE !== 'http://15.164.153.221:9000/'" style="text-align : center;">
           <img class="preview" :src="info.IMAGE" style="max-height : 500px;" align="center">
         </p>
         <div class="post-text" item-prop="text">
