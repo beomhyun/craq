@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS `content` (
   `beforeContent` int(11) DEFAULT NULL,
   `title` text DEFAULT NULL,
   `body` longtext DEFAULT NULL,
-  `image` text DEFAULT 'default_image',
+  `image` varchar(200) DEFAULT 'default_image',
   `createdUser` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updatedUser` int(11) DEFAULT NULL,

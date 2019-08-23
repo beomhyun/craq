@@ -183,6 +183,7 @@ export default {
             })
         },
         createQuestions() {
+		console.log("??")
             if (this.inputTitle.length == 0) {
                 swal("제목을 잊으셨어요!","제목은 반드시 작성해 주세요!", "error")
             }
@@ -343,6 +344,7 @@ export default {
             let temp = [];
             if (newVal.length > 0) { this.toggleTags=true; }
             this.$axios.get('tags/search/1?search_text=' + newVal).then(res => {
+		console.log(res)
                 this.tags = res.data.data.slice(0,10)
                 // this.cardLists = res.data.data.slice(0,10)
             })
