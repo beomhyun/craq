@@ -251,7 +251,7 @@ export default {
     },
     computed: {
         url: function() {
-            return `http://13.125.251.247:8080/${this.imageFile}`
+            return `http://13.125.251.247:9000/${this.imageFile}`
         }
     },
     methods: {
