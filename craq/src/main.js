@@ -48,7 +48,7 @@ import axios from 'axios'
 Vue.use({
   install(Vue) {
     Vue.prototype.$axios = axios.create({
-      baseURL: 'http://13.125.251.247:9000/'
+      baseURL: 'http://15.164.153.221:9000/'
     })
   }
 })

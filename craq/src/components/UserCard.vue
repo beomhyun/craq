@@ -97,7 +97,7 @@ export default {
                 )
                 this.$axios.get(`users/profile-image/${this.list.ANSWER_USERPK}`).then(
                     response=>{
-                        this.imageFile = `http://13.125.251.247:9000/${response.data.data}`;
+                        this.imageFile = `http://15.164.153.221:9000/${response.data.data}`;
                     }
                 )                      
             }
@@ -108,7 +108,7 @@ export default {
                 )
                 this.$axios.get(`users/profile-image/${this.follower}`).then(
                     response=>{
-                        this.imageFile = `http://13.125.251.247:9000/${response.data.data}`;
+                        this.imageFile = `http://15.164.153.221:9000/${response.data.data}`;
                     }
                 )                       
             }
@@ -119,7 +119,7 @@ export default {
                 )
                 this.$axios.get(`users/profile-image/${this.following}`).then(
                     response=>{
-                        this.imageFile = `http://13.125.251.247:9000/${response.data.data}`;
+                        this.imageFile = `http://15.164.153.221:9000/${response.data.data}`;
                     }
                 )                       
             }

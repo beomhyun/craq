@@ -14,7 +14,7 @@ export default {
     }
   },
   created() {
-    axios.get('http://13.125.251.247:9000/api-docs/', {
+    axios.get('http://15.164.153.221:9000/api-docs/', {
     }).
     then((response) => {
 
