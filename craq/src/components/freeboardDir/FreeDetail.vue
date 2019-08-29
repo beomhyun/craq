@@ -30,7 +30,7 @@
           <img class="preview" :src="info.IMAGE" style="max-height : 500px;" align="center">
         </p>
         <div class="post-text" item-prop="text">
-            <div v-html="info.BODY"></div>
+            <div>{{info.BODY}}</div>
         </div>
       </div>
     </div>
