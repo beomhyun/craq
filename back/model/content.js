@@ -565,7 +565,7 @@ const initializeEndpoints = (app) => {
                           ) AS USERNAME
                           , TITLE
                     		  , BODY
-                    	    , CONCAT("http://52.79.234.151:8080/",IMAGE) AS IMAGE
+                    	    , CONCAT("http://15.164.153.221:9000/",IMAGE) AS IMAGE
                     	    , (
                       		 	SELECT	USERNAME
                       		 	FROM 		USER
