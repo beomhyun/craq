@@ -1,11 +1,11 @@
 <template>
   <div class="container">
     <table class="type09 width-100%">
-      <col v-if="isManager" width="10%"><col width="10%"><col width="30%"><col width="10%"><col width="15%"><col width="10%"><col width="10%">
+      <col v-if="isManager" width="10%"><col width="35%"><col width="10%"><col width="15%"><col width="10%"><col width="10%">
       <thead>
         <tr>
           <th v-if="isManager">삭제</th>
-          <th>번호</th>
+          <!-- <th>번호</th> -->
           <th>제목</th>
           <th>작성자</th>
           <th>작성일</th>
@@ -16,7 +16,7 @@
       <tbody>
       <tr v-for="notice in topic_notices" v-if="noticeToggle">
         <td v-if="isManager"><button class="btn btn--primary btn-lg" style="margin:3px" @click="postDelete(notice.PK)">Delete</button></th>
-        <td>공지</td>
+        <!-- <td>공지</td> -->
         <td @click="showDetail(notice)">{{notice.TITLE}}</td>
         <!-- <td v-html="notice.title"><router-link :to="{ name: 'freedetail', params: {id : notice.id} }"></router-link></td> -->
         <td>{{notice.USERNAME}}</td>
@@ -27,7 +27,7 @@
       </tr>
       <tr v-for="board in topic_articles">
         <td v-if="isManager"><button class="btn btn--primary btn-lg" style="margin:3px" @click="postDelete(board.PK)">Delete</button></th>
-        <td v-html="board.ROWNUM"></td>
+        <!-- <td v-html="board.ROWNUM"></td> -->
         <td class="table-hover" @click="showDetail(board)" style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">{{board.TITLE}}</td>
         <!-- <td v-html="board.title"><router-link :to="{ name: 'freedetail', params: {id : board.id} }"></router-link></td> -->
         <td style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">{{board.USERNAME}}</td>
