@@ -482,8 +482,9 @@ const initializeEndpoints = (app) => {
             if(totalPage)
             sql =
               `
-            SELECT    B.ROWNUM
-                    , B.PK
+            SELECT  
+		    
+                    B.PK
                     , B.TOPIC
                     , B.TITLE
                     , B.USERNAME
@@ -491,9 +492,8 @@ const initializeEndpoints = (app) => {
                     , B.VOTE
                     , B.VIEW
             FROM       (
-                      SELECT      ROW_NUMBER() OVER( ORDER BY A.PK ASC ) AS
-                                ROWNUM
-                              , A.PK
+                      SELECT   
+                              A.PK
                               , A.TOPIC
                               , C.TITLE
                               ,
@@ -522,7 +522,7 @@ const initializeEndpoints = (app) => {
                       AND         A.IS_REMOVED = ${FALSE}
                       AND       A.IS_ACTIVE = ${FALSE}
                     ) AS B
-            ORDER BY B.ROWNUM DESC
+	    ORDER BY B.PK DESC
             LIMIT     ${(req.params.page-1)*ARTICLE_PER_PAGE}, ${ARTICLE_PER_PAGE}
           `;
             connection.query(sql, function(err, rows, fields) {
@@ -531,7 +531,7 @@ const initializeEndpoints = (app) => {
                 res.send({status: "success", data: rows, maxPage:totalPage});
               } else {
                 serverlog.log(connection, decoded.pk, this.sql, "fail", req.connection.remoteAddress);
-                res.send({status: "fail"});
+                res.send({status: "fail", error: err});
               }
             });
           } else {
@@ -2033,8 +2033,8 @@ const initializeEndpoints = (app) => {
           }else{
             sql =
             `
-            SELECT    ROW_NUMBER() OVER(ORDER BY A.PK DESC) ROWNUM
-                    , A.PK AS ARTICLE_PK
+            SELECT   
+                     A.PK AS ARTICLE_PK
                     , C.PK AS CONTENT_PK
                     , C.TITLE
                     , C.BODY
@@ -2112,9 +2112,7 @@ const initializeEndpoints = (app) => {
       } else {
         var sql =
                   `
-                  SELECT      ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
-                                ROWNUM
-                              , A.PK
+                  SELECT      A.PK
                               , A.TOPIC
                               , C.TITLE
                               ,
@@ -2208,8 +2206,7 @@ const initializeEndpoints = (app) => {
             if(totalPage)
             sql =
               `
-            SELECT    B.ROWNUM
-                    , B.PK
+            SELECT   B.PK
                     , B.TOPIC
                     , B.TITLE
                     , B.USERNAME
@@ -2217,9 +2214,7 @@ const initializeEndpoints = (app) => {
                     , B.VOTE
                     , B.VIEW
             FROM       (
-                      SELECT      ROW_NUMBER() OVER( ORDER BY A.PK DESC ) AS
-                                ROWNUM
-                              , A.PK
+                      SELECT   A.PK
                               , A.TOPIC
                               , C.TITLE
                               ,
